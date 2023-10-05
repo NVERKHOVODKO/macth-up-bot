@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "dgSpecHash": "drCPvHYieT9CLKP3aWvt7yuVTSUvNoqpdwgsG7B5VsKEyZ8kIXOLAMw2miqRZgm0O/4r4WPF77Xaw9T40zvrvQ==",
+  "success": true,
+  "projectFilePath": "C:\\НЕ СИСТЕМА\\BSUIR\\MacthUpBot\\MatchUpBot\\MatchUpBot\\MatchUpBot.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.0-rc.1.23419.6\\microsoft.entityframeworkcore.8.0.0-rc.1.23419.6.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.0-rc.1.23419.6\\microsoft.entityframeworkcore.abstractions.8.0.0-rc.1.23419.6.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.0-rc.1.23419.6\\microsoft.entityframeworkcore.analyzers.8.0.0-rc.1.23419.6.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\8.0.0-rc.1.23419.6\\microsoft.entityframeworkcore.relational.8.0.0-rc.1.23419.6.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\8.0.0-rc.1.23419.4\\microsoft.extensions.caching.abstractions.8.0.0-rc.1.23419.4.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.caching.memory\\8.0.0-rc.1.23419.4\\microsoft.extensions.caching.memory.8.0.0-rc.1.23419.4.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\8.0.0-rc.1.23419.4\\microsoft.extensions.configuration.abstractions.8.0.0-rc.1.23419.4.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\8.0.0-rc.1.23419.4\\microsoft.extensions.dependencyinjection.8.0.0-rc.1.23419.4.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0-rc.1.23419.4\\microsoft.extensions.dependencyinjection.abstractions.8.0.0-rc.1.23419.4.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.logging\\8.0.0-rc.1.23419.4\\microsoft.extensions.logging.8.0.0-rc.1.23419.4.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0-rc.1.23419.4\\microsoft.extensions.logging.abstractions.8.0.0-rc.1.23419.4.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.options\\8.0.0-rc.1.23419.4\\microsoft.extensions.options.8.0.0-rc.1.23419.4.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0-rc.1.23419.4\\microsoft.extensions.primitives.8.0.0-rc.1.23419.4.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\npgsql\\8.0.0-preview.4\\npgsql.8.0.0-preview.4.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\8.0.0-rc.1\\npgsql.entityframeworkcore.postgresql.8.0.0-rc.1.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\telegram.bot\\19.0.0\\telegram.bot.19.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
