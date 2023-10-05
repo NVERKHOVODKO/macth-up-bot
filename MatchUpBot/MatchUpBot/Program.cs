@@ -75,8 +75,9 @@ class Program
                                     $"Как тебя зовут?");
                                 return;
                             }
-
+                            
                             Console.WriteLine(Stage);
+                            
                             switch (Stage)
                             {
                                 case 0:
@@ -87,6 +88,7 @@ class Program
 
                                     Stage = 1;
                                     break;
+                                
                                 case 1:
                                     try
                                     {
@@ -124,6 +126,7 @@ class Program
 
                                     Stage = 3;
                                     break;
+                                
                                 case 3:
                                     curUser.About = message.Text;
                                     var sexKeyboard = new ReplyKeyboardMarkup(
@@ -145,15 +148,16 @@ class Program
 
                                     Stage = 4;
                                     break;
+                                
                                 case 4:
                                     curUser.Sex = message.Text;
                                     var removeKeyboard = new ReplyKeyboardRemove();
-                                    await botClient.SendTextMessageAsync(chat.Id, "Скинь свою секс фото",
-                                        replyMarkup: removeKeyboard);
+                                    await botClient.SendTextMessageAsync(chat.Id, "Скинь свою секс фото", replyMarkup: removeKeyboard);
                                     curUser.TelegramId = Int32.Parse(message.From.Id.ToString());
                                     curUser.Username = message.From.Username;
                                     Stage = 5;
                                     break;
+                                
                                 default:
                                 {
                                     await botClient.SendTextMessageAsync(
@@ -168,13 +172,21 @@ class Program
                             return;
                         case MessageType.Photo:
                         {
+                            if (Stage != 5)
+                            {
+                                await botClient.SendTextMessageAsync(chat.Id, "Мне пох на твое фото");
+                                return;
+                            }
+                            
                             HandlePhotoMessage(message, botClient);
                             await botClient.SendTextMessageAsync(
                                 chat.Id,
                                 $"Твоя анкета выглядит так:\n" +
                                 $"{curUser.ProfileName}, {curUser.Age} лет, {curUser.City}\n" +
                                 $"{curUser.About}");
+                           
 
+                            
                             curUser.PrintToConsole();
                             break;
                         }
@@ -212,12 +224,18 @@ class Program
                 Console.WriteLine("Фотография найдена.");
                 var photo = message.Photo.LastOrDefault();
                 var file = await botClient.GetFileAsync(photo.FileId);
-
-                using (var fileStream = new FileStream($"C:/Users/User/Desktop/bot/MatchUpBot/MatchUpBot/photos/{curUser.TelegramId}.jpg", FileMode.Create))
+                
+                string filePath = $"C:/Users/User/Desktop/bot/MatchUpBot/MatchUpBot/photos/{curUser.TelegramId}.jpg";
+                
+                await using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await botClient.DownloadFileAsync(file.FilePath, fileStream);
+                    fileStream.Close();
                 }
-
+                await using Stream stream = System.IO.File.OpenRead($"C:/Users/User/Desktop/bot/MatchUpBot/MatchUpBot/photos/{curUser.TelegramId}.jpg");
+                message = await botClient.SendPhotoAsync(message.Chat.Id, 
+                    InputFile.FromStream(stream,"photo.pdf"));
+                
                 Console.WriteLine("Файл успешно скачан.");
                 
             }
