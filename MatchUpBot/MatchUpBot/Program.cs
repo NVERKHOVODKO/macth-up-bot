@@ -179,14 +179,6 @@ class Program
                             }
                             
                             HandlePhotoMessage(message, botClient);
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                $"Твоя анкета выглядит так:\n" +
-                                $"{curUser.ProfileName}, {curUser.Age} лет, {curUser.City}\n" +
-                                $"{curUser.About}");
-                           
-
-                            
                             curUser.PrintToConsole();
                             break;
                         }
@@ -231,11 +223,20 @@ class Program
                 {
                     await botClient.DownloadFileAsync(file.FilePath, fileStream);
                     fileStream.Close();
-                }
-                await using Stream stream = System.IO.File.OpenRead($"C:/Users/User/Desktop/bot/MatchUpBot/MatchUpBot/photos/{curUser.TelegramId}.jpg");
-                message = await botClient.SendPhotoAsync(message.Chat.Id, 
-                    InputFile.FromStream(stream,"photo.pdf"));
+                } 
                 
+                await using Stream stream = System.IO.File.OpenRead(filePath);
+
+                    string caption = $"Твоя анкета выглядит так:\n" +
+                    $"{curUser.ProfileName}, {curUser.Age} лет, {curUser.City}\n" +
+                        $"{curUser.About}";
+                    await botClient.SendPhotoAsync(
+                        chatId: message.Chat.Id,
+                        InputFile.FromStream(stream,"photo.jpg"),
+                        caption: caption,
+                        parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown
+                    );
+                    
                 Console.WriteLine("Файл успешно скачан.");
                 
             }
