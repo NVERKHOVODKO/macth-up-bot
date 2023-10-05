@@ -82,12 +82,22 @@ class Program
                                     Stage = 1;
                                     break;
                                 case 1:
-                                    await botClient.SendTextMessageAsync(
-                                        chat.Id,
-                                        $"Из какого ты города?");
-                                    curUser.Age = Int32.Parse(message.Text.ToString());
-                                    Stage = 2;
-                                    break;
+                                    try
+                                    {
+                                        curUser.Age = Int32.Parse(message.Text.ToString());
+                                        await botClient.SendTextMessageAsync(
+                                            chat.Id,
+                                            $"Из какого ты города?");
+                                        Stage = 2;
+                                        break;
+                                    }
+                                    catch (FormatException e)
+                                    {
+                                        await botClient.SendTextMessageAsync(chat.Id, "Введи корректный возраст");
+                                        Stage = 1;
+                                        break;
+                                    }
+                                  
                                 case 2:
                                     var skipKeyboard = new ReplyKeyboardMarkup(
                                         new List<KeyboardButton[]>
@@ -128,9 +138,14 @@ class Program
                                     Stage = 4;
                                     break;
                                 case 4:
+                                    await botClient.SendTextMessageAsync(chat.Id, "Скинь свою секс фото");
+                                    //Сохранение фото в директорию Photos
+                                    Stage = 5;
+                                    break;
+                                case 5:
                                     var removeKeyboard = new ReplyKeyboardRemove();
                                     curUser.Sex = message.Text;
-                                    Stage = 5;
+                                    Stage = 6;
                                     await botClient.SendTextMessageAsync(
                                         chat.Id,
                                         $"Твоя анкета выглядит так:\n" +
