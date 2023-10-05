@@ -1,5 +1,7 @@
 ﻿//6610584532:AAHyYTG_Rz96QfQEc7H-Dk-7iHHb2PeQN0E
 
+using System.Net;
+using System.Reflection.Metadata;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -7,6 +9,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBotExperiments.Models;
+using File = System.IO.File;
 
 class Program
 {
@@ -35,8 +38,9 @@ class Program
         await Task.Delay(-1);
     }
 
-    
-    private static async Task UpdateHandler(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+
+    private static async Task UpdateHandler(ITelegramBotClient botClient, Update update,
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -46,7 +50,7 @@ class Program
                 {
                     var message = update.Message;
                     var chat = message.Chat;
-                    
+
                     switch (message.Type)
                     {
                         case MessageType.Text:
@@ -71,14 +75,16 @@ class Program
                                     $"Как тебя зовут?");
                                 return;
                             }
+
                             Console.WriteLine(Stage);
                             switch (Stage)
                             {
                                 case 0:
+                                    curUser.ProfileName = message.Text;
                                     await botClient.SendTextMessageAsync(
                                         chat.Id,
                                         $"Сколько тебе лет?");
-                                    curUser.ProfileName = message.Text;
+
                                     Stage = 1;
                                     break;
                                 case 1:
@@ -97,8 +103,9 @@ class Program
                                         Stage = 1;
                                         break;
                                     }
-                                  
+
                                 case 2:
+                                    curUser.City = message.Text;
                                     var skipKeyboard = new ReplyKeyboardMarkup(
                                         new List<KeyboardButton[]>
                                         {
@@ -114,10 +121,11 @@ class Program
                                         chat.Id,
                                         "Расскажи о себе?",
                                         replyMarkup: skipKeyboard);
-                                    curUser.City = message.Text;
+
                                     Stage = 3;
                                     break;
                                 case 3:
+                                    curUser.About = message.Text;
                                     var sexKeyboard = new ReplyKeyboardMarkup(
                                         new List<KeyboardButton[]>
                                         {
@@ -134,44 +142,45 @@ class Program
                                         chat.Id,
                                         "Какой у тебя гендер?",
                                         replyMarkup: sexKeyboard);
-                                    curUser.About = message.Text;
+
                                     Stage = 4;
                                     break;
                                 case 4:
-                                    await botClient.SendTextMessageAsync(chat.Id, "Скинь свою секс фото");
-                                    //Сохранение фото в директорию Photos
+                                    curUser.Sex = message.Text;
+                                    var removeKeyboard = new ReplyKeyboardRemove();
+                                    await botClient.SendTextMessageAsync(chat.Id, "Скинь свою секс фото",
+                                        replyMarkup: removeKeyboard);
+                                    curUser.TelegramId = Int32.Parse(message.From.Id.ToString());
+                                    curUser.Username = message.From.Username;
                                     Stage = 5;
                                     break;
-                                case 5:
-                                    var removeKeyboard = new ReplyKeyboardRemove();
-                                    curUser.Sex = message.Text;
-                                    Stage = 6;
+                                default:
+                                {
                                     await botClient.SendTextMessageAsync(
                                         chat.Id,
-                                        $"Твоя анкета выглядит так:\n" +
-                                        $"{curUser.ProfileName}, {curUser.Age} лет, {curUser.City}\n" +
-                                        $"{curUser.About}",
-                                        replyMarkup: removeKeyboard);
-
-                                    curUser.PrintToConsole();
-                                    break;
+                                        "Используй только текст!");
+                                    return;
+                                }
                             }
-                            curUser.TelegramId = Int32.Parse(message.From.Id.ToString());
-                            curUser.Username = message.From.Username;
 
-                            return;
+
                         }
-                        
-                        default:
+                            return;
+                        case MessageType.Photo:
                         {
+                            HandlePhotoMessage(message, botClient);
                             await botClient.SendTextMessageAsync(
                                 chat.Id,
-                                "Используй только текст!");
-                            return;
+                                $"Твоя анкета выглядит так:\n" +
+                                $"{curUser.ProfileName}, {curUser.Age} лет, {curUser.City}\n" +
+                                $"{curUser.About}");
+
+                            curUser.PrintToConsole();
+                            break;
                         }
                     }
 
-                    return;
+                    break;
                 }
             }
         }
@@ -192,5 +201,34 @@ class Program
 
         Console.WriteLine(ErrorMessage);
         return Task.CompletedTask;
+    }
+
+    private static async Task HandlePhotoMessage(Message message, ITelegramBotClient botClient)
+    {
+        try
+        {
+            if (message.Photo != null)
+            {
+                Console.WriteLine("Фотография найдена.");
+                var photo = message.Photo.LastOrDefault();
+                var file = await botClient.GetFileAsync(photo.FileId);
+
+                using (var fileStream = new FileStream($"C:/Users/User/Desktop/bot/MatchUpBot/MatchUpBot/photos/{curUser.TelegramId}.jpg", FileMode.Create))
+                {
+                    await botClient.DownloadFileAsync(file.FilePath, fileStream);
+                }
+
+                Console.WriteLine("Файл успешно скачан.");
+                
+            }
+            else
+            {
+                Console.WriteLine("Сообщение не содержит фотографии.");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Ошибка при скачивании файла: {e.Message}");
+        }
     }
 }
