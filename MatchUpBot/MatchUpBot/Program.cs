@@ -217,7 +217,7 @@ class Program
                 var photo = message.Photo.LastOrDefault();
                 var file = await botClient.GetFileAsync(photo.FileId);
                 
-                string filePath = $"C:/Users/User/Desktop/bot/MatchUpBot/MatchUpBot/photos/{curUser.TelegramId}.jpg";
+                string filePath = $"../../../photos/{curUser.TelegramId}.jpg";
                 
                 await using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
