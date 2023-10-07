@@ -5,6 +5,7 @@ using System.Reflection.Metadata;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
+using Telegram.Bot.Requests;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -42,7 +43,11 @@ class Program
     private static async Task UpdateHandler(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     {
-        try
+        EditMenu(update.Message, botClient);
+        
+        
+        
+        /*try
         {
             switch (update.Type)
             {
@@ -157,6 +162,9 @@ class Program
                                     curUser.Username = message.From.Username;
                                     Stage = 5;
                                     break;
+                                case 6:
+                                    EditMenu(message, botClient);
+                                    break;
                                 
                                 default:
                                 {
@@ -166,8 +174,7 @@ class Program
                                     return;
                                 }
                             }
-
-
+                            
                         }
                             return;
                         case MessageType.Photo:
@@ -180,6 +187,24 @@ class Program
                             
                             HandlePhotoMessage(message, botClient);
                             curUser.PrintToConsole();
+                            Stage = 6;
+                            
+                            var menuKeyboard = new ReplyKeyboardMarkup(
+                                new List<KeyboardButton[]>
+                                {
+                                    new KeyboardButton[]
+                                    {
+                                        new KeyboardButton("Редактировать профиль"),
+                                        new KeyboardButton("Просмотреть анкеты"),
+                                        new KeyboardButton("Отправить сообщение об ошибке")
+                                    },
+                                })
+                            {
+                                        
+                                ResizeKeyboard = true,
+                            };
+                            await botClient.SendTextMessageAsync(chat.Id, "Выбери действие", replyMarkup: menuKeyboard);
+                            
                             break;
                         }
                     }
@@ -191,7 +216,7 @@ class Program
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
-        }
+        }*/
     }
 
     private static Task ErrorHandler(ITelegramBotClient botClient, Exception error, CancellationToken cancellationToken)
@@ -248,6 +273,50 @@ class Program
         catch (Exception e)
         {
             Console.WriteLine($"Ошибка при скачивании файла: {e.Message}");
+        }
+    }
+
+    public static async Task EditMenu(Message message, ITelegramBotClient botClient)
+    {
+        var wantToChangePhoto = 0;
+        if (message.Type == MessageType.Photo)
+        {
+            if (wantToChangePhoto == 0)
+            {
+                await botClient.SendTextMessageAsync(message.Chat.Id, "Зачем мне твое фото");
+                return;
+            }
+            HandlePhotoMessage(message, botClient);
+        }
+        switch (message.Text)
+        {
+            case "Редактировать профиль":
+                var removeKeyboard = new ReplyKeyboardRemove();
+
+                var editMenu = new ReplyKeyboardMarkup(new List<KeyboardButton>
+                {
+                    new KeyboardButton("Редактировать фото"),
+                    new KeyboardButton("Редактировать основную информацию"),
+                    new KeyboardButton("Назад")
+                }); 
+                await botClient.SendTextMessageAsync(message.Chat.Id, "Давай редактировать",replyMarkup: editMenu);
+                break;
+            
+                    case "Редактировать фото":
+                    {
+                        await botClient.SendTextMessageAsync(message.Chat.Id, "Отправь новое фото");
+                        wantToChangePhoto = 1;
+                        break;
+                    }
+                    case "Назад":
+                    {
+                        break;
+                    }
+                    
+            case "Просмотреть анкеты":
+                await botClient.SendTextMessageAsync(message.Chat.Id, "Ты крутой");
+                break;
+            
         }
     }
 }
