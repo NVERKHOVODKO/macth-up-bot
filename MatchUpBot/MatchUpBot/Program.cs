@@ -2,6 +2,8 @@
 
 using System.Net;
 using System.Reflection.Metadata;
+using EntityFrameworkLesson;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -43,11 +45,7 @@ class Program
     private static async Task UpdateHandler(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     {
-        EditMenu(update.Message, botClient);
-        
-        
-        
-        /*try
+        try
         {
             switch (update.Type)
             {
@@ -163,7 +161,32 @@ class Program
                                     Stage = 5;
                                     break;
                                 case 6:
-                                    EditMenu(message, botClient);
+                                    if (message.Text == "Редактировать профиль")
+                                    {
+                                        removeKeyboard = new ReplyKeyboardRemove();
+                                        await botClient.SendTextMessageAsync(chat.Id, "Давай редактировать", replyMarkup: removeKeyboard);
+                                        var menuKeyboard = new ReplyKeyboardMarkup(
+                                            new List<KeyboardButton[]>
+                                            {
+                                                new KeyboardButton[]
+                                                {
+                                                    new KeyboardButton("Редактировать фото"),
+                                                    new KeyboardButton("Редактировать инфу"),
+                                                    new KeyboardButton("Назад")
+                                                },
+                                            });
+                                        await botClient.SendTextMessageAsync(chat.Id, "Выбери что хочешь изменить", replyMarkup: menuKeyboard);
+                                        Stage = 7;
+                                    }
+                                    break;
+                                case 7:
+                                    if (message.Text == "Редактировать фото")
+                                    {
+                                        removeKeyboard = new ReplyKeyboardRemove();
+                                        await botClient.SendTextMessageAsync(chat.Id, "Отправь новое фото",
+                                            replyMarkup: removeKeyboard);
+                                        Stage = 5;
+                                    }
                                     break;
                                 
                                 default:
@@ -198,11 +221,7 @@ class Program
                                         new KeyboardButton("Просмотреть анкеты"),
                                         new KeyboardButton("Отправить сообщение об ошибке")
                                     },
-                                })
-                            {
-                                        
-                                ResizeKeyboard = true,
-                            };
+                                });
                             await botClient.SendTextMessageAsync(chat.Id, "Выбери действие", replyMarkup: menuKeyboard);
                             
                             break;
@@ -216,7 +235,7 @@ class Program
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
-        }*/
+        }
     }
 
     private static Task ErrorHandler(ITelegramBotClient botClient, Exception error, CancellationToken cancellationToken)
@@ -251,7 +270,7 @@ class Program
                 } 
                 
                 await using Stream stream = System.IO.File.OpenRead(filePath);
-
+                
                     string caption = $"Твоя анкета выглядит так:\n" +
                     $"{curUser.ProfileName}, {curUser.Age} лет, {curUser.City}\n" +
                         $"{curUser.About}";
@@ -263,7 +282,6 @@ class Program
                     );
                     
                 Console.WriteLine("Файл успешно скачан.");
-                
             }
             else
             {
@@ -276,7 +294,7 @@ class Program
         }
     }
 
-    public static async Task EditMenu(Message message, ITelegramBotClient botClient)
+    /*public static async Task EditMenu(Message message, ITelegramBotClient botClient)
     {
         var wantToChangePhoto = 0;
         if (message.Type == MessageType.Photo)
@@ -318,5 +336,5 @@ class Program
                 break;
             
         }
-    }
+    }*/
 }
