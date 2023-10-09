@@ -2,6 +2,7 @@
 
 using System.Net;
 using System.Reflection.Metadata;
+using Entities;
 using EntityFrameworkLesson;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
@@ -13,9 +14,9 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBotExperiments.Models;
 using File = System.IO.File;
-
 class Program
 {
+    
     private static ITelegramBotClient _botClient;
     private static ReceiverOptions _receiverOptions;
     private static int Stage = -1;
@@ -30,6 +31,7 @@ class Program
             AllowedUpdates = new[] { UpdateType.Message },
             ThrowPendingUpdates = true,
         };
+        
 
         using var cts = new CancellationTokenSource();
 
@@ -47,8 +49,76 @@ class Program
     {
         try
         {
+            using (var context = new Context())
+            {
+                await context.UserEntity.AddAsync(new UserEntity(1,"sdf", "2", "string country", "string city", "string gender", "string photo", "string tgUsername", "string tgChatId"));
+                await context.SaveChangesAsync();
+            }
+            if (update.Type == UpdateType.CallbackQuery)
+            {
+                
+            }
             switch (update.Type)
             {
+                case UpdateType.CallbackQuery:
+                {
+                    // Переменная, которая будет содержать в себе всю информацию о кнопке, которую нажали
+                    var callbackQuery = update.CallbackQuery;
+                    
+                    // Аналогично и с Message мы можем получить информацию о чате, о пользователе и т.д.
+                    var user = callbackQuery.From;
+
+                    // Выводим на экран нажатие кнопки
+                    Console.WriteLine($"{user.FirstName} ({user.Id}) нажал на кнопку: {callbackQuery.Data}");
+                  
+                    // Вот тут нужно уже быть немножко внимательным и не путаться!
+                    // Мы пишем не callbackQuery.Chat , а callbackQuery.Message.Chat , так как
+                    // кнопка привязана к сообщению, то мы берем информацию от сообщения.
+                    var chat = callbackQuery.Message.Chat; 
+                    
+                    // Добавляем блок switch для проверки кнопок
+                    switch (callbackQuery.Data)
+                    {
+                        // Data - это придуманный нами id кнопки, мы его указывали в параметре
+                        // callbackData при создании кнопок. У меня это button1, button2 и button3
+
+                        case "11":
+                        {
+                            // В этом типе клавиатуры обязательно нужно использовать следующий метод
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                            // Для того, чтобы отправить телеграмму запрос, что мы нажали на кнопку
+                            
+                            await botClient.SendTextMessageAsync(
+                                chat.Id,
+                                $"Вы нажали на {callbackQuery.Data}");
+                            return;
+                        }
+                        
+                        case "12":
+                        {
+                            // А здесь мы добавляем наш сообственный текст, который заменит слово "загрузка", когда мы нажмем на кнопку
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Тут может быть ваш текст!");
+                            
+                            await botClient.SendTextMessageAsync(
+                                chat.Id,
+                                $"Вы нажали на {callbackQuery.Data}");
+                            return;
+                        }
+                        
+                        case "21":
+                        {
+                            // А тут мы добавили еще showAlert, чтобы отобразить пользователю полноценное окно
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "А это полноэкранный текст!", showAlert: true);
+                            
+                            await botClient.SendTextMessageAsync(
+                                chat.Id,
+                                $"Вы нажали на {callbackQuery.Data}");
+                            return;
+                        }
+                    }
+                    
+                    return;
+                }
                 case UpdateType.Message:
                 {
                     var message = update.Message;
@@ -155,7 +225,7 @@ class Program
                                 case 4:
                                     curUser.Sex = message.Text;
                                     var removeKeyboard = new ReplyKeyboardRemove();
-                                    await botClient.SendTextMessageAsync(chat.Id, "Скинь свою секс фото", replyMarkup: removeKeyboard);
+                                    await botClient.SendTextMessageAsync(chat.Id, "Скинь свою фото", replyMarkup: removeKeyboard);
                                     curUser.TelegramId = Int32.Parse(message.From.Id.ToString());
                                     curUser.Username = message.From.Username;
                                     Stage = 5;
@@ -189,21 +259,24 @@ class Program
                                     {
                                         // using Telegram.Bot.Types.ReplyMarkups;
 
-                                        InlineKeyboardMarkup inlineKeyboard = new(new[]
-                                        {
-                                            // first row
-                                            new []
+                                        // Тут создаем нашу клавиатуру
+                                        var inlineKeyboard = new InlineKeyboardMarkup(
+                                            new List<InlineKeyboardButton[]>() // здесь создаем лист (массив), который содрежит в себе массив из класса кнопок
                                             {
-                                                InlineKeyboardButton.WithCallbackData(text: "Имя", callbackData: "11"),
-                                                InlineKeyboardButton.WithCallbackData(text: "Возраст", callbackData: "12"),
-                                            },
-                                            // second row
-                                            new []
-                                            {
-                                                InlineKeyboardButton.WithCallbackData(text: "Город", callbackData: "21"),
-                                                InlineKeyboardButton.WithCallbackData(text: "О себе", callbackData: "22"),
-                                            },
-                                        });
+                                                // Каждый новый массив - это дополнительные строки,
+                                                // а каждая дополнительная кнопка в массиве - это добавление ряда
+
+                                                new InlineKeyboardButton[] // тут создаем массив кнопок
+                                                {
+                                                    InlineKeyboardButton.WithUrl("Это кнопка с сайтом", "https://habr.com/"),
+                                                    InlineKeyboardButton.WithCallbackData("А это просто кнопка", "11"), 
+                                                },
+                                                new InlineKeyboardButton[]
+                                                {
+                                                    InlineKeyboardButton.WithCallbackData("Тут еще одна", "12"), 
+                                                    InlineKeyboardButton.WithCallbackData("И здесь", "21"), 
+                                                },
+                                            });
                                         
                                         Message sentMessage = await botClient.SendTextMessageAsync(
                                             chatId: chat.Id,
@@ -312,12 +385,14 @@ class Program
                     string caption = $"Твоя анкета выглядит так:\n" +
                     $"{curUser.ProfileName}, {curUser.Age} лет, {curUser.City}\n" +
                         $"{curUser.About}";
+                    
                     await botClient.SendPhotoAsync(
                         chatId: message.Chat.Id,
                         InputFile.FromStream(stream,"photo.jpg"),
                         caption: caption,
                         parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown
                     );
+                    
                     
                 Console.WriteLine("Файл успешно скачан.");
             }

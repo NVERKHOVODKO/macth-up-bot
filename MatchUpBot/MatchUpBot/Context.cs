@@ -13,12 +13,11 @@ namespace EntityFrameworkLesson
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(@"host=localhost;port=5432;database=EntityFrameworkLesson;username=postgres;password=root")
-                //.LogTo(Console.WriteLine)
-                ;
+            optionsBuilder.UseNpgsql(
+                @"host=localhost;port=5432;database=TelegramBot;username=postgres;password=postgres");
         }
         
         public DbSet<UserEntity> UserEntity { get; set; }
-        public DbSet<LikesEntity> LikesEntity { get; set; }
+        //public DbSet<LikesEntity> LikesEntities { get; set; }
     }
 }

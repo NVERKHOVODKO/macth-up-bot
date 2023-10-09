@@ -4,8 +4,21 @@ namespace Entities
 {
     public class UserEntity
     {
+        public UserEntity(int tgId, string name, string age, string country, string city, string gender, string photo, string tgUsername, string tgChatId)
+        {
+            TgId = tgId;
+            Name = name;
+            Age = age;
+            Country = country;
+            City = city;
+            Gender = gender;
+            Photo = photo;
+            TgUsername = tgUsername;
+            TgChatId = tgChatId;
+        }
+
         [Key]
-        public string TgId { get; set; }//Уникальный айди пользователя
+        public int TgId { get; set; }//Уникальный айди пользователя
         public string Name { get; set; }//Отображаемое имя
         public string Age { get; set; }// Возраст
         public string Country { get; set; }// Страна
