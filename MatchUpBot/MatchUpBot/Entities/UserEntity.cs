@@ -4,7 +4,7 @@ namespace Entities
 {
     public class UserEntity
     {
-        public UserEntity(int tgId, string name, string age, string country, string city, string gender, string photo, string tgUsername, string tgChatId)
+        public UserEntity(long tgId, string name, int age, string country, string city, string gender, string photo, string tgUsername, string tgChatId)
         {
             TgId = tgId;
             Name = name;
@@ -18,9 +18,9 @@ namespace Entities
         }
 
         [Key]
-        public int TgId { get; set; }//Уникальный айди пользователя
+        public long TgId { get; set; }//Уникальный айди пользователя
         public string Name { get; set; }//Отображаемое имя
-        public string Age { get; set; }// Возраст
+        public int Age { get; set; }// Возраст
         public string Country { get; set; }// Страна
         public string City { get; set; }//Город
         public string Gender { get; set; }//Пол
