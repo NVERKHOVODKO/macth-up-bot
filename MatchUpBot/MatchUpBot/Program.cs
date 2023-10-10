@@ -14,7 +14,9 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBotExperiments.Models;
+using Action = EntityFrameworkLesson.Constants.Action;
 using File = System.IO.File;
+
 class Program
 {
     
@@ -67,7 +69,7 @@ class Program
                     
                     // Аналогично и с Message мы можем получить информацию о чате, о пользователе и т.д.
                     var user = callbackQuery.From;
-                    
+                     
                     // Вот тут нужно уже быть немножко внимательным и не путаться!
                     // Мы пишем не callbackQuery.Chat , а callbackQuery.Message.Chat , так как
                     // кнопка привязана к сообщению, то мы берем информацию от сообщения.
@@ -81,6 +83,7 @@ class Program
 
                         case "name":
                         {
+                           
                             // В этом типе клавиатуры обязательно нужно использовать следующий метод
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                             // Для того, чтобы отправить телеграмму запрос, что мы нажали на кнопку
@@ -88,6 +91,8 @@ class Program
                             await botClient.SendTextMessageAsync(
                                 chat.Id,
                                 "Введите новое имя");
+
+                            Stage =  (int)Action.EditName;
                             return;
                         }
                         
@@ -97,6 +102,7 @@ class Program
                             await botClient.SendTextMessageAsync(
                                 chat.Id,
                                 "Введите новый возраст");
+                            Stage =  (int)Action.EditAge;
                             return;
                         }
                         
@@ -108,6 +114,7 @@ class Program
                             await botClient.SendTextMessageAsync(
                                 chat.Id,
                                 "Введите новый город");
+                            Stage =  (int)Action.EditCity;
                             return;
                         }
                         case "about":
@@ -118,6 +125,7 @@ class Program
                             await botClient.SendTextMessageAsync(
                                 chat.Id,
                                 "Расскажите о себе");
+                            Stage =  (int)Action.EditDescription;
                             return;
                         }
                     }
@@ -153,6 +161,7 @@ class Program
                                     $"Как тебя зовут?");
                                 return;
                             }
+                            
                             
                             Console.WriteLine(Stage);
                             
@@ -249,10 +258,14 @@ class Program
                                                
                                         });
                                         await botClient.SendTextMessageAsync(chat.Id, "Выбери что хочешь изменить", replyMarkup: menuKeyboard);
-                                        Stage = 7;
+                                        Stage = (int) Action.EditProfile;
                                     }
                                     break;
-                                case 7:
+                                case (int) Action.EditProfile:
+                                    
+                                    
+                                    
+                                    
                                     if (message.Text == "Редактировать фото")
                                     {
                                         removeKeyboard = new ReplyKeyboardRemove();
@@ -290,7 +303,6 @@ class Program
                                     {
                                         ReplyKeyboardMarkup menuKeyboard = new(new[]
                                             {
-                                               
                                                     new KeyboardButton[] {"Редактировать профиль"},
                                                     new KeyboardButton[]{"Просмотреть анкеты"},
                                                     new KeyboardButton[]{"Отправить сообщение об ошибке"}
@@ -302,6 +314,27 @@ class Program
                                     
                                     break;
                                 
+                                
+                                
+                                case (int) Action.EditName:
+                                    curUser.ProfileName = message.Text;
+
+                                    Stage = (int)Action.EditProfile;
+                                    break;
+                                
+                                case (int) Action.EditAge: 
+                                    
+                                    break;
+                                
+                                case (int) Action.EditCity:
+                                    
+                                    break;
+                                
+                                case (int) Action.EditDescription:   
+                                    
+                                    break;
+                                
+                                
                                 default:
                                 {
                                     await botClient.SendTextMessageAsync(
@@ -309,6 +342,9 @@ class Program
                                         "Используй только текст!");
                                     return;
                                 }
+                                
+                                
+                                
                             }
                             
                         }
