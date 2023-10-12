@@ -19,7 +19,6 @@ using File = System.IO.File;
 
 class Program
 {
-    
     private static ITelegramBotClient _botClient;
     private static ReceiverOptions _receiverOptions;
     private static int Stage = -1;
@@ -29,12 +28,13 @@ class Program
     static async Task Main()
     {
         _botClient = new TelegramBotClient("6610584532:AAHyYTG_Rz96QfQEc7H-Dk-7iHHb2PeQN0E");
-        _receiverOptions = new ReceiverOptions{
+        _receiverOptions = new ReceiverOptions
+        {
             AllowedUpdates = new[] { UpdateType.Message, UpdateType.CallbackQuery },
             ThrowPendingUpdates = true,
         };
-        
-        
+
+
         using var cts = new CancellationTokenSource();
 
         _botClient.StartReceiving(UpdateHandler, ErrorHandler, _receiverOptions, cts.Token);
@@ -60,21 +60,22 @@ class Program
             {
                 Console.WriteLine("dada");
             }
+
             switch (update.Type)
             {
                 case UpdateType.CallbackQuery:
                 {
                     // Переменная, которая будет содержать в себе всю информацию о кнопке, которую нажали
                     var callbackQuery = update.CallbackQuery;
-                    
+
                     // Аналогично и с Message мы можем получить информацию о чате, о пользователе и т.д.
                     var user = callbackQuery.From;
-                     
+
                     // Вот тут нужно уже быть немножко внимательным и не путаться!
                     // Мы пишем не callbackQuery.Chat , а callbackQuery.Message.Chat , так как
                     // кнопка привязана к сообщению, то мы берем информацию от сообщения.
-                    var chat = callbackQuery.Message.Chat; 
-                    
+                    var chat = callbackQuery.Message.Chat;
+
                     // Добавляем блок switch для проверки кнопок
                     switch (callbackQuery.Data)
                     {
@@ -83,53 +84,51 @@ class Program
 
                         case "name":
                         {
-                           
                             // В этом типе клавиатуры обязательно нужно использовать следующий метод
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                             // Для того, чтобы отправить телеграмму запрос, что мы нажали на кнопку
-                            
+
                             await botClient.SendTextMessageAsync(
                                 chat.Id,
                                 "Введите новое имя");
 
-                            Stage =  (int)Action.EditName;
+                            Stage = (int)Action.EditName;
                             return;
                         }
-                        
+
                         case "age":
                         {
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                             await botClient.SendTextMessageAsync(
                                 chat.Id,
                                 "Введите новый возраст");
-                            Stage =  (int)Action.EditAge;
+
+                            Stage = (int)Action.EditAge;
                             return;
                         }
-                        
+
                         case "city":
                         {
-                           
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                            
+
                             await botClient.SendTextMessageAsync(
                                 chat.Id,
                                 "Введите новый город");
-                            Stage =  (int)Action.EditCity;
+                            Stage = (int)Action.EditCity;
                             return;
                         }
                         case "about":
                         {
-                           
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                            
+
                             await botClient.SendTextMessageAsync(
                                 chat.Id,
                                 "Расскажите о себе");
-                            Stage =  (int)Action.EditDescription;
+                            Stage = (int)Action.EditDescription;
                             return;
                         }
                     }
-                    
+
                     return;
                 }
                 case UpdateType.Message:
@@ -161,10 +160,10 @@ class Program
                                     $"Как тебя зовут?");
                                 return;
                             }
-                            
-                            
+
+
                             Console.WriteLine(Stage);
-                            
+
                             switch (Stage)
                             {
                                 case 0:
@@ -175,7 +174,7 @@ class Program
 
                                     Stage = 1;
                                     break;
-                                
+
                                 case 1:
                                     try
                                     {
@@ -213,7 +212,7 @@ class Program
 
                                     Stage = 3;
                                     break;
-                                
+
                                 case 3:
                                     curUser.About = message.Text;
                                     var sexKeyboard = new ReplyKeyboardMarkup(
@@ -235,37 +234,39 @@ class Program
 
                                     Stage = 4;
                                     break;
-                                
+
                                 case 4:
+
                                     curUser.Sex = message.Text;
                                     var removeKeyboard = new ReplyKeyboardRemove();
-                                    await botClient.SendTextMessageAsync(chat.Id, "Скинь свою фото", replyMarkup: removeKeyboard);
+                                    await botClient.SendTextMessageAsync(chat.Id, "Скинь свою фото",
+                                        replyMarkup: removeKeyboard);
                                     curUser.TelegramId = Int32.Parse(message.From.Id.ToString());
                                     curUser.Username = message.From.Username;
                                     Stage = 5;
                                     break;
+
                                 case 6:
                                     if (message.Text == "Редактировать профиль")
                                     {
                                         removeKeyboard = new ReplyKeyboardRemove();
-                                        await botClient.SendTextMessageAsync(chat.Id, "Давай редактировать", replyMarkup: removeKeyboard);
+                                        await botClient.SendTextMessageAsync(chat.Id, "Давай редактировать",
+                                            replyMarkup: removeKeyboard);
                                         ReplyKeyboardMarkup menuKeyboard = new(new[]
                                         {
-                                               
-                                            new KeyboardButton[] {"Редактировать фото"},
-                                            new KeyboardButton[]{"Редактировать инфу"},
-                                            new KeyboardButton[]{"Назад"}
-                                               
+                                            new KeyboardButton[] { "Редактировать фото" },
+                                            new KeyboardButton[] { "Редактировать инфу" },
+                                            new KeyboardButton[] { "Назад" }
                                         });
-                                        await botClient.SendTextMessageAsync(chat.Id, "Выбери что хочешь изменить", replyMarkup: menuKeyboard);
-                                        Stage = (int) Action.EditProfile;
+                                        await botClient.SendTextMessageAsync(chat.Id, "Выбери что хочешь изменить",
+                                            replyMarkup: menuKeyboard);
+                                        Stage = (int)Action.EditProfile;
                                     }
+
                                     break;
-                                case (int) Action.EditProfile:
-                                    
-                                    
-                                    
-                                    
+
+                                case (int)Action.EditProfile:
+
                                     if (message.Text == "Редактировать фото")
                                     {
                                         removeKeyboard = new ReplyKeyboardRemove();
@@ -273,68 +274,93 @@ class Program
                                             replyMarkup: removeKeyboard);
                                         Stage = 5;
                                     }
+
                                     if (message.Text == "Редактировать инфу")
                                     {
-                                        
                                         InlineKeyboardMarkup inlineKeyboard = new(new[]
                                         {
                                             // first row
-                                            new []
+                                            new[]
                                             {
-                                                InlineKeyboardButton.WithCallbackData(text: "Имя", callbackData: "name"),
-                                                InlineKeyboardButton.WithCallbackData(text: "Возраст", callbackData: "age"),
+                                                InlineKeyboardButton.WithCallbackData(text: "Имя",
+                                                    callbackData: "name"),
+                                                InlineKeyboardButton.WithCallbackData(text: "Возраст",
+                                                    callbackData: "age"),
                                             },
                                             // second row
-                                            new []
+                                            new[]
                                             {
-                                                InlineKeyboardButton.WithCallbackData(text: "Город", callbackData: "city"),
-                                                InlineKeyboardButton.WithCallbackData(text: "О себе", callbackData: "about"),
+                                                InlineKeyboardButton.WithCallbackData(text: "Город",
+                                                    callbackData: "city"),
+                                                InlineKeyboardButton.WithCallbackData(text: "О себе",
+                                                    callbackData: "about"),
                                             },
                                         });
-                                        
+
                                         Message sentMessage = await botClient.SendTextMessageAsync(
                                             chatId: chat.Id,
                                             text: "Что ты хочешь изменить?",
                                             replyMarkup: inlineKeyboard,
                                             cancellationToken: cancellationToken);
-
                                     }
+
                                     if (message.Text == "Назад")
                                     {
                                         ReplyKeyboardMarkup menuKeyboard = new(new[]
-                                            {
-                                                    new KeyboardButton[] {"Редактировать профиль"},
-                                                    new KeyboardButton[]{"Просмотреть анкеты"},
-                                                    new KeyboardButton[]{"Отправить сообщение об ошибке"}
-                                               
-                                            });
-                                        await botClient.SendTextMessageAsync(chat.Id, "Выбери действие", replyMarkup: menuKeyboard);
+                                        {
+                                            new KeyboardButton[] { "Редактировать профиль" },
+                                            new KeyboardButton[] { "Просмотреть анкеты" },
+                                            new KeyboardButton[] { "Отправить сообщение об ошибке" }
+                                        });
+                                        await botClient.SendTextMessageAsync(chat.Id, "Выбери действие",
+                                            replyMarkup: menuKeyboard);
                                         Stage = 6;
                                     }
-                                    
+
                                     break;
-                                
-                                
-                                
-                                case (int) Action.EditName:
+
+
+                                case (int)Action.EditName: //TODO 
+
                                     curUser.ProfileName = message.Text;
+                                    await botClient.SendTextMessageAsync(
+                                        chat.Id,
+                                        $"Твое новое имя: " + curUser.ProfileName);
+                                    Stage = (int)Action.EditProfile;
+                                    break;
+
+                                case (int)Action.EditAge: //TODO 
+
+                                    curUser.Age = Int32.Parse(message.Text);
+                                    await botClient.SendTextMessageAsync(
+                                        chat.Id,
+                                        $"Твой новый возраст: " + curUser.Age);
 
                                     Stage = (int)Action.EditProfile;
                                     break;
-                                
-                                case (int) Action.EditAge: 
-                                    
+
+                                case (int)Action.EditCity: //TODO 
+
+                                    curUser.City = message.Text;
+                                    await botClient.SendTextMessageAsync(
+                                        chat.Id,
+                                        $"Твой новый город: " + curUser.City);
+
+                                    Stage = (int)Action.EditProfile;
                                     break;
-                                
-                                case (int) Action.EditCity:
-                                    
+
+                                case (int)Action.EditDescription: //TODO 
+
+                                    curUser.About = message.Text;
+                                    await botClient.SendTextMessageAsync(
+                                        chat.Id,
+                                        $"Твое новое описание: " + curUser.About);
+
+                                    Stage = (int)Action.EditProfile;
+                                    curUser.PrintToConsole();
                                     break;
-                                
-                                case (int) Action.EditDescription:   
-                                    
-                                    break;
-                                
-                                
+
+
                                 default:
                                 {
                                     await botClient.SendTextMessageAsync(
@@ -342,11 +368,7 @@ class Program
                                         "Используй только текст!");
                                     return;
                                 }
-                                
-                                
-                                
                             }
-                            
                         }
                             return;
                         case MessageType.Photo:
@@ -356,21 +378,20 @@ class Program
                                 await botClient.SendTextMessageAsync(chat.Id, "Мне пох на твое фото");
                                 return;
                             }
+
                             await PhotoRepository.HandlePhotoMessage(message, botClient, curUser);
                             curUser.PrintToConsole();
                             Stage = 6;
-                            
+
                             ReplyKeyboardMarkup menuKeyboard = new(new[]
                             {
-                                               
-                                new KeyboardButton[] {"Редактировать профиль"},
-                                new KeyboardButton[]{"Просмотреть анкеты"},
-                                new KeyboardButton[]{"Отправить сообщение об ошибке"}
-                                               
+                                new KeyboardButton[] { "Редактировать профиль" },
+                                new KeyboardButton[] { "Просмотреть анкеты" },
+                                new KeyboardButton[] { "Отправить сообщение об ошибке" }
                             });
-                            
+
                             await botClient.SendTextMessageAsync(chat.Id, "Выбери действие", replyMarkup: menuKeyboard);
-                            
+
                             break;
                         }
                     }
@@ -412,5 +433,4 @@ class Program
         replyMarkup: replyKeyboardMarkup,
         cancellationToken: cancellationToken);
         */
-
 }
