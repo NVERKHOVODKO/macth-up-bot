@@ -1,11 +1,12 @@
-﻿using Telegram.Bot;
+﻿using Entities;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace EntityFrameworkLesson.Repositories;
 
 public class PhotoRepository
 {
-    public static async Task HandlePhotoMessage(Message message, ITelegramBotClient botClient, TelegramBotExperiments.Models.User user)
+    public static async Task HandlePhotoMessage(Message message, ITelegramBotClient botClient, UserEntity user)
     {
         try
         {
@@ -15,7 +16,7 @@ public class PhotoRepository
                 var photo = message.Photo.LastOrDefault();
                 var file = await botClient.GetFileAsync(photo.FileId);
                 
-                string filePath = $"../../../photos/{user.TelegramId}.jpg";
+                string filePath = $"../../../photos/{user.TgId}.jpg";
                 
                 await using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
@@ -26,7 +27,7 @@ public class PhotoRepository
                 await using Stream stream = System.IO.File.OpenRead(filePath);
                 
                 string caption = $"Твоя анкета выглядит так:\n" +
-                                 $"{user.ProfileName}, {user.Age} лет, {user.City}\n" +
+                                 $"{user.Name}, {user.Age} лет, {user.City}\n" +
                                  $"{user.About}";
                     
                 await botClient.SendPhotoAsync(

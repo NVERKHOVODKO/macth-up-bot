@@ -34,7 +34,7 @@
             PhotoPath = photoPath;
         }
         
-        public void PrintToConsole()
+        /*public void PrintToConsole()
         {
             Console.WriteLine("User Profile:");
             Console.WriteLine($"Telegram ID: {TelegramId}");
@@ -45,6 +45,6 @@
             Console.WriteLine($"About: {About ?? "N/A"}");
             Console.WriteLine($"City: {City ?? "N/A"}");
             Console.WriteLine($"Photo Path: {PhotoPath ?? "N/A"}");
-        }
+        }*/
     }
 }
