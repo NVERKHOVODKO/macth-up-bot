@@ -1,41 +1,45 @@
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\MatchUpBot.exe
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\MatchUpBot.deps.json
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\MatchUpBot.runtimeconfig.json
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\MatchUpBot.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\MatchUpBot.pdb
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Abstractions.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Relational.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Caching.Abstractions.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Caching.Memory.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Configuration.Abstractions.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.DependencyInjection.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Logging.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Logging.Abstractions.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Options.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Primitives.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Newtonsoft.Json.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Npgsql.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Telegram.Bot.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.csproj.AssemblyReference.cache
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.AssemblyInfoInputs.cache
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.AssemblyInfo.cs
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.csproj.CoreCompileInputs.cache
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.sourcelink.json
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.csproj.CopyComplete
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\refint\MatchUpBot.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.pdb
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.genruntimeconfig.cache
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\ref\MatchUpBot.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Humanizer.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Design.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.DependencyModel.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Mono.TextTemplating.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\System.CodeDom.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\System.Text.Encodings.Web.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\System.Text.Json.dll
-C:\Users\User\Desktop\bot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\runtimes\browser\lib\net6.0\System.Text.Encodings.Web.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\MatchUpBot.exe
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\MatchUpBot.deps.json
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\MatchUpBot.runtimeconfig.json
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\MatchUpBot.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\MatchUpBot.pdb
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Humanizer.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Design.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Caching.Abstractions.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Caching.Memory.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.DependencyInjection.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.DependencyModel.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Logging.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Options.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Primitives.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Mono.TextTemplating.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Newtonsoft.Json.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Npgsql.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\System.CodeDom.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\System.Text.Encodings.Web.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\System.Text.Json.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Telegram.Bot.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\runtimes\browser\lib\net6.0\System.Text.Encodings.Web.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.csproj.AssemblyReference.cache
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.GeneratedMSBuildEditorConfig.editorconfig
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.AssemblyInfoInputs.cache
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.AssemblyInfo.cs
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.csproj.CoreCompileInputs.cache
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.csproj.CopyComplete
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\refint\MatchUpBot.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.pdb
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.genruntimeconfig.cache
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\ref\MatchUpBot.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Configuration.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Configuration.Binder.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Logging.Configuration.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Logging.Console.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Options.ConfigurationExtensions.dll

@@ -4,10 +4,9 @@
     <option name="keyValueStorage">
       <map>
         <entry key="Common:buildConfiguration" value="Debug" />
-        <entry key="Common:d48ac7bf-7f46-448c-b878-005b7a1994dd:dbContext" value="EntityFrameworkLesson.Context" />
+        <entry key="Common:d48ac7bf-7f46-448c-b878-005b7a1994dd:dbContext" value="Data.Context" />
         <entry key="Common:noBuild" value="false" />
         <entry key="Common:outputFolder" value="Migrations" />
-        <entry key="Common:useDefaultConnection" value="true" />
       </map>
     </option>
   </component>

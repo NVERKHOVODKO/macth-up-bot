@@ -1,25 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\37544\\RiderProjects\\MacthUpBot\\MatchUpBot\\MatchUpBot\\MatchUpBot.csproj": {}
+    "C:\\НЕ СИСТЕМА\\BSUIR\\MacthUpBot\\MatchUpBot\\MatchUpBot\\MatchUpBot.csproj": {}
   },
   "projects": {
-    "C:\\Users\\37544\\RiderProjects\\MacthUpBot\\MatchUpBot\\MatchUpBot\\MatchUpBot.csproj": {
+    "C:\\НЕ СИСТЕМА\\BSUIR\\MacthUpBot\\MatchUpBot\\MatchUpBot\\MatchUpBot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\37544\\RiderProjects\\MacthUpBot\\MatchUpBot\\MatchUpBot\\MatchUpBot.csproj",
+        "projectUniqueName": "C:\\НЕ СИСТЕМА\\BSUIR\\MacthUpBot\\MatchUpBot\\MatchUpBot\\MatchUpBot.csproj",
         "projectName": "MatchUpBot",
-        "projectPath": "C:\\Users\\37544\\RiderProjects\\MacthUpBot\\MatchUpBot\\MatchUpBot\\MatchUpBot.csproj",
-        "packagesPath": "C:\\Users\\37544\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\37544\\RiderProjects\\MacthUpBot\\MatchUpBot\\MatchUpBot\\obj\\",
+        "projectPath": "C:\\НЕ СИСТЕМА\\BSUIR\\MacthUpBot\\MatchUpBot\\MatchUpBot\\MatchUpBot.csproj",
+        "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+        "outputPath": "C:\\НЕ СИСТЕМА\\BSUIR\\MacthUpBot\\MatchUpBot\\MatchUpBot\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet"
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
         ],
         "configFilePaths": [
-          "C:\\Users\\37544\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
@@ -50,6 +48,20 @@
               "target": "Package",
               "version": "[7.0.11, )"
             },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.11, )"
+            },
+            "Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
+            "Microsoft.Extensions.Logging.Console": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
               "version": "[7.0.11, )"
@@ -73,19 +85,19 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[6.0.20, 6.0.20]"
+              "version": "[6.0.14, 6.0.14]"
             },
             {
               "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[6.0.20, 6.0.20]"
+              "version": "[6.0.14, 6.0.14]"
             },
             {
               "name": "Microsoft.NETCore.App.Ref",
-              "version": "[6.0.20, 6.0.20]"
+              "version": "[6.0.14, 6.0.14]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[6.0.20, 6.0.20]"
+              "version": "[6.0.14, 6.0.14]"
             }
           ],
           "frameworkReferences": {
@@ -93,7 +105,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-preview.2.23157.25\\RuntimeIdentifierGraph.json"
         }
       }
     }
