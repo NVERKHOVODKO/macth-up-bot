@@ -2,6 +2,15 @@
 
 public class RegForm
 {
+    public int Stage;
+
+    public RegForm(string id, string chatId, string username)
+    {
+        Stage = 1;
+        TgId = id;
+        TgUsername = username;
+    }
+
     public string TgId { get; set; }
     public string Name { get; set; }
     public string Age { get; set; }
@@ -11,15 +20,6 @@ public class RegForm
     public string Photo { get; set; }
     public string TgUsername { get; set; }
     public string TgChatId { get; set; }
-
-    public int Stage;
-
-    public RegForm(string id, string chatId, string username)
-    {
-        Stage = 1;
-        TgId = id;
-        TgUsername = username;
-    }
 
     public (string, int) StageText(string id)
     {
@@ -33,8 +33,7 @@ public class RegForm
             return ("Введите Ваш город:", Stage);
         if (Stage == 5)
             return ("Введите Ваш пол:", Stage);
-        else
-            return ("Отправьте боту Ваше фото:", Stage);
+        return ("Отправьте боту Ваше фото:", Stage);
     }
 
     public bool SetParam(string param)

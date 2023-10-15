@@ -1,162 +1,85 @@
 ﻿//6610584532:AAHyYTG_Rz96QfQEc7H-Dk-7iHHb2PeQN0E
 
+using ConsoleApplication1.Menues;
+using Data;
+using Entities;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
-using TelegramBotExperiments.Models;
 
-class Program
+internal class Program
 {
     private static ITelegramBotClient _botClient;
     private static ReceiverOptions _receiverOptions;
     private static int Stage = -1;
+    private static readonly UserEntity curUser = new();
+    private static readonly UserRepository UserRepository = new();
 
-    private static TelegramBotExperiments.Models.User curUser = new TelegramBotExperiments.Models.User();
+    private static ILogger<Program> _logger =
+        LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<Program>();
 
-    static async Task Main()
+    private readonly BlankMenu BlankMenu;
+
+    public Program(ILogger<Program> logger)
+    {
+        _logger = logger;
+    }
+
+    private static async Task Main()
     {
         _botClient = new TelegramBotClient("6610584532:AAHyYTG_Rz96QfQEc7H-Dk-7iHHb2PeQN0E");
         _receiverOptions = new ReceiverOptions
         {
-            AllowedUpdates = new[] { UpdateType.Message },
-            ThrowPendingUpdates = true,
+            AllowedUpdates = new[] { UpdateType.Message, UpdateType.CallbackQuery },
+            ThrowPendingUpdates = true
         };
-
         using var cts = new CancellationTokenSource();
-
         _botClient.StartReceiving(UpdateHandler, ErrorHandler, _receiverOptions, cts.Token);
-
         var me = await _botClient.GetMeAsync();
         Console.WriteLine($"{me.FirstName} запущен!");
-
         await Task.Delay(-1);
     }
 
-    
-    private static async Task UpdateHandler(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+
+    private static async Task UpdateHandler(ITelegramBotClient botClient, Update update,
+        CancellationToken cancellationToken)
     {
         try
         {
+            if (update.Type == UpdateType.CallbackQuery) Console.WriteLine("dada");
+
             switch (update.Type)
             {
                 case UpdateType.Message:
                 {
                     var message = update.Message;
                     var chat = message.Chat;
-                    
+
+                    _logger.LogInformation($"message.From.Id: {message.From.Id}");
+                    if (!UserRepository.IsUserExists(message.From.Id))
+                    {
+                        _logger.LogInformation("message.From.Id: user created");
+                        UserRepository.CreateUser(message.From.Id);
+                        UserRepository.SetUserTgUsername(message.From.Id, message.From.Username);
+                    }
+
                     switch (message.Type)
                     {
                         case MessageType.Text:
                         {
-                            var replyKeyboard = new ReplyKeyboardMarkup(
-                                new List<KeyboardButton[]>
-                                {
-                                    new KeyboardButton[]
-                                    {
-                                        new KeyboardButton("Start!"),
-                                        new KeyboardButton("Что может бот?"),
-                                    },
-                                })
-                            {
-                                ResizeKeyboard = true,
-                            };
-                            if (Stage == -1)
-                            {
-                                Stage = 0;
-                                await botClient.SendTextMessageAsync(
-                                    chat.Id,
-                                    $"Как тебя зовут?");
-                                return;
-                            }
-                            Console.WriteLine(Stage);
-                            switch (Stage)
-                            {
-                                case 0:
-                                    await botClient.SendTextMessageAsync(
-                                        chat.Id,
-                                        $"Сколько тебе лет?");
-                                    curUser.ProfileName = message.Text;
-                                    Stage = 1;
-                                    break;
-                                case 1:
-                                    await botClient.SendTextMessageAsync(
-                                        chat.Id,
-                                        $"Из какого ты города?");
-                                    curUser.Age = Int32.Parse(message.Text.ToString());
-                                    Stage = 2;
-                                    break;
-                                case 2:
-                                    var skipKeyboard = new ReplyKeyboardMarkup(
-                                        new List<KeyboardButton[]>
-                                        {
-                                            new KeyboardButton[]
-                                            {
-                                                new KeyboardButton("Пропустить"),
-                                            },
-                                        })
-                                    {
-                                        ResizeKeyboard = true,
-                                    };
-                                    await botClient.SendTextMessageAsync(
-                                        chat.Id,
-                                        "Расскажи о себе?",
-                                        replyMarkup: skipKeyboard);
-                                    curUser.City = message.Text;
-                                    Stage = 3;
-                                    break;
-                                case 3:
-                                    var sexKeyboard = new ReplyKeyboardMarkup(
-                                        new List<KeyboardButton[]>
-                                        {
-                                            new KeyboardButton[]
-                                            {
-                                                new KeyboardButton("Мужчина"),
-                                                new KeyboardButton("Женщина"),
-                                            },
-                                        })
-                                    {
-                                        ResizeKeyboard = true,
-                                    };
-                                    await botClient.SendTextMessageAsync(
-                                        chat.Id,
-                                        "Какой у тебя гендер?",
-                                        replyMarkup: sexKeyboard);
-                                    curUser.About = message.Text;
-                                    Stage = 4;
-                                    break;
-                                case 4:
-                                    var removeKeyboard = new ReplyKeyboardRemove();
-                                    curUser.Sex = message.Text;
-                                    Stage = 5;
-                                    await botClient.SendTextMessageAsync(
-                                        chat.Id,
-                                        $"Твоя анкета выглядит так:\n" +
-                                        $"{curUser.ProfileName}, {curUser.Age} лет, {curUser.City}\n" +
-                                        $"{curUser.About}",
-                                        replyMarkup: removeKeyboard);
-
-                                    curUser.PrintToConsole();
-                                    break;
-                            }
-                            curUser.TelegramId = Int32.Parse(message.From.Id.ToString());
-                            curUser.Username = message.From.Username;
-
+                            await BlankMenu.HandleMessageTypeText(message, botClient, chat, cancellationToken, curUser);
                             return;
                         }
-                        
-                        default:
+                        case MessageType.Photo:
                         {
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                "Используй только текст!");
+                            await BlankMenu.HandleMessageTypePhoto(message, botClient, chat, curUser);
                             return;
                         }
                     }
-
-                    return;
+                    break;
                 }
             }
         }
@@ -165,6 +88,7 @@ class Program
             Console.WriteLine(ex.ToString());
         }
     }
+
 
     private static Task ErrorHandler(ITelegramBotClient botClient, Exception error, CancellationToken cancellationToken)
     {
