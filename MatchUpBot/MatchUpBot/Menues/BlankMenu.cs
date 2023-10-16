@@ -156,6 +156,11 @@ public class BlankMenu
         UserRepository.UpdateUserStage(message.From.Id, 5);
         _logger.LogInformation($"user({message.From.Id}): Stage updated: {5}");
     }
+    
+    private static async Task EnterInterest(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
+    {
+        
+    }
 
     private static async Task EditProfileChoice(Message message, ITelegramBotClient botClient, Chat chat)
     {
