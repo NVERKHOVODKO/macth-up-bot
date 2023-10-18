@@ -1,5 +1,6 @@
 ﻿using Entities;
 using Microsoft.EntityFrameworkCore;
+using Telegram.Bot.Types;
 
 namespace Data;
 
@@ -25,9 +26,15 @@ public class UserRepository
     public int GetUserStage(long tgId)
     {
         var user = _context.Users
-            .Where(u => u.TgId == tgId)
-            .FirstOrDefault();
+            .FirstOrDefault(u => u.TgId == tgId);
         return user.Stage;
+    }
+    
+    public UserEntity GetUser(long tgId)
+    {
+        var user = _context.Users
+            .FirstOrDefault(u => u.TgId == tgId);
+        return user;
     }
 
     public UserEntity CreateUser(long tgId)
@@ -42,7 +49,8 @@ public class UserRepository
             TgUsername = "N/A",
             TgChatId = "N/A",
             Stage = -1,
-            About = "N/A"
+            About = "N/A",
+            ZodiacSign = "N/A"
         };
 
         _context.Users.Add(newUser);
@@ -155,6 +163,30 @@ public class UserRepository
             _context.SaveChanges();
         }
     }
+    
+    
+    public void SetUserZodiacSign(long tgId, string zodiacSign)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
+        if (user != null)
+        {
+            user.ZodiacSign = zodiacSign;
+            _context.Entry(user).State = EntityState.Modified;
+            _context.SaveChanges();
+        }
+    }
+
+    public void SetUserIsZodiacSignMatters(long tgId, bool isZodiacSignMatters)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
+        if (user != null)
+        {
+            user.IsZodiacSignMatters = isZodiacSignMatters;
+            _context.Entry(user).State = EntityState.Modified;
+            _context.SaveChanges();
+        }
+    }
+
     
     public void DeleteUserById(long userId)
     {

@@ -9,6 +9,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using File = System.IO.File;
 
 internal class Program
 {
@@ -39,7 +40,7 @@ internal class Program
         using var cts = new CancellationTokenSource();
         _botClient.StartReceiving(UpdateHandler, ErrorHandler, _receiverOptions, cts.Token);
         var me = await _botClient.GetMeAsync();
-        Console.WriteLine($"{me.FirstName} запущен!");
+        Console.WriteLine($"{me.FirstName} running!");
         await Task.Delay(-1);
     }
 
@@ -49,8 +50,6 @@ internal class Program
     {
         try
         {
-            if (update.Type == UpdateType.CallbackQuery) Console.WriteLine("dada");
-
             switch (update.Type)
             {
                 case UpdateType.Message:
@@ -65,6 +64,34 @@ internal class Program
                         UserRepository.CreateUser(message.From.Id);
                         UserRepository.SetUserTgUsername(message.From.Id, message.From.Username);
                     }
+                    else if(UserRepository.GetUserStage(message.From.Id) == 6)//твоя анкета выглядит так:
+                    {
+                        /*var user = UserRepository.GetUser(message.From.Id);
+                        
+                        Console.WriteLine("Фотография найдена.");
+                        var photo = message.Photo.LastOrDefault();
+                        var file = await botClient.GetFileAsync(photo.FileId);
+
+                        var filePath = $"../../../photos/{user.TgId}.jpg";
+
+                        await using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await botClient.DownloadFileAsync(file.FilePath, fileStream);
+                            fileStream.Close();
+                        }
+                        await using Stream stream = File.OpenRead(filePath);
+                        var caption = $"Твоя анкета выглядит так:\n" +
+                                      $"{user.Name}, {user.Age} лет, {user.City}\n" +
+                                      $"{user.About}";
+
+                        await botClient.SendPhotoAsync(
+                            message.Chat.Id,
+                            InputFile.FromStream(stream, "photo.jpg"),
+                            caption: caption,
+                            parseMode: ParseMode.Markdown
+                        );*//**/
+                    }
+                    
 
                     switch (message.Type)
                     {
