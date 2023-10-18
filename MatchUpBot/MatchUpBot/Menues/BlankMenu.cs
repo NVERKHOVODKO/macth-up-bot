@@ -23,7 +23,7 @@ public class BlankMenu
     public static async Task HandleMessageTypePhoto(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
     {
         int Stage = UserRepository.GetUserStage(message.From.Id);
-        if (Stage != 5)
+        if (Stage != 7)
         {
             await botClient.SendTextMessageAsync(chat.Id, "Используй текст");
             return;
@@ -31,8 +31,8 @@ public class BlankMenu
 
         await PhotoRepository.HandlePhotoMessage(message, botClient, curUser);
         curUser.PrintToConsole();
-        UserRepository.UpdateUserStage(message.From.Id, 6);
-        _logger.LogInformation($"user({message.From.Id}): Stage updated: {6}");
+        UserRepository.UpdateUserStage(message.From.Id, 8);
+        _logger.LogInformation($"user({message.From.Id}): Stage updated: {8}");
 
         /*ReplyKeyboardMarkup menuKeyboard = new(new[]
         {
@@ -84,7 +84,9 @@ public class BlankMenu
             _logger.LogInformation($"user({message.From.Id}): Stage updated: {1}");
         }
     }
-
+    
+    
+    
     private static async Task EnterAbout(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
     {
         curUser.City = message.Text;
@@ -113,7 +115,7 @@ public class BlankMenu
     private static async Task EnterSex(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
     {
         curUser.About = message.Text;
-        if (message.Text.ToLower() == "пропустить")
+        if (message.Text == "Пропустить")
         {
             UserRepository.SetUserAbout(message.From.Id, string.Empty);
             _logger.LogInformation($"user({message.From.Id}): skipped entering about");
@@ -145,16 +147,39 @@ public class BlankMenu
 
     private static async Task EnterPhoto(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
     {
-        curUser.Gender = message.Text;
-        UserRepository.SetUserGender(message.From.Id, message.Text);
-        _logger.LogInformation($"user({message.From.Id}): updated gender: {message.Text}");
+        if (!IsZodiacSignValid(message.Text))
+        {
+            await botClient.SendTextMessageAsync(chat.Id, "Введи корректный знак задиака");
+            _logger.LogInformation($"user({message.From.Id}): Stage updated: {6}");
+            return;
+        }
+        curUser.ZodiacSign = message.Text;
+        UserRepository.SetUserZodiacSign(message.From.Id, message.Text);
+        _logger.LogInformation($"user({message.From.Id}): updated ZodiacSign: {message.Text}");
+        
+        
         var removeKeyboard = new ReplyKeyboardRemove();
         await botClient.SendTextMessageAsync(chat.Id, "Скинь свою фото",
             replyMarkup: removeKeyboard);
         curUser.TgId = int.Parse(message.From.Id.ToString());
         curUser.TgUsername = message.From.Username;
-        UserRepository.UpdateUserStage(message.From.Id, 5);
-        _logger.LogInformation($"user({message.From.Id}): Stage updated: {5}");
+        UserRepository.UpdateUserStage(message.From.Id, 7);
+        _logger.LogInformation($"user({message.From.Id}): Stage updated: {7}");
+    }
+    
+    
+    public static bool IsZodiacSignValid(string zodiacSign)
+    {
+        List<string> zodiacSigns = new List<string> { "овен", "телец", "близнецы", "рак", "лев", "дева", "весы", "скорпион", "стрелец", "козерог", "водолей", "рыбы" };
+        string lowerCaseZodiacSign = zodiacSign.ToLower();
+        return zodiacSigns.Contains(lowerCaseZodiacSign);
+    }
+
+    
+    
+    private static async Task EnterInterest(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
+    {
+        
     }
 
     private static async Task EditProfileChoice(Message message, ITelegramBotClient botClient, Chat chat)
@@ -235,7 +260,85 @@ public class BlankMenu
         }
     }
 
+    
+    /*private static async Task EnterCity(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
+    {
+        try
+        {
+            curUser.Age = int.Parse(message.Text);
+            UserRepository.SetUserAge(message.From.Id, int.Parse(message.Text));
+            _logger.LogInformation($"user({message.From.Id}): updated age: {message.Text}");
+            await botClient.SendTextMessageAsync(
+                chat.Id,
+                "Из какого ты города?");
+            UserRepository.UpdateUserStage(message.From.Id, 2);
+            _logger.LogInformation($"user({message.From.Id}): Stage updated: {2}");
+        }
+        catch (FormatException e)
+        {
+            await botClient.SendTextMessageAsync(chat.Id, "Введи корректный возраст");
+            UserRepository.UpdateUserStage(message.From.Id, 1);
+            _logger.LogInformation($"user({message.From.Id}): Stage updated: {1}");
+        }
+    }*/
+    
+    private static async Task EnterIsZodiacSignMatter(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
+    {
+        try
+        {
+            curUser.Gender = message.Text;
+            UserRepository.SetUserGender(message.From.Id, message.Text);
+            _logger.LogInformation($"user({message.From.Id}): updated gender: {message.Text}");
+            var boolKeyboard = new ReplyKeyboardMarkup(
+                new List<KeyboardButton[]>
+                {
+                    new KeyboardButton[]
+                    {
+                        new("Да"),
+                        new("Нет")
+                    }
+                })
+            {
+                ResizeKeyboard = true
+            };            await botClient.SendTextMessageAsync(chat.Id, "Для тебя важен знак задиака?",
+                replyMarkup: boolKeyboard);
+            UserRepository.UpdateUserStage(message.From.Id, 5);
+            _logger.LogInformation($"user({message.From.Id}): Stage updated: {5}");
+        }
+        catch (FormatException e)
+        {
+            //await botClient.SendTextMessageAsync(chat.Id, "Введи корректный возраст");
+            UserRepository.UpdateUserStage(message.From.Id, 4);
+            _logger.LogInformation($"user({message.From.Id}): Stage updated: {4}");
+        }
+    }
 
+    
+    
+    
+    private static async Task EnterZodiacSign(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
+    {
+        try
+        {
+            var removeKeyboard = new ReplyKeyboardRemove();
+            
+            curUser.IsZodiacSignMatters = (message.Text == "Да");
+            UserRepository.SetUserZodiacSign(message.From.Id, message.Text);
+            _logger.LogInformation($"user({message.From.Id}): updated IsZodiacSignMatters: {message.Text}");
+            await botClient.SendTextMessageAsync(chat.Id, "Введи свой знак зодиака",
+                replyMarkup: removeKeyboard);
+            UserRepository.UpdateUserStage(message.From.Id, 6);
+            _logger.LogInformation($"user({message.From.Id}): Stage updated: {6}");
+        }
+        catch (FormatException e)
+        {
+            //await botClient.SendTextMessageAsync(chat.Id, "Введи корректный возраст");
+            UserRepository.UpdateUserStage(message.From.Id, 5);
+            _logger.LogInformation($"user({message.From.Id}): Stage updated: {5}");
+        }
+    }
+    
+    
     public static async Task HandleMessageTypeText(Message message, ITelegramBotClient botClient, Chat chat,
         CancellationToken cancellationToken, UserEntity curUser)
     {
@@ -265,6 +368,7 @@ public class BlankMenu
             return;
         }
 
+        
 
         Console.WriteLine(Stage);
 
@@ -283,9 +387,15 @@ public class BlankMenu
                 await EnterSex(message, botClient, chat, curUser);
                 break;
             case 4:
-                await EnterPhoto(message, botClient, chat, curUser);
+                await EnterIsZodiacSignMatter(message, botClient, chat, curUser);
+                break;
+            case 5:
+                await EnterZodiacSign(message, botClient, chat, curUser);
                 break;
             case 6:
+                await EnterPhoto(message, botClient, chat, curUser);
+                break;
+            case 7:
                 await EditProfileChoice(message, botClient, chat);
                 break;
             case (int)Action.EditProfile:

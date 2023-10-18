@@ -13,6 +13,7 @@ internal class Context : DbContext
     }
     
     public DbSet<UserEntity> Users { get; set; }
+    public DbSet<InterestEntity> Interests { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
