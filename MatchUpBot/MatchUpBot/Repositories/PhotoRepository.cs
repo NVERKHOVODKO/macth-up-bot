@@ -1,4 +1,5 @@
-﻿using Entities;
+﻿using Data;
+using Entities;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -8,7 +9,7 @@ namespace Repositories;
 
 public class PhotoRepository
 {
-    public static async Task HandlePhotoMessage(Message message, ITelegramBotClient botClient, UserEntity user)
+    public static async Task HandlePhotoMessage(Message message, ITelegramBotClient botClient)
     {
         try
         {
@@ -18,7 +19,7 @@ public class PhotoRepository
                 var photo = message.Photo.LastOrDefault();
                 var file = await botClient.GetFileAsync(photo.FileId);
 
-                var filePath = $"../../../photos/{user.TgId}.jpg";
+                var filePath = $"../../../photos/{message.From.Id}.jpg";
 
                 await using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
@@ -27,7 +28,8 @@ public class PhotoRepository
                 }
 
                 await using Stream stream = File.OpenRead(filePath);
-
+                UserRepository userRepository = new UserRepository();
+                UserEntity user = userRepository.GetUser(message.From.Id);
                 var caption = $"Твоя анкета выглядит так:\n" +
                               $"{user.Name}, {user.Age} лет, {user.City}\n" +
                               $"{user.About}";

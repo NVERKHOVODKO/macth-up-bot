@@ -19,8 +19,117 @@ public class BlankMenu
     {
         _logger = logger;
     }
+  public static async Task HandleMessageTypeText(Message message, ITelegramBotClient botClient, Chat chat,
+        CancellationToken cancellationToken, UserEntity curUser)
+    {
+        var tgId = message.From.Id;
+        int Stage = UserRepository.GetUserStage(tgId);
+        _logger.LogInformation($"Stage user({tgId}): {Stage}");
+        var replyKeyboard = new ReplyKeyboardMarkup(
+            new List<KeyboardButton[]>
+            {
+                new KeyboardButton[]
+                {
+                    new("Start!"),
+                    new("Что может бот?")
+                }
+            })
+        {
+            ResizeKeyboard = true
+        };
+        if (Stage == -1)
+        {
+            await EnterName(message, botClient, chat);
+        }
 
-    public static async Task HandleMessageTypePhoto(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
+        
+
+        Console.WriteLine(Stage);
+
+        switch (Stage)
+        {
+            case 0:
+                AddNameToDatabase(message);
+                await EnterAge(message, botClient, chat);
+                break;
+            case 1:
+                AddAgeToDatabase(message);
+                await EnterCity(message, botClient, chat);
+                break;
+            case 2:
+                AddCityToDatabase(message);
+                await EnterAbout(message, botClient, chat);
+                break;
+            case 3:
+                AddAboutToDatabase(message);
+                await EnterSex(botClient, chat);
+                break;
+            case 4:
+                if(!AddZodiacSignToDatabase(message, curUser,chat,botClient))
+                   break;
+                await EnterPhoto(message, botClient, chat);
+                break;
+            case 5:
+                await EditProfileChoice(message, botClient, chat);
+                break;
+            case (int)Action.EditProfile:
+                await EditProfile(message, botClient, chat, cancellationToken);
+                break;
+            /*case (int)Action.EditName: //TODO 
+                curUser.Name = message.Text;
+                await botClient.SendTextMessageAsync(
+                    chat.Id,
+                    $"Твое новое имя: {curUser.Name}");
+                Stage = (int)Action.EditProfile;
+                await UpdateUserInfo(curUser, context);
+                break;
+            case (int)Action.EditAge: //TODO 
+                try
+                {
+                    curUser.Age = int.Parse(message.Text);
+                    await botClient.SendTextMessageAsync(
+                        chat.Id,
+                        $"Твой новый возраст:{curUser.Age}");
+
+                    Stage = (int)Action.EditProfile;
+                    context.UserEntity.Update(curUser);
+                    await context.SaveChangesAsync();
+                }
+                catch (FormatException e)
+                {
+                    await botClient.SendTextMessageAsync(
+                        chat.Id,
+                        "Введи корректный возраст");
+                }
+                break;
+            case (int)Action.EditCity: //TODO 
+
+                curUser.City = message.Text;
+                await botClient.SendTextMessageAsync(
+                    chat.Id,
+                    $"Твой новый город: {curUser.City}");
+
+                Stage = (int)Action.EditProfile;
+                break;
+            case (int)Action.EditDescription: //TODO 
+                curUser.About = message.Text;
+                await botClient.SendTextMessageAsync(
+                    chat.Id,
+                    $"Твое новое описание: {curUser.About}");
+
+                Stage = (int)Action.EditProfile;
+                curUser.PrintToConsole();
+                break;*/
+            default:
+            {
+                await botClient.SendTextMessageAsync(
+                    chat.Id,
+                    "Используй только текст!");
+                return;
+            }
+        }
+    }
+    public static async Task HandleMessageTypePhoto(Message message, ITelegramBotClient botClient, Chat chat)
     {
         int Stage = UserRepository.GetUserStage(message.From.Id);
         if (Stage != 7)
@@ -29,8 +138,7 @@ public class BlankMenu
             return;
         }
 
-        await PhotoRepository.HandlePhotoMessage(message, botClient, curUser);
-        curUser.PrintToConsole();
+        await PhotoRepository.HandlePhotoMessage(message, botClient);
         UserRepository.UpdateUserStage(message.From.Id, 8);
         _logger.LogInformation($"user({message.From.Id}): Stage updated: {8}");
 
@@ -51,12 +159,23 @@ public class BlankMenu
         await botClient.SendTextMessageAsync(chat.Id, "Выбери действие", replyMarkup: menuKeyboard);*/
     }
     
-
-    private static async Task EnterName(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
+    private static async Task EnterName(Message message, ITelegramBotClient botClient, Chat chat)
     {
-        curUser.Name = message.Text;
+        int Stage = 0;
+        UserRepository.UpdateUserStage(message.From.Id, 0);
+        _logger.LogInformation($"Stage user({message.From.Id}): updated {Stage}");
+        await botClient.SendTextMessageAsync(
+            chat.Id,
+            "Как тебя зовут?");
+    }
+ 
+    private static void AddNameToDatabase(Message message)
+    {
         UserRepository.SetUserName(message.From.Id, message.Text);
         _logger.LogInformation($"user({message.From.Id}): updated name: {message.Text}");
+    }
+    private static async Task EnterAge(Message message, ITelegramBotClient botClient, Chat chat)
+    {
         await botClient.SendTextMessageAsync(
             chat.Id,
             "Сколько тебе лет?");
@@ -64,13 +183,15 @@ public class BlankMenu
         _logger.LogInformation($"user({message.From.Id}): Stage updated: {1}");
     }
 
-    private static async Task EnterCity(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
+    private static void AddAgeToDatabase(Message message)
+    {
+        UserRepository.SetUserAge(message.From.Id, int.Parse(message.Text));
+        _logger.LogInformation($"user({message.From.Id}): updated age: {message.Text}");
+    }
+    private static async Task EnterCity(Message message, ITelegramBotClient botClient, Chat chat)
     {
         try
         {
-            curUser.Age = int.Parse(message.Text);
-            UserRepository.SetUserAge(message.From.Id, int.Parse(message.Text));
-            _logger.LogInformation($"user({message.From.Id}): updated age: {message.Text}");
             await botClient.SendTextMessageAsync(
                 chat.Id,
                 "Из какого ты города?");
@@ -84,14 +205,15 @@ public class BlankMenu
             _logger.LogInformation($"user({message.From.Id}): Stage updated: {1}");
         }
     }
-    
-    
-    
-    private static async Task EnterAbout(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
+
+    private static void AddCityToDatabase(Message message)
     {
-        curUser.City = message.Text;
         UserRepository.SetUserCity(message.From.Id, message.Text);
         _logger.LogInformation($"user({message.From.Id}): updated city: {message.Text}");
+    }
+    
+    private static async Task EnterAbout(Message message, ITelegramBotClient botClient, Chat chat)
+    {
         var skipKeyboard = new ReplyKeyboardMarkup(
             new List<KeyboardButton[]>
             {
@@ -112,9 +234,8 @@ public class BlankMenu
         _logger.LogInformation($"user({message.From.Id}): Stage updated: {3}");
     }
 
-    private static async Task EnterSex(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
+    private static void AddAboutToDatabase(Message message)
     {
-        curUser.About = message.Text;
         if (message.Text == "Пропустить")
         {
             UserRepository.SetUserAbout(message.From.Id, string.Empty);
@@ -125,44 +246,49 @@ public class BlankMenu
             UserRepository.SetUserAbout(message.From.Id, message.Text);
             _logger.LogInformation($"user({message.From.Id}): updated about: {message.Text}");
         }
-        var sexKeyboard = new ReplyKeyboardMarkup(
-            new List<KeyboardButton[]>
-            {
-                new KeyboardButton[]
-                {
-                    new("Мужчина"),
-                    new("Женщина")
-                }
-            })
-        {
-            ResizeKeyboard = true
-        };
-        await botClient.SendTextMessageAsync(
-            chat.Id,
-            "Какой у тебя гендер?",
-            replyMarkup: sexKeyboard);
         UserRepository.UpdateUserStage(message.From.Id, 4);
         _logger.LogInformation($"user({message.From.Id}): Stage updated: {4}");
     }
 
-    private static async Task EnterPhoto(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
+    private static int messageId;
+
+    public static int getMessageId()
+    {
+        return messageId;
+    }
+    private static async Task EnterSex(ITelegramBotClient botClient, Chat chat)
+    {
+        InlineKeyboardMarkup sexKeyboard = new(new[]
+        {
+            InlineKeyboardButton.WithCallbackData("Мужчина", "man"),
+            InlineKeyboardButton.WithCallbackData("Женщина", "woman")
+        });
+        Message sentMessage = await botClient.SendTextMessageAsync(
+            chat.Id,
+            "Какой у тебя гендер?",
+            replyMarkup: sexKeyboard);
+        messageId = sentMessage.MessageId;
+    }
+
+    private static bool AddZodiacSignToDatabase(Message message, UserEntity curUser, Chat chat, ITelegramBotClient botClient)
     {
         if (!IsZodiacSignValid(message.Text))
         {
-            await botClient.SendTextMessageAsync(chat.Id, "Введи корректный знак задиака");
-            _logger.LogInformation($"user({message.From.Id}): Stage updated: {6}");
-            return;
+            botClient.SendTextMessageAsync(chat.Id, "Введи корректный знак задиака");
+            UserRepository.UpdateUserStage(message.From.Id,4);
+            _logger.LogInformation($"user({message.From.Id}): Stage updated: {4}");
+            return false;
         }
         curUser.ZodiacSign = message.Text;
         UserRepository.SetUserZodiacSign(message.From.Id, message.Text);
         _logger.LogInformation($"user({message.From.Id}): updated ZodiacSign: {message.Text}");
-        
-        
+        return true;
+    }
+    private static async Task EnterPhoto(Message message, ITelegramBotClient botClient, Chat chat)
+    {
         var removeKeyboard = new ReplyKeyboardRemove();
         await botClient.SendTextMessageAsync(chat.Id, "Скинь свою фото",
             replyMarkup: removeKeyboard);
-        curUser.TgId = int.Parse(message.From.Id.ToString());
-        curUser.TgUsername = message.From.Username;
         UserRepository.UpdateUserStage(message.From.Id, 7);
         _logger.LogInformation($"user({message.From.Id}): Stage updated: {7}");
     }
@@ -282,28 +408,12 @@ public class BlankMenu
         }
     }*/
     
-    private static async Task EnterIsZodiacSignMatter(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
+    public static async Task EnterIsZodiacSignMatter(Message message, ITelegramBotClient botClient, Chat chat)
     {
         try
         {
-            curUser.Gender = message.Text;
-            UserRepository.SetUserGender(message.From.Id, message.Text);
-            _logger.LogInformation($"user({message.From.Id}): updated gender: {message.Text}");
-            var boolKeyboard = new ReplyKeyboardMarkup(
-                new List<KeyboardButton[]>
-                {
-                    new KeyboardButton[]
-                    {
-                        new("Да"),
-                        new("Нет")
-                    }
-                })
-            {
-                ResizeKeyboard = true
-            };            await botClient.SendTextMessageAsync(chat.Id, "Для тебя важен знак задиака?",
-                replyMarkup: boolKeyboard);
-            UserRepository.UpdateUserStage(message.From.Id, 5);
-            _logger.LogInformation($"user({message.From.Id}): Stage updated: {5}");
+          
+          
         }
         catch (FormatException e)
         {
@@ -312,147 +422,7 @@ public class BlankMenu
             _logger.LogInformation($"user({message.From.Id}): Stage updated: {4}");
         }
     }
-
     
+   
     
-    
-    private static async Task EnterZodiacSign(Message message, ITelegramBotClient botClient, Chat chat, UserEntity curUser)
-    {
-        try
-        {
-            var removeKeyboard = new ReplyKeyboardRemove();
-            
-            curUser.IsZodiacSignMatters = (message.Text == "Да");
-            UserRepository.SetUserZodiacSign(message.From.Id, message.Text);
-            _logger.LogInformation($"user({message.From.Id}): updated IsZodiacSignMatters: {message.Text}");
-            await botClient.SendTextMessageAsync(chat.Id, "Введи свой знак зодиака",
-                replyMarkup: removeKeyboard);
-            UserRepository.UpdateUserStage(message.From.Id, 6);
-            _logger.LogInformation($"user({message.From.Id}): Stage updated: {6}");
-        }
-        catch (FormatException e)
-        {
-            //await botClient.SendTextMessageAsync(chat.Id, "Введи корректный возраст");
-            UserRepository.UpdateUserStage(message.From.Id, 5);
-            _logger.LogInformation($"user({message.From.Id}): Stage updated: {5}");
-        }
-    }
-    
-    
-    public static async Task HandleMessageTypeText(Message message, ITelegramBotClient botClient, Chat chat,
-        CancellationToken cancellationToken, UserEntity curUser)
-    {
-        var tgId = message.From.Id;
-        int Stage = UserRepository.GetUserStage(tgId);
-        _logger.LogInformation($"Stage user({tgId}): {Stage}");
-        var replyKeyboard = new ReplyKeyboardMarkup(
-            new List<KeyboardButton[]>
-            {
-                new KeyboardButton[]
-                {
-                    new("Start!"),
-                    new("Что может бот?")
-                }
-            })
-        {
-            ResizeKeyboard = true
-        };
-        if (Stage == -1)
-        {
-            Stage = 0;
-            UserRepository.UpdateUserStage(message.From.Id, 0);
-            _logger.LogInformation($"Stage user({tgId}): updated {Stage}");
-            await botClient.SendTextMessageAsync(
-                chat.Id,
-                "Как тебя зовут?");
-            return;
-        }
-
-        
-
-        Console.WriteLine(Stage);
-
-        switch (Stage)
-        {
-            case 0:
-                await EnterName(message, botClient, chat, curUser);
-                break;
-            case 1:
-                await EnterCity(message, botClient, chat, curUser);
-                break;
-            case 2:
-                await EnterAbout(message, botClient, chat, curUser);
-                break;
-            case 3:
-                await EnterSex(message, botClient, chat, curUser);
-                break;
-            case 4:
-                await EnterIsZodiacSignMatter(message, botClient, chat, curUser);
-                break;
-            case 5:
-                await EnterZodiacSign(message, botClient, chat, curUser);
-                break;
-            case 6:
-                await EnterPhoto(message, botClient, chat, curUser);
-                break;
-            case 7:
-                await EditProfileChoice(message, botClient, chat);
-                break;
-            case (int)Action.EditProfile:
-                await EditProfile(message, botClient, chat, cancellationToken);
-                break;
-            /*case (int)Action.EditName: //TODO 
-                curUser.Name = message.Text;
-                await botClient.SendTextMessageAsync(
-                    chat.Id,
-                    $"Твое новое имя: {curUser.Name}");
-                Stage = (int)Action.EditProfile;
-                await UpdateUserInfo(curUser, context);
-                break;
-            case (int)Action.EditAge: //TODO 
-                try
-                {
-                    curUser.Age = int.Parse(message.Text);
-                    await botClient.SendTextMessageAsync(
-                        chat.Id,
-                        $"Твой новый возраст:{curUser.Age}");
-
-                    Stage = (int)Action.EditProfile;
-                    context.UserEntity.Update(curUser);
-                    await context.SaveChangesAsync();
-                }
-                catch (FormatException e)
-                {
-                    await botClient.SendTextMessageAsync(
-                        chat.Id,
-                        "Введи корректный возраст");
-                }
-                break;
-            case (int)Action.EditCity: //TODO 
-
-                curUser.City = message.Text;
-                await botClient.SendTextMessageAsync(
-                    chat.Id,
-                    $"Твой новый город: {curUser.City}");
-
-                Stage = (int)Action.EditProfile;
-                break;
-            case (int)Action.EditDescription: //TODO 
-                curUser.About = message.Text;
-                await botClient.SendTextMessageAsync(
-                    chat.Id,
-                    $"Твое новое описание: {curUser.About}");
-
-                Stage = (int)Action.EditProfile;
-                curUser.PrintToConsole();
-                break;*/
-            default:
-            {
-                await botClient.SendTextMessageAsync(
-                    chat.Id,
-                    "Используй только текст!");
-                return;
-            }
-        }
-    }
 }

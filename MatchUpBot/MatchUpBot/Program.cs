@@ -3,6 +3,7 @@
 using ConsoleApplication1.Menues;
 using Data;
 using Entities;
+using EntityFrameworkLesson.Repositories;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -52,6 +53,11 @@ internal class Program
         {
             switch (update.Type)
             {
+                case UpdateType.CallbackQuery:
+                {
+                    await CallbackDataRepository.HandleCallBackQuery(botClient, update);
+                    break;
+                }
                 case UpdateType.Message:
                 {
                     var message = update.Message;
@@ -97,12 +103,13 @@ internal class Program
                     {
                         case MessageType.Text:
                         {
+                            // Stage = -1 почему?
                             await BlankMenu.HandleMessageTypeText(message, botClient, chat, cancellationToken, curUser);
                             return;
                         }
                         case MessageType.Photo:
                         {
-                            await BlankMenu.HandleMessageTypePhoto(message, botClient, chat, curUser);
+                            await BlankMenu.HandleMessageTypePhoto(message, botClient, chat);
                             return;
                         }
                     }
