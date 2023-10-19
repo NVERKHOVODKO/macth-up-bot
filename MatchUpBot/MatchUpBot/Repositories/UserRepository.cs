@@ -12,8 +12,7 @@ public class UserRepository
     public void UpdateUserStage(long tgId, int newStage)
     {
         var user = _context.Users
-            .Where(u => u.TgId == tgId)
-            .FirstOrDefault();
+            .FirstOrDefault(u => u.TgId == tgId);
 
         if (user != null)
         {
@@ -25,16 +24,26 @@ public class UserRepository
 
     public int GetUserStage(long tgId)
     {
-        var user = _context.Users
-            .FirstOrDefault(u => u.TgId == tgId);
+        var user = _context.Users.AsNoTracking().FirstOrDefault(e => e.TgId == tgId);
         return user.Stage;
     }
-    
+
+    public string GetUserGender(long tgId)
+    {
+        var user = _context.Users.AsNoTracking().FirstOrDefault(e => e.TgId == tgId);
+        return user.Gender;
+    }
+
     public UserEntity GetUser(long tgId)
     {
-        var user = _context.Users
-            .FirstOrDefault(u => u.TgId == tgId);
+        var user = _context.Users.AsNoTracking().FirstOrDefault(e => e.TgId == tgId);
         return user;
+    }
+
+    public bool GetUserZodiacSignMatter(long tgId)
+    {
+        var user = _context.Users.AsNoTracking().FirstOrDefault(e => e.TgId == tgId);
+        return user.IsZodiacSignMatters;
     }
 
     public UserEntity CreateUser(long tgId)
@@ -63,7 +72,7 @@ public class UserRepository
     {
         return _context.Users.Any(u => u.TgId == tgId);
     }
-    
+
     public async Task AddInterestToUserAsync(long userId, Guid interestId)
     {
         var user = await _context.Users
@@ -73,10 +82,12 @@ public class UserRepository
         {
             return;
         }
+
         if (user.UserInterests.Any(ui => ui.InterestId == interestId))
         {
             return;
         }
+
         user.UserInterests.Add(new UserInterestsEntity
         {
             InterestId = interestId
@@ -163,11 +174,13 @@ public class UserRepository
             _context.SaveChanges();
         }
     }
-    
-    
+
+
     public void SetUserZodiacSign(long tgId, string zodiacSign)
     {
+      
         var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
+
         if (user != null)
         {
             user.ZodiacSign = zodiacSign;
@@ -187,8 +200,9 @@ public class UserRepository
         }
     }
 
-    
-    public void DeleteUserById(long userId)
+
+
+public void DeleteUserById(long userId)
     {
         var user = _context.Users.Find(userId);
 

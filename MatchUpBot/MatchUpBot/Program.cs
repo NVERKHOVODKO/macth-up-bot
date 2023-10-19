@@ -70,7 +70,7 @@ internal class Program
                         UserRepository.CreateUser(message.From.Id);
                         UserRepository.SetUserTgUsername(message.From.Id, message.From.Username);
                     }
-                    else if(UserRepository.GetUserStage(message.From.Id) == 6)//твоя анкета выглядит так:
+                    /*else if(UserRepository.GetUserStage(message.From.Id) == 6)//твоя анкета выглядит так:
                     {
                         /*var user = UserRepository.GetUser(message.From.Id);
                         
@@ -95,8 +95,8 @@ internal class Program
                             InputFile.FromStream(stream, "photo.jpg"),
                             caption: caption,
                             parseMode: ParseMode.Markdown
-                        );*//**/
-                    }
+                        );#1#/*#1#
+                    }*/
                     
 
                     switch (message.Type)

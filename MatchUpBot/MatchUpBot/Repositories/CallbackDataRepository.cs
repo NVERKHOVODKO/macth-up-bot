@@ -11,7 +11,6 @@ namespace EntityFrameworkLesson.Repositories;
 
 public class CallbackDataRepository
 {
-    private static readonly UserRepository UserRepository = new();
     private static ILogger<CallbackDataRepository> _logger =
         LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<CallbackDataRepository>();
 
@@ -19,60 +18,96 @@ public class CallbackDataRepository
     {
         var callbackQuery = update.CallbackQuery;
         var user = callbackQuery.From;
-        if (UserRepository.GetUserStage(user.Id) != 4)
+        Console.WriteLine("user stage in callback = " + BlankMenu.UserRepository.GetUserStage(user.Id));
+        if (BlankMenu.UserRepository.GetUserStage(user.Id) != 4)
         {
             await botClient.SendTextMessageAsync(user.Id, "Куда ты тыкаешь, аболтус");
             return;
         }
-    switch (callbackQuery.Data)
-      {
-          case "man":
-          {
-              UserRepository.SetUserGender(user.Id, "Мужчина");
-              _logger.LogInformation($"user({user.Id}): updated gender: Мужчина");
 
-              InlineKeyboardMarkup boolKeyboard = new(new[]
-              {
-                  InlineKeyboardButton.WithCallbackData("Да","zodiacMatters"),
-                  InlineKeyboardButton.WithCallbackData("Нет","zodiacDoesntMatters")
-              });
-              await botClient.EditMessageTextAsync(user.Id,BlankMenu.getMessageId(),"Для тебя важен знак зодиака?",replyMarkup: boolKeyboard);
-              break;
-          }
-              
-          case "woman":
-          {
-              UserRepository.SetUserGender(user.Id, "Женщина");
-              _logger.LogInformation($"user({user.Id}): updated gender: Женщина");
+        switch (callbackQuery.Data)
+        {
+            case "man":
+            {
+                try
+                {
+                    BlankMenu.UserRepository.SetUserGender(user.Id, "Мужчина");
+                    _logger.LogInformation($"user({user.Id}): updated gender: Мужчина");
 
-              InlineKeyboardMarkup boolKeyboard = new(new[]
-              {
-                  InlineKeyboardButton.WithCallbackData("Да","zodiacMatters"),
-                  InlineKeyboardButton.WithCallbackData("Нет","zodiacDoesntMatters")
-              });
-              await botClient.EditMessageTextAsync(user.Id,BlankMenu.getMessageId(),"Для тебя важен знак зодиака?",replyMarkup: boolKeyboard);
-              break;
-          }
+                    InlineKeyboardMarkup boolKeyboard = new(new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Да", "zodiacMatters"),
+                        InlineKeyboardButton.WithCallbackData("Нет", "zodiacDoesntMatters")
+                    });
+                    await botClient.EditMessageTextAsync(user.Id, BlankMenu.getMessageId(),
+                        "Для тебя важен знак зодиака?", replyMarkup: boolKeyboard);
+                    break;
+                }
+                catch (Telegram.Bot.Exceptions.ApiRequestException e)
+                {
+                    await botClient.SendTextMessageAsync(user.Id, "Не тыкай туда, бродяга");
+                    break;
+                }
 
-          case "zodiacMatters":
-          {
-              await EnterZodiacSign(botClient, callbackQuery.Message.Chat , user.Id);
-              UserRepository.SetUserIsZodiacSignMatters(user.Id, true);
-              UpdateStage(user.Id, 4);
-              break;
-          }
-          case "zodiacDoesntMatters":
-          {
-              await EnterZodiacSign(botClient, callbackQuery.Message.Chat,  user.Id);
-              UserRepository.SetUserIsZodiacSignMatters(user.Id, false);
-              UpdateStage(user.Id, 4);
-              break;
-          }
+            }
 
-      }
-      
-   }
-   private static async Task EnterZodiacSign(ITelegramBotClient botClient, Chat chat, long Id)
+            case "woman":
+            {
+                try
+                {
+                    if (BlankMenu.getMessageId() == 0)
+                    {
+                        throw new Telegram.Bot.Exceptions.ApiRequestException("warning");
+                    }
+
+                    BlankMenu.UserRepository.SetUserGender(user.Id, "Женщина");
+                    _logger.LogInformation($"user({user.Id}): updated gender: Женщина");
+
+                    InlineKeyboardMarkup boolKeyboard = new(new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Да", "zodiacMatters"),
+                        InlineKeyboardButton.WithCallbackData("Нет", "zodiacDoesntMatters")
+                    });
+                    await botClient.EditMessageTextAsync(user.Id, BlankMenu.getMessageId(),
+                        "Для тебя важен знак зодиака?", replyMarkup: boolKeyboard);
+                    break;
+                }
+                catch (Telegram.Bot.Exceptions.ApiRequestException e)
+                {
+                    await botClient.SendTextMessageAsync(user.Id, "Не тыкай туда, бродяга");
+                    break;
+                }
+            }
+
+            case "zodiacMatters":
+            {
+                await EnterZodiacSign(botClient, callbackQuery.Message.Chat, user.Id);
+                BlankMenu.UserRepository.SetUserIsZodiacSignMatters(user.Id, true);
+                UpdateStage(user.Id, 4);
+                _isZodiacMattersEntered = true;
+                break;
+            }
+            case "zodiacDoesntMatters":
+            {
+                await EnterZodiacSign(botClient, callbackQuery.Message.Chat, user.Id);
+                BlankMenu.UserRepository.SetUserIsZodiacSignMatters(user.Id, false);
+                UpdateStage(user.Id, 4);
+                _isZodiacMattersEntered = true;
+                break;
+            }
+
+        }
+
+    }
+
+    private static bool _isZodiacMattersEntered = false;
+
+    public static bool GetIsZodiacMattersEntered()
+    {
+        return _isZodiacMattersEntered;
+    }
+
+private static async Task EnterZodiacSign(ITelegramBotClient botClient, Chat chat, long Id)
    {
        try
        {
@@ -86,7 +121,7 @@ public class CallbackDataRepository
            _logger.LogError(e, $"Ошибка при попытке отправить сообщение о знаке зодиака пользователю {Id}");
 
            // Обновляем стадию пользователя
-           UserRepository.UpdateUserStage(Id, 4);
+           BlankMenu.UserRepository.UpdateUserStage(Id, 4);
 
            // В случае ошибки, возможно, вам также стоит сообщить пользователю об этом
            await botClient.SendTextMessageAsync(chat.Id, "Произошла ошибка, пожалуйста, попробуйте снова.");
@@ -94,7 +129,7 @@ public class CallbackDataRepository
    }
    private static void UpdateStage(long tgId, int stage)
    {
-       UserRepository.UpdateUserStage(tgId, stage);
+       BlankMenu.UserRepository.UpdateUserStage(tgId, stage);
        _logger.LogInformation($"user({tgId}): Stage updated: {stage}");
    }
 }
