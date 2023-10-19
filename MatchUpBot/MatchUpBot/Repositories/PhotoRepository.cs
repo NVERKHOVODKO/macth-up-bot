@@ -27,20 +27,7 @@ public class PhotoRepository
                     fileStream.Close();
                 }
 
-                await using Stream stream = File.OpenRead(filePath);
-                UserRepository userRepository = new UserRepository();
-                UserEntity user = userRepository.GetUser(message.From.Id);
-                var caption = $"Твоя анкета выглядит так:\n" +
-                              $"{user.Name}, {user.Age} лет, {user.City}\n" +
-                              $"{user.About}";
-
-                await botClient.SendPhotoAsync(
-                    message.Chat.Id,
-                    InputFile.FromStream(stream, "photo.jpg"),
-                    caption: caption,
-                    parseMode: ParseMode.Markdown
-                );
-
+                await SendUserProfile(message, botClient);
 
                 Console.WriteLine("Файл успешно скачан.");
             }
@@ -53,5 +40,23 @@ public class PhotoRepository
         {
             Console.WriteLine($"Ошибка при скачивании файла: {e.Message}");
         }
+    }
+
+    public static async Task SendUserProfile(Message message, ITelegramBotClient botClient)
+    {
+        var filePath = $"../../../photos/{message.From.Id}.jpg";
+        await using Stream stream = File.OpenRead(filePath);
+        UserRepository userRepository = new UserRepository();
+        UserEntity user = userRepository.GetUser(message.From.Id);
+        var caption = $"Твоя анкета выглядит так:\n" +
+                      $"{user.Name}, {user.Age} лет, {user.City}\n" +
+                      $"{user.About}";
+
+        await botClient.SendPhotoAsync(
+            message.Chat.Id,
+            InputFile.FromStream(stream, "photo.jpg"),
+            caption: caption,
+            parseMode: ParseMode.Markdown
+        );
     }
 }

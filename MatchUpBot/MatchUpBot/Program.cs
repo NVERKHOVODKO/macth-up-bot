@@ -103,7 +103,6 @@ internal class Program
                     {
                         case MessageType.Text:
                         {
-                            // Stage = -1 почему?
                             await BlankMenu.HandleMessageTypeText(message, botClient, chat, cancellationToken, curUser);
                             return;
                         }

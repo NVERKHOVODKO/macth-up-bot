@@ -74,10 +74,8 @@ public class BlankMenu
                 }
                 await EnterPhoto(message, botClient, chat);
                 break;
-            case 5:
-                
-                break;
             case 6:
+                await PhotoRepository.SendUserProfile(message, botClient);
                 await EnterAction(message, botClient, chat);
                 break;
             case (int)Action.EditProfile:
@@ -288,15 +286,22 @@ public class BlankMenu
     }
     private static async Task EnterSex(Message message,ITelegramBotClient botClient, Chat chat)
     {
+        ReplyKeyboardRemove remove = new ReplyKeyboardRemove();
+        string about = UserRepository.GetUserAbout(message.From.Id);
+        if (about == "")
+        {
+            await botClient.SendTextMessageAsync(chat.Id, "Ты не добавил описания о себе",replyMarkup:remove);
+        }
+        else
+        {
+            await botClient.SendTextMessageAsync(chat.Id, $"Твое описание о себе:{about}",replyMarkup:remove);
+        }
         InlineKeyboardMarkup sexKeyboard = new(new[]
         {
             InlineKeyboardButton.WithCallbackData("Мужчина", "man"),
             InlineKeyboardButton.WithCallbackData("Женщина", "woman")
         });
-        Message sentMessage = await botClient.SendTextMessageAsync(
-            chat.Id,
-            "Какой у тебя гендер?",
-            replyMarkup: sexKeyboard);
+        Message sentMessage = await botClient.SendTextMessageAsync(chat.Id, "Какой у тебя гендер?",replyMarkup:sexKeyboard);
         messageId = sentMessage.MessageId;
         UserRepository.UpdateUserStage(message.From.Id, 4);
         _logger.LogInformation($"user({message.From.Id}): Stage updated: {4}");

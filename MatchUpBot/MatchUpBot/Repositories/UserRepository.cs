@@ -46,6 +46,13 @@ public class UserRepository
         return user.IsZodiacSignMatters;
     }
 
+    public string GetUserAbout(long tgId)
+    {
+        var user = _context.Users.AsNoTracking().FirstOrDefault(e => e.TgId == tgId);
+        return user.About;
+    }
+    
+
     public UserEntity CreateUser(long tgId)
     {
         var newUser = new UserEntity
