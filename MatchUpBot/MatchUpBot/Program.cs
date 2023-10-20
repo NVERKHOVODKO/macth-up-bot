@@ -70,34 +70,6 @@ internal class Program
                         UserRepository.CreateUser(message.From.Id);
                         UserRepository.SetUserTgUsername(message.From.Id, message.From.Username);
                     }
-                    /*else if(UserRepository.GetUserStage(message.From.Id) == 6)//твоя анкета выглядит так:
-                    {
-                        /*var user = UserRepository.GetUser(message.From.Id);
-                        
-                        Console.WriteLine("Фотография найдена.");
-                        var photo = message.Photo.LastOrDefault();
-                        var file = await botClient.GetFileAsync(photo.FileId);
-
-                        var filePath = $"../../../photos/{user.TgId}.jpg";
-
-                        await using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await botClient.DownloadFileAsync(file.FilePath, fileStream);
-                            fileStream.Close();
-                        }
-                        await using Stream stream = File.OpenRead(filePath);
-                        var caption = $"Твоя анкета выглядит так:\n" +
-                                      $"{user.Name}, {user.Age} лет, {user.City}\n" +
-                                      $"{user.About}";
-
-                        await botClient.SendPhotoAsync(
-                            message.Chat.Id,
-                            InputFile.FromStream(stream, "photo.jpg"),
-                            caption: caption,
-                            parseMode: ParseMode.Markdown
-                        );#1#/*#1#
-                    }*/
-                    
 
                     switch (message.Type)
                     {

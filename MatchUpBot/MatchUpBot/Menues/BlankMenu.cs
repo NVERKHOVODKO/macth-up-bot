@@ -74,8 +74,7 @@ public class BlankMenu
                 }
                 await EnterPhoto(message, botClient, chat);
                 break;
-            case 6:
-                await PhotoRepository.SendUserProfile(message, botClient);
+            case 7:
                 await EnterAction(message, botClient, chat);
                 break;
             case (int)Action.EditProfile:
@@ -135,23 +134,46 @@ public class BlankMenu
             }
         }
     }
+
+  public static async Task EnterMainPhotos(Message message, ITelegramBotClient botClient)
+  {
+      var number = PhotoRepository.GetFileCountInFolder($"../../../photos/{message.From.Id}/main/");
+      if (number == 3)
+      {
+          UserRepository.UpdateUserStage(message.From.Id, 7);
+          _logger.LogInformation($"user({message.From.Id}): Stage updated: {7}");
+          return;
+      }
+      await botClient.SendTextMessageAsync(message.From.Id, $"Ты отправил " +
+                                                            $"{number} из 3");
+      var menuKeyboard = new InlineKeyboardMarkup(
+          new List<InlineKeyboardButton[]>()
+          {
+              new InlineKeyboardButton[] 
+              {
+                  InlineKeyboardButton.WithCallbackData("Да", "want_to_add_main_photo"),
+              },
+              new InlineKeyboardButton[]
+              {
+                  InlineKeyboardButton.WithCallbackData("Нет", "dont_want_to_add_main_photo"),
+              },
+          });
+      await botClient.SendTextMessageAsync(message.From.Id, "Хочешь отправить еще фото?", replyMarkup: menuKeyboard);
+  }
     public static async Task HandleMessageTypePhoto(Message message, ITelegramBotClient botClient, Chat chat)
     {
         int Stage = UserRepository.GetUserStage(message.From.Id);
-        if (Stage != 5)
+        if (Stage != 5 && Stage != 6)
         {
             await botClient.SendTextMessageAsync(chat.Id, "Зачем мне твое фото");
             return;
         }
-
         await PhotoRepository.HandlePhotoMessage(message, botClient);
-        UserRepository.UpdateUserStage(message.From.Id, 6);
-        _logger.LogInformation($"user({message.From.Id}): Stage updated: {6}");
-        
     }
 
     private static async Task EnterAction(Message message, ITelegramBotClient botClient, Chat chat)
     {
+        await PhotoRepository.SendUserMainProfile(message, botClient);
         var menuKeyboard = new InlineKeyboardMarkup(
             new List<InlineKeyboardButton[]>()
             {
@@ -311,7 +333,7 @@ public class BlankMenu
     {
         if (UserRepository.GetUserGender(message.From.Id) == "N/A" || CallbackDataRepository.GetIsZodiacMattersEntered() == false)
         { 
-            botClient.SendTextMessageAsync(chat.Id, "Сначала введи свой пол и знак зодиака");
+            botClient.SendTextMessageAsync(chat.Id, "Сначала ответь на вопросы");
             return false;
         }
         if (!IsZodiacSignValid(message.Text))

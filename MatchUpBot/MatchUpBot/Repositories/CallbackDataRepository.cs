@@ -2,7 +2,9 @@
 using Data;
 using Entities;
 using Microsoft.Extensions.Logging;
+using Repositories;
 using Telegram.Bot;
+using Telegram.Bot.Requests;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using User = TelegramBotExperiments.Models.User;
@@ -18,12 +20,6 @@ public class CallbackDataRepository
     {
         var callbackQuery = update.CallbackQuery;
         var user = callbackQuery.From;
-        Console.WriteLine("user stage in callback = " + BlankMenu.UserRepository.GetUserStage(user.Id));
-        if (BlankMenu.UserRepository.GetUserStage(user.Id) != 4)
-        {
-            await botClient.SendTextMessageAsync(user.Id, "Куда ты тыкаешь, аболтус");
-            return;
-        }
 
         switch (callbackQuery.Data)
         {
@@ -31,6 +27,11 @@ public class CallbackDataRepository
             {
                 try
                 {
+                    if (BlankMenu.UserRepository.GetUserStage(user.Id) != 4)
+                    {
+                        await botClient.SendTextMessageAsync(user.Id, "Куда ты тыкаешь, аболтус");
+                        return;
+                    }
                     BlankMenu.UserRepository.SetUserGender(user.Id, "Мужчина");
                     _logger.LogInformation($"user({user.Id}): updated gender: Мужчина");
 
@@ -55,6 +56,11 @@ public class CallbackDataRepository
             {
                 try
                 {
+                    if (BlankMenu.UserRepository.GetUserStage(user.Id) != 4)
+                    {
+                        await botClient.SendTextMessageAsync(user.Id, "Куда ты тыкаешь, аболтус");
+                        return;
+                    }
                     if (BlankMenu.getMessageId() == 0)
                     {
                         throw new Telegram.Bot.Exceptions.ApiRequestException("warning");
@@ -81,6 +87,11 @@ public class CallbackDataRepository
 
             case "zodiacMatters":
             {
+                if (BlankMenu.UserRepository.GetUserStage(user.Id) != 4)
+                {
+                    await botClient.SendTextMessageAsync(user.Id, "Куда ты тыкаешь, аболтус");
+                    return;
+                }
                 await EnterZodiacSign(botClient, callbackQuery.Message.Chat, user.Id);
                 BlankMenu.UserRepository.SetUserIsZodiacSignMatters(user.Id, true);
                 UpdateStage(user.Id, 4);
@@ -89,17 +100,45 @@ public class CallbackDataRepository
             }
             case "zodiacDoesntMatters":
             {
+                if (BlankMenu.UserRepository.GetUserStage(user.Id) != 4)
+                {
+                    await botClient.SendTextMessageAsync(user.Id, "Куда ты тыкаешь, аболтус");
+                    return;
+                }
                 await EnterZodiacSign(botClient, callbackQuery.Message.Chat, user.Id);
                 BlankMenu.UserRepository.SetUserIsZodiacSignMatters(user.Id, false);
                 UpdateStage(user.Id, 4);
                 _isZodiacMattersEntered = true;
                 break;
             }
-
+            case "want_to_add_main_photo":
+            {
+                if (PhotoRepository.GetFileCountInFolder($"../../../photos/{callbackQuery.Message.From.Id}/main") ==3)
+                {
+                    UpdateStage(user.Id, 7);
+                    break;
+                }
+                await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
+                    "Скинь еще главную фото");
+                _folder = "main";
+                break;
+            }
+            case "dont_want_to_add_main_photo":
+            {
+                await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
+                    "Фотографии сохранены. Отправь сообщение.");
+                UpdateStage(user.Id, 7);
+                break;
+            }
         }
-
     }
 
+    private static string _folder = "main";
+
+    public static string GetFolder()
+    {
+        return _folder;
+    }
     private static bool _isZodiacMattersEntered = false;
 
     public static bool GetIsZodiacMattersEntered()
