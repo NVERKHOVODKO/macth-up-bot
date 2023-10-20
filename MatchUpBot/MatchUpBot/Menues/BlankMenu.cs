@@ -74,7 +74,8 @@ public class BlankMenu
                 }
                 await EnterPhoto(message, botClient, chat);
                 break;
-            case 7:
+            
+            case 8:
                 await EnterAction(message, botClient, chat);
                 break;
             case (int)Action.EditProfile:
@@ -140,6 +141,16 @@ public class BlankMenu
       var number = PhotoRepository.GetFileCountInFolder($"../../../photos/{message.From.Id}/main/");
       if (number == 3)
       {
+          var additionalPhoto = new InlineKeyboardMarkup(
+              new List<InlineKeyboardButton[]>()
+              {
+                  new InlineKeyboardButton[] 
+                  {
+                      InlineKeyboardButton.WithCallbackData("Да", "additional_photo_yes"),
+                      InlineKeyboardButton.WithCallbackData("Нет", "additional_photo_no"),
+                  }
+              });
+          await botClient.SendTextMessageAsync(message.From.Id, "Ты хочешь добавить дополнительные фото (до 10)?",replyMarkup:additionalPhoto);
           UserRepository.UpdateUserStage(message.From.Id, 7);
           _logger.LogInformation($"user({message.From.Id}): Stage updated: {7}");
           return;
@@ -158,12 +169,37 @@ public class BlankMenu
                   InlineKeyboardButton.WithCallbackData("Нет", "dont_want_to_add_main_photo"),
               },
           });
+      UserRepository.UpdateUserStage(message.From.Id, 6);
+      _logger.LogInformation($"user({message.From.Id}): Stage updated: {6}");
       await botClient.SendTextMessageAsync(message.From.Id, "Хочешь отправить еще фото?", replyMarkup: menuKeyboard);
+  }
+  public static async Task EnterAdditionalPhotos(Message message, ITelegramBotClient botClient)
+  {
+      var number = PhotoRepository.GetFileCountInFolder($"../../../photos/{message.From.Id}/additional/");
+      if (number == 10)
+      {
+          await botClient.SendTextMessageAsync(message.From.Id, "Дополнительные фото отправлены. Введи сообщение");
+          UserRepository.UpdateUserStage(message.From.Id, 8);
+          _logger.LogInformation($"user({message.From.Id}): Stage updated: {8}");
+          return;
+      }
+      await botClient.SendTextMessageAsync(message.From.Id, $"Ты отправил " +
+                                                            $"{number} из 10");
+      var additionalPhoto = new InlineKeyboardMarkup(
+          new List<InlineKeyboardButton[]>()
+          {
+              new InlineKeyboardButton[] 
+              {
+                  InlineKeyboardButton.WithCallbackData("Да", "additional_photo_yes"),
+                  InlineKeyboardButton.WithCallbackData("Нет", "additional_photo_no"),
+              }
+          });
+      await botClient.SendTextMessageAsync(message.From.Id, "Хочешь отправить еще фото?", replyMarkup: additionalPhoto);
   }
     public static async Task HandleMessageTypePhoto(Message message, ITelegramBotClient botClient, Chat chat)
     {
         int Stage = UserRepository.GetUserStage(message.From.Id);
-        if (Stage != 5 && Stage != 6)
+        if (Stage != 5 && Stage != 6 && Stage != 7)
         {
             await botClient.SendTextMessageAsync(chat.Id, "Зачем мне твое фото");
             return;
@@ -185,6 +221,10 @@ public class BlankMenu
                 {
                     InlineKeyboardButton.WithCallbackData("Просмотреть анкеты", "view_profiles"),
                 },
+                new InlineKeyboardButton[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Просмотреть доп фото", "view_add_photo")
+                }
             });
         await botClient.SendTextMessageAsync(chat.Id, "Выбери действие", replyMarkup: menuKeyboard);
     }

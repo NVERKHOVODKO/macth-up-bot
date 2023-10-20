@@ -1,4 +1,5 @@
-﻿using ConsoleApplication1.Menues;
+﻿using System.Net.NetworkInformation;
+using ConsoleApplication1.Menues;
 using Data;
 using Entities;
 using EntityFrameworkLesson.Repositories;
@@ -32,16 +33,34 @@ public class PhotoRepository
                     Console.WriteLine("Папка уже существует.");
                 }
 
-                if (CallbackDataRepository.GetFolder() == "main" && GetFileCountInFolder($"../../../photos/{message.From.Id}/main/") <3)
+                switch (CallbackDataRepository.GetFolder())
                 {
-                    await AddInMainFolder(message, botClient);
+                    case "main":
+                        if (GetFileCountInFolder($"../../../photos/{message.From.Id}/main/") < 3)
+                        {
+                            await AddInMainFolder(message, botClient);
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(message.From.Id,
+                                "Ты уже добавил максимальное количество главных фото.Введи сообщение");
+                            UpdateStage(message.From.Id,7);
+                        }
+                        break;
+                    case "additional":
+                        if (GetFileCountInFolder($"../../../photos/{message.From.Id}/additional/") <10)
+                        {
+                            await AddInAdditionalFolder(message, botClient);
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(message.From.Id,
+                                "Ты уже добавил максимальное количество дополнительных фото.Введи сообщение");
+                            UpdateStage(message.From.Id,8);
+                        }
+                        break;
                 }
-                else
-                {
-                    await botClient.SendTextMessageAsync(message.From.Id,
-                        "Ты уже добавил максимальное количество главных фото.Введи сообщение");
-                    UpdateStage(message.From.Id,7);
-                }
+            
                 
         }
         catch (Exception e)
@@ -53,6 +72,39 @@ public class PhotoRepository
     {
         BlankMenu.UserRepository.UpdateUserStage(tgId, stage);
         _logger.LogInformation($"user({tgId}): Stage updated: {stage}");
+    }
+    public static async Task AddInAdditionalFolder(Message message, ITelegramBotClient botClient)
+    {
+        try
+        {
+            if (message.Photo != null)
+            {
+                Console.WriteLine("Фотография найдена.");
+                var photo = message.Photo.LastOrDefault();
+                var file = await botClient.GetFileAsync(photo.FileId);
+
+                var filePath = $"../../../photos/{message.From.Id}/additional/{GetFileCountInFolder($"../../../photos/{message.From.Id}/additional")+1}.jpg";
+
+                await using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await botClient.DownloadFileAsync(file.FilePath, fileStream);
+                    fileStream.Close();
+                }
+
+                await SendUserAdditionalProfile(message.From.Id, botClient);
+                await BlankMenu.EnterAdditionalPhotos(message, botClient);
+
+                Console.WriteLine("Файл успешно скачан.");
+            }
+            else
+            {
+                Console.WriteLine("Сообщение не содержит фотографии.");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Ошибка при скачивании файла: {e.Message}");
+        }
     }
     public static async Task AddInMainFolder(Message message, ITelegramBotClient botClient)
     {
@@ -87,6 +139,35 @@ public class PhotoRepository
             Console.WriteLine($"Ошибка при скачивании файла: {e.Message}");
         }
     }
+    public static async Task SendUserAdditionalProfile(long tgId, ITelegramBotClient botClient)
+    {
+        var filePath = $"../../../photos/{tgId}/additional/";
+        
+        var user = BlankMenu.UserRepository.GetUser(tgId);
+
+        List<Stream> streams = new List<Stream>();
+        int numberOfFiles = GetFileCountInFolder(filePath);
+        int i = 0;
+        while (i < numberOfFiles)
+        {
+            streams.Add(File.OpenRead($"../../../photos/{tgId}/additional/{i+1}.jpg"));
+            i++;
+        }
+        List<IAlbumInputMedia> inputMedia = new List<IAlbumInputMedia>();
+        
+        for (int count = 0; count < numberOfFiles; count++)
+        {
+            var inputMediaPhoto = new InputMediaPhoto(new InputFileStream(streams[count], $"{count + 1}.jpg"));
+            inputMedia.Add(inputMediaPhoto);
+        }
+        
+        await botClient.SendMediaGroupAsync(
+            chatId:tgId,
+            media: inputMedia,
+            disableNotification: true
+        );
+        
+    }
 
     public static async Task SendUserMainProfile(Message message, ITelegramBotClient botClient)
     {
@@ -94,8 +175,8 @@ public class PhotoRepository
         
         var user = BlankMenu.UserRepository.GetUser(message.From.Id);
 
-        string caption = $"Твоя анкета выглядит так:" +
-                         $"{user.Name}, {user.Age} лет,{user.City} " +
+        string caption = $"Твоя анкета выглядит так: \n" +
+                         $"{user.Name}, {user.Age} лет,{user.City} \n" +
                          $"{user.About}";
 
         Message[] messages;

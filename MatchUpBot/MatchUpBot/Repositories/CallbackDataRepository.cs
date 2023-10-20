@@ -113,7 +113,7 @@ public class CallbackDataRepository
             }
             case "want_to_add_main_photo":
             {
-                if (PhotoRepository.GetFileCountInFolder($"../../../photos/{callbackQuery.Message.From.Id}/main") ==3)
+                if (PhotoRepository.GetFileCountInFolder($"../../../photos/{callbackQuery.From.Id}/main") ==3)
                 {
                     UpdateStage(user.Id, 7);
                     break;
@@ -125,11 +125,49 @@ public class CallbackDataRepository
             }
             case "dont_want_to_add_main_photo":
             {
-                await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
-                    "Фотографии сохранены. Отправь сообщение.");
-                UpdateStage(user.Id, 7);
+                if (BlankMenu.UserRepository.GetUserStage(callbackQuery.From.Id) == 6)
+                {
+                    var additionalPhoto = new InlineKeyboardMarkup(
+                        new List<InlineKeyboardButton[]>()
+                        {
+                            new InlineKeyboardButton[] 
+                            {
+                                InlineKeyboardButton.WithCallbackData("Да", "additional_photo_yes"),
+                                InlineKeyboardButton.WithCallbackData("Нет", "additional_photo_no"),
+                            }
+                        });
+                    await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Ты хочешь добавить дополнительные фото (до 10)?",replyMarkup:additionalPhoto);
+                    UpdateStage(user.Id, 7);
+                }
                 break;
             }
+            case "additional_photo_yes":
+            {
+                _folder = "additional";
+                if (PhotoRepository.GetFileCountInFolder($"../../../photos/{callbackQuery.From.Id}/additional") == 10)
+                {
+                    UpdateStage(user.Id, 8);
+                    break;
+                }
+                await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
+                    "Скинь еще дополнительную фото");
+                
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Отправь дополнительные фото");
+            }
+                break;
+            case "additional_photo_no":
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Теперь отправь любое сообщение");
+                UpdateStage(callbackQuery.From.Id,8);
+                break;
+            case "view_add_photo":
+                if (PhotoRepository.GetFileCountInFolder($"../../../photos/{callbackQuery.From.Id}/additional") == 0)
+                {
+                    await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Ты не добавил дополнительных фото");
+                    break;
+                }
+                await PhotoRepository.SendUserAdditionalProfile(callbackQuery.From.Id, botClient);
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Введи текст");
+                break;
         }
     }
 
