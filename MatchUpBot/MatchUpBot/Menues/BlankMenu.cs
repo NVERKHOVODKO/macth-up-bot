@@ -131,9 +131,8 @@ public class BlankMenu
                 if (Stage == 6 || Stage == 7 || Stage == 5)
                 {  await botClient.SendTextMessageAsync(
                         chat.Id,
-                        "Используй только текст!");
+                        "Используй фото!");
                     return;
-                    
                 }
                 await botClient.SendTextMessageAsync(
                     chat.Id,

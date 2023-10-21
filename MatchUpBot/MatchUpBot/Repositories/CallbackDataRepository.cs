@@ -41,6 +41,19 @@ public class CallbackDataRepository
             await botClient.SendTextMessageAsync(userId, "Не тыкай туда, бродяга");
         }
     }
+
+    public static async Task SetZodiacMatters(long tgId, CallbackQuery callbackQuery ,ITelegramBotClient botClient, bool matters)
+    {
+        if (BlankMenu.UserRepository.GetUserStage(tgId) != 4)
+        {
+            await botClient.SendTextMessageAsync(tgId, "Куда ты тыкаешь, аболтус");
+            return;
+        }
+        await EnterZodiacSign(botClient, callbackQuery.Message.Chat, tgId);
+        BlankMenu.UserRepository.SetUserIsZodiacSignMatters(tgId, matters);
+        UpdateStage(tgId, 4);
+        _isZodiacMattersEntered = matters;
+    }
     public static async Task HandleCallBackQuery(ITelegramBotClient botClient, Update update)
     {
         var callbackQuery = update.CallbackQuery;
@@ -62,28 +75,12 @@ public class CallbackDataRepository
 
             case "zodiacMatters":
             {
-                if (BlankMenu.UserRepository.GetUserStage(user.Id) != 4)
-                {
-                    await botClient.SendTextMessageAsync(user.Id, "Куда ты тыкаешь, аболтус");
-                    return;
-                }
-                await EnterZodiacSign(botClient, callbackQuery.Message.Chat, user.Id);
-                BlankMenu.UserRepository.SetUserIsZodiacSignMatters(user.Id, true);
-                UpdateStage(user.Id, 4);
-                _isZodiacMattersEntered = true;
+                await SetZodiacMatters(user.Id, callbackQuery, botClient, true);
                 break;
             }
             case "zodiacDoesntMatters":
             {
-                if (BlankMenu.UserRepository.GetUserStage(user.Id) != 4)
-                {
-                    await botClient.SendTextMessageAsync(user.Id, "Куда ты тыкаешь, аболтус");
-                    return;
-                }
-                await EnterZodiacSign(botClient, callbackQuery.Message.Chat, user.Id);
-                BlankMenu.UserRepository.SetUserIsZodiacSignMatters(user.Id, false);
-                UpdateStage(user.Id, 4);
-                _isZodiacMattersEntered = true;
+                await SetZodiacMatters(user.Id, callbackQuery, botClient, false);
                 break;
             }
             case "want_to_add_main_photo":
