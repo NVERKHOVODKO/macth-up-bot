@@ -38,7 +38,7 @@ public class PhotoRepository
                     case "main":
                         if (GetFileCountInFolder($"../../../photos/{message.From.Id}/main/") < 3)
                         {
-                            await AddInMainFolder(message, botClient);
+                            await AddInFolder(message,botClient,"main");
                         }
                         else
                         {
@@ -50,7 +50,7 @@ public class PhotoRepository
                     case "additional":
                         if (GetFileCountInFolder($"../../../photos/{message.From.Id}/additional/") <10)
                         {
-                            await AddInAdditionalFolder(message, botClient);
+                            await AddInFolder(message,botClient,"additional");
                         }
                         else
                         {
@@ -60,8 +60,7 @@ public class PhotoRepository
                         }
                         break;
                 }
-            
-                
+
         }
         catch (Exception e)
         {
@@ -73,7 +72,7 @@ public class PhotoRepository
         BlankMenu.UserRepository.UpdateUserStage(tgId, stage);
         _logger.LogInformation($"user({tgId}): Stage updated: {stage}");
     }
-    public static async Task AddInAdditionalFolder(Message message, ITelegramBotClient botClient)
+    public static async Task AddInFolder(Message message, ITelegramBotClient botClient, string folder)
     {
         try
         {
@@ -83,7 +82,7 @@ public class PhotoRepository
                 var photo = message.Photo.LastOrDefault();
                 var file = await botClient.GetFileAsync(photo.FileId);
 
-                var filePath = $"../../../photos/{message.From.Id}/additional/{GetFileCountInFolder($"../../../photos/{message.From.Id}/additional")+1}.jpg";
+                var filePath = $"../../../photos/{message.From.Id}/{folder}/{GetFileCountInFolder($"../../../photos/{message.From.Id}/{folder}")+1}.jpg";
 
                 await using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
@@ -91,8 +90,18 @@ public class PhotoRepository
                     fileStream.Close();
                 }
 
-                await SendUserAdditionalProfile(message.From.Id, botClient);
-                await BlankMenu.EnterAdditionalPhotos(message, botClient);
+                switch (folder)
+                {
+                    case "main":
+                        await SendUserMainProfile(message, botClient);
+                        await BlankMenu.EnterMainPhotos(message, botClient);
+                        break;
+                    case "additional":
+                        await SendUserAdditionalProfile(message.From.Id, botClient);
+                        await BlankMenu.EnterAdditionalPhotos(message, botClient);
+                        break;
+                }
+              
 
                 Console.WriteLine("Файл успешно скачан.");
             }
@@ -106,39 +115,7 @@ public class PhotoRepository
             Console.WriteLine($"Ошибка при скачивании файла: {e.Message}");
         }
     }
-    public static async Task AddInMainFolder(Message message, ITelegramBotClient botClient)
-    {
-        try
-        {
-            if (message.Photo != null)
-            {
-                Console.WriteLine("Фотография найдена.");
-                var photo = message.Photo.LastOrDefault();
-                var file = await botClient.GetFileAsync(photo.FileId);
-
-                var filePath = $"../../../photos/{message.From.Id}/main/{GetFileCountInFolder($"../../../photos/{message.From.Id}/main")+1}.jpg";
-
-                await using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await botClient.DownloadFileAsync(file.FilePath, fileStream);
-                    fileStream.Close();
-                }
-
-                await SendUserMainProfile(message, botClient);
-                await BlankMenu.EnterMainPhotos(message, botClient);
-
-                Console.WriteLine("Файл успешно скачан.");
-            }
-            else
-            {
-                Console.WriteLine("Сообщение не содержит фотографии.");
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Ошибка при скачивании файла: {e.Message}");
-        }
-    }
+    
     public static async Task SendUserAdditionalProfile(long tgId, ITelegramBotClient botClient)
     {
         var filePath = $"../../../photos/{tgId}/additional/";

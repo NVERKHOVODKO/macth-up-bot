@@ -131,7 +131,7 @@ public class BlankMenu
                 if (Stage == 6 || Stage == 7 || Stage == 5)
                 {  await botClient.SendTextMessageAsync(
                         chat.Id,
-                        "Используй фото!");
+                        "Используй только текст!");
                     return;
                     
                 }
@@ -347,12 +347,6 @@ public class BlankMenu
         }
     }
 
-    private static int messageId = 0;
-
-    public static int getMessageId()
-    {
-        return messageId;
-    }
     private static async Task EnterSex(Message message,ITelegramBotClient botClient, Chat chat)
     {
         ReplyKeyboardRemove remove = new ReplyKeyboardRemove();
@@ -370,8 +364,7 @@ public class BlankMenu
             InlineKeyboardButton.WithCallbackData("Мужчина", "man"),
             InlineKeyboardButton.WithCallbackData("Женщина", "woman")
         });
-        Message sentMessage = await botClient.SendTextMessageAsync(chat.Id, "Какой у тебя гендер?",replyMarkup:sexKeyboard);
-        messageId = sentMessage.MessageId;
+        await botClient.SendTextMessageAsync(chat.Id, "Какой у тебя гендер?",replyMarkup:sexKeyboard);
         UserRepository.UpdateUserStage(message.From.Id, 4);
         _logger.LogInformation($"user({message.From.Id}): Stage updated: {4}");
     }

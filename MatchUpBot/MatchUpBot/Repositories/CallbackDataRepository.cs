@@ -16,6 +16,31 @@ public class CallbackDataRepository
     private static ILogger<CallbackDataRepository> _logger =
         LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<CallbackDataRepository>();
 
+    public static async Task SetGenger(string gender, ITelegramBotClient botClient, long userId, CallbackQuery callbackQuery)
+    {
+        try
+        {
+            if (BlankMenu.UserRepository.GetUserStage(userId) != 4)
+            {
+                await botClient.SendTextMessageAsync(userId, "Куда ты тыкаешь, аболтус");
+                return;
+            }
+            BlankMenu.UserRepository.SetUserGender(userId, gender);
+            _logger.LogInformation($"user({userId}): updated gender: {gender}");
+
+            InlineKeyboardMarkup boolKeyboard = new(new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Да", "zodiacMatters"),
+                InlineKeyboardButton.WithCallbackData("Нет", "zodiacDoesntMatters")
+            });
+            await botClient.EditMessageTextAsync(userId, callbackQuery.Message.MessageId,
+                "Для тебя важен знак зодиака?", replyMarkup: boolKeyboard);
+        }
+        catch (Telegram.Bot.Exceptions.ApiRequestException e)
+        {
+            await botClient.SendTextMessageAsync(userId, "Не тыкай туда, бродяга");
+        }
+    }
     public static async Task HandleCallBackQuery(ITelegramBotClient botClient, Update update)
     {
         var callbackQuery = update.CallbackQuery;
@@ -25,64 +50,14 @@ public class CallbackDataRepository
         {
             case "man":
             {
-                try
-                {
-                    if (BlankMenu.UserRepository.GetUserStage(user.Id) != 4)
-                    {
-                        await botClient.SendTextMessageAsync(user.Id, "Куда ты тыкаешь, аболтус");
-                        return;
-                    }
-                    BlankMenu.UserRepository.SetUserGender(user.Id, "Мужчина");
-                    _logger.LogInformation($"user({user.Id}): updated gender: Мужчина");
-
-                    InlineKeyboardMarkup boolKeyboard = new(new[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("Да", "zodiacMatters"),
-                        InlineKeyboardButton.WithCallbackData("Нет", "zodiacDoesntMatters")
-                    });
-                    await botClient.EditMessageTextAsync(user.Id, BlankMenu.getMessageId(),
-                        "Для тебя важен знак зодиака?", replyMarkup: boolKeyboard);
-                    break;
-                }
-                catch (Telegram.Bot.Exceptions.ApiRequestException e)
-                {
-                    await botClient.SendTextMessageAsync(user.Id, "Не тыкай туда, бродяга");
-                    break;
-                }
-
+                await SetGenger("Мужчина", botClient, user.Id, callbackQuery);
+                break;
             }
 
             case "woman":
             {
-                try
-                {
-                    if (BlankMenu.UserRepository.GetUserStage(user.Id) != 4)
-                    {
-                        await botClient.SendTextMessageAsync(user.Id, "Куда ты тыкаешь, аболтус");
-                        return;
-                    }
-                    if (BlankMenu.getMessageId() == 0)
-                    {
-                        throw new Telegram.Bot.Exceptions.ApiRequestException("warning");
-                    }
-
-                    BlankMenu.UserRepository.SetUserGender(user.Id, "Женщина");
-                    _logger.LogInformation($"user({user.Id}): updated gender: Женщина");
-
-                    InlineKeyboardMarkup boolKeyboard = new(new[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("Да", "zodiacMatters"),
-                        InlineKeyboardButton.WithCallbackData("Нет", "zodiacDoesntMatters")
-                    });
-                    await botClient.EditMessageTextAsync(user.Id, BlankMenu.getMessageId(),
-                        "Для тебя важен знак зодиака?", replyMarkup: boolKeyboard);
-                    break;
-                }
-                catch (Telegram.Bot.Exceptions.ApiRequestException e)
-                {
-                    await botClient.SendTextMessageAsync(user.Id, "Не тыкай туда, бродяга");
-                    break;
-                }
+                await SetGenger("Женщина", botClient, user.Id,callbackQuery);
+                break;
             }
 
             case "zodiacMatters":
