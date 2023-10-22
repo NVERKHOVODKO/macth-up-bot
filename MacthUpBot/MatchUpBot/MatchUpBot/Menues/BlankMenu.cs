@@ -49,6 +49,11 @@ public class BlankMenu
 
         Console.WriteLine(Stage);
 
+        /*if (LikesMenu.GetLikerId(message.From.Id) == null)
+        {
+            await PhotoRepository.SendLikerBlank(message, botClient, LikesMenu.GetLikerId(message.From.Id));
+        }*/
+
         switch (Stage)
         {
             case 0:
@@ -104,7 +109,6 @@ public class BlankMenu
                         return;
                     case "📷":
                         await PhotoRepository.SendUserAdditionalProfile(message.From.Id, UserRepository.GetUser(message.From.Id).LastShowedBlankTgId, botClient);
-                        _logger.LogInformation($"user({message.From.Id}): getted additional photos");
                         break;
                 }
                 

@@ -19,7 +19,6 @@ public class PhotoRepository
         try
         {
             var directoryPath = $"../../../photos/{message.From.Id}"; // Укажите путь к новой папке
-
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
@@ -31,7 +30,6 @@ public class PhotoRepository
             {
                 Console.WriteLine("Папка уже существует.");
             }
-
             switch (CallbackDataRepository.GetFolder())
             {
                 case "main":
@@ -45,7 +43,6 @@ public class PhotoRepository
                             "Ты уже добавил максимальное количество главных фото.Введи сообщение");
                         UpdateStage(message.From.Id, 7);
                     }
-
                     break;
                 case "additional":
                     if (GetFileCountInFolder($"../../../photos/{message.From.Id}/additional/") < 10)
@@ -58,7 +55,6 @@ public class PhotoRepository
                             "Ты уже добавил максимальное количество дополнительных фото.Введи сообщение");
                         UpdateStage(message.From.Id, 8);
                     }
-
                     break;
             }
         }
@@ -104,8 +100,6 @@ public class PhotoRepository
                         await BlankMenu.EnterAdditionalPhotos(message, botClient);
                         break;
                 }
-
-
                 Console.WriteLine("Файл успешно скачан.");
             }
             else
@@ -130,6 +124,14 @@ public class PhotoRepository
 
         var streams = new List<Stream>();
         var numberOfFiles = GetFileCountInFolder(filePath);
+        _logger.LogInformation($"numberOfFiles: {numberOfFiles}");
+        if (numberOfFiles < 1)
+        {
+            _logger.LogInformation($"User can't get additional photos");
+            await botClient.SendTextMessageAsync(tgIdSearcher, "Пользователь не добавлял дополнительные фото");
+            return;
+        }
+            
         var i = 0;
         while (i < numberOfFiles)
         {
@@ -150,6 +152,7 @@ public class PhotoRepository
             inputMedia,
             disableNotification: true
         );
+        _logger.LogInformation($"user({tgIdSearcher}): getted additional photos");
     }
 
     public static async Task SendUserMainProfile(Message message, ITelegramBotClient botClient)
@@ -266,6 +269,61 @@ public class PhotoRepository
             disableNotification: true
             );
     }
+    
+    
+    
+    public static async Task SendLikerBlank(Message message, ITelegramBotClient botClient, long userBlankId)
+    {
+        var filePath = $"../../../photos/{userBlankId}/main/";
+
+        var user = BlankMenu.UserRepository.GetUser(userBlankId);
+
+
+        string caption;
+        if (BlankMenu.UserRepository.GetUser(message.From.Id).IsZodiacSignMatters)
+        {
+            caption = $"Ваша анкета понравилась пользователю:\n {user.Name}, {user.Age} лет, {user.City} \n" +
+                      $"{user.About}\n" + $"{user.ZodiacSign} {GetZodiacPicture(user.ZodiacSign)} (85% совместимость)" +
+                      $"\n{user.Name}";
+        }
+        else
+        {
+            caption = $"Ваша анкета понравилась пользователю:\n {user.Name}, {user.Age} лет, {user.City} \n" +
+                      $"{user.About} \n{user.Name}";
+        }
+        
+
+        Message[] messages;
+        var streams = new List<Stream>();
+        var numberOfFiles = GetFileCountInFolder(filePath);
+        var i = 0;
+        while (i < numberOfFiles)
+        {
+            streams.Add(File.OpenRead($"../../../photos/{userBlankId}/main/{i + 1}.jpg"));
+            i++;
+        }
+
+        var inputMedia = new List<IAlbumInputMedia>();
+
+        for (var count = 0; count < numberOfFiles; count++)
+        {
+            var inputMediaPhoto = new InputMediaPhoto(new InputFileStream(streams[count], $"{count + 1}.jpg"));
+
+            if (count == 0) inputMediaPhoto.Caption = caption;
+
+            inputMedia.Add(inputMediaPhoto);
+        }
+
+        await botClient.SendMediaGroupAsync(
+            message.From.Id,
+            inputMedia,
+            disableNotification: true
+        );
+    }
+    
+    
+    
+    
     
     private static async Task EnterReaction(Message message, ITelegramBotClient botClient, Chat chat)
     {

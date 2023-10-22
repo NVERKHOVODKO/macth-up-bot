@@ -1,13 +1,14 @@
 ﻿using Data;
 using Entities;
 using EntityFrameworkLesson.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MatchUpBot.Repositories;
 
 public class ViewProfilesMenuRepository
 {
-    private readonly Context _context = new();
+    private static readonly Context _context = new();
     
     private static readonly ILogger<ViewProfilesMenuRepository> _logger =
         LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<ViewProfilesMenuRepository>();
@@ -63,5 +64,11 @@ public class ViewProfilesMenuRepository
         }
 
         return matchingProfile;
+    }
+    
+    public static long GetLikerId(long userId)
+    {
+        var like = _context.Likes.FirstOrDefault(like => like.LikedUserId == userId);
+        return like.LikedByUserId;
     }
 }
