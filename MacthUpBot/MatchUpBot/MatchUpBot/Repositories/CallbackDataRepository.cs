@@ -83,27 +83,21 @@ public class CallbackDataRepository
             {
                 var ur = new UserRepository();
                 ur.SetUserInterestedGender(callbackQuery.From.Id, "Парни");
-                await botClient.SendTextMessageAsync(
-                    callbackQuery.From.Id,
-                    "Введи свой знак зодиака");
+                await BlankMenu.EnterAction(botClient,callbackQuery.From.Id);
                 break;
             }
             case "girls":
             {
                 var ur = new UserRepository();
                 ur.SetUserInterestedGender(callbackQuery.From.Id, "Девушки");
-                await botClient.SendTextMessageAsync(
-                    callbackQuery.From.Id,
-                    "Введи свой знак зодиака");
+                await BlankMenu.EnterAction(botClient,callbackQuery.From.Id);
                 break;
             }
             case "any":
             {
                 var ur = new UserRepository();
                 ur.SetUserInterestedGender(callbackQuery.From.Id, "Неважно");
-                await botClient.SendTextMessageAsync(
-                    callbackQuery.From.Id,
-                    "Введи свой знак зодиака");
+                await BlankMenu.EnterAction(botClient,callbackQuery.From.Id);
                 break;
             }
             case "zodiacMatters":
@@ -131,7 +125,7 @@ public class CallbackDataRepository
             }
             case "dont_want_to_add_main_photo":
             {
-                if (BlankMenu.UserRepository.GetUserStage(callbackQuery.From.Id) == 6)
+                if (BlankMenu.UserRepository.GetUserStage(callbackQuery.From.Id) == (int)Action.SetMainPhoto)
                 {
                     var additionalPhoto = new InlineKeyboardMarkup(
                         new List<InlineKeyboardButton[]>

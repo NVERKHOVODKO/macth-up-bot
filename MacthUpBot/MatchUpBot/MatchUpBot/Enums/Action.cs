@@ -20,4 +20,5 @@
     EditProfile,
     EditAge,
     EditDescription,
+    EnterAction
 }
