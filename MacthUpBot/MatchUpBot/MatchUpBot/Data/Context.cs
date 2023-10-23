@@ -28,9 +28,9 @@ internal class Context : DbContext
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        /*optionsBuilder.UseNpgsql(
-            @"host=localhost;port=5432;database=TelegramBot;username=postgres;password=postgres");*/
         optionsBuilder.UseNpgsql(
-            @"host=localhost;port=5432;database=Messenger;username=postgres;password=root");
+            @"host=localhost;port=5432;database=TelegramBot;username=postgres;password=postgres");
+        /*optionsBuilder.UseNpgsql(
+            @"host=localhost;port=5432;database=Messenger;username=postgres;password=root");*/
     }
 }

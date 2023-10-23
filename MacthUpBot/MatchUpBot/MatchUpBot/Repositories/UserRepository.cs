@@ -165,7 +165,6 @@ public class UserRepository
     
     public void SetUserInterestedGender(long tgId, string gender)
     {
-        UserRepository.UpdateUserStage(tgId, 8);
         var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
         if (user != null)
         {

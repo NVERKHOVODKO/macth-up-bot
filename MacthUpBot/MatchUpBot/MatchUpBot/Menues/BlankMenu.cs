@@ -128,6 +128,14 @@ public class BlankMenu
                 UserRepository.UpdateUserStage(message.From.Id, 8);
                 await EnterAction(botClient, chat.Id);
                 break;
+            case (int)Action.EnterAction:
+                if (UserRepository.GetUser(chat.Id).GenderOfInterest == "N/A")
+                {
+                    await botClient.SendTextMessageAsync(chat.Id, "Сначала выбери,кто тебе нравится");
+                    break;
+                }
+                await EnterAction(botClient, chat.Id);
+                break;
             
             case 201:
                 await AddReactionKeyboard(message, botClient, chat);
@@ -182,19 +190,29 @@ public class BlankMenu
         }
     }
 
-    
-    
+
+
     private static async Task EnterInterestedGender(Message message, ITelegramBotClient botClient, Chat chat)
     {
-        InlineKeyboardMarkup sexKeyboard = new(new[]
-        {
-            InlineKeyboardButton.WithCallbackData("Парни", "boys"),
-            InlineKeyboardButton.WithCallbackData("Девушки", "girls"),
-            InlineKeyboardButton.WithCallbackData("Неважно", "any")
-        });
+        var sexKeyboard = new InlineKeyboardMarkup(
+            new List<InlineKeyboardButton[]>
+            {
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Парни", "boys"),
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Девушки", "girls")
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Неважно", "any")
+                }
+            });
         await botClient.SendTextMessageAsync(chat.Id, "Кто тебе интересен?", replyMarkup: sexKeyboard);
-        UserRepository.UpdateUserStage(message.From.Id, 5);
-        _logger.LogInformation($"user({message.From.Id}): Stage updated: {5}");
+        UserRepository.UpdateUserStage(message.From.Id, (int)Action.EnterAction);
+        _logger.LogInformation($"user({message.From.Id}): Stage updated: {(int)Action.EnterAction}");
     }
 
 
