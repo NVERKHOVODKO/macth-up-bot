@@ -6,6 +6,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using File = System.IO.File;
+using Action = Constants.Action;
 
 namespace Repositories;
 
@@ -19,7 +20,7 @@ public class PhotoRepository
         try
         {
             var directoryPath = $"../../../photos/{message.From.Id}"; // Укажите путь к новой папке
-
+            
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
@@ -35,30 +36,59 @@ public class PhotoRepository
             switch (CallbackDataRepository.GetFolder())
             {
                 case "main":
-                    if (GetFileCountInFolder($"../../../photos/{message.From.Id}/main/") < 3)
+                    if (BlankMenu.UserRepository.GetUserStage(message.From.Id) != (int)Action.AddMainPhoto)
+                    {
+                        if (GetFileCountInFolder($"../../../photos/{message.From.Id}/main/") < 3)
+                        {
+                            await AddInFolder(message, botClient, "main");
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(message.From.Id,
+                                "Ты уже добавил максимальное количество главных фото.Введи сообщение");
+                            UpdateStage(message.From.Id, 7);
+                        }
+                        break;
+                    }
+
+                    if (GetFileCountInFolder($"../../../photos/{message.From.Id}/main/") == 3)
+                    {
+                        await botClient.SendTextMessageAsync(message.From.Id,
+                            "Ты уже добавил максимальное количество главных фото.");
+                        UpdateStage(message.From.Id, 8);
+                        await BlankMenu.EnterAction(botClient, message.Chat.Id);
+                    }
+                    else
                     {
                         await AddInFolder(message, botClient, "main");
                     }
-                    else
-                    {
-                        await botClient.SendTextMessageAsync(message.From.Id,
-                            "Ты уже добавил максимальное количество главных фото.Введи сообщение");
-                        UpdateStage(message.From.Id, 7);
-                    }
-
                     break;
                 case "additional":
-                    if (GetFileCountInFolder($"../../../photos/{message.From.Id}/additional/") < 10)
+                    if (BlankMenu.UserRepository.GetUserStage(message.From.Id) != (int)Action.AddAdditionalPhoto)
+                    {
+                        if (GetFileCountInFolder($"../../../photos/{message.From.Id}/additional/") < 10)
+                        {
+                            await AddInFolder(message, botClient, "additional");
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(message.From.Id,
+                                "Ты уже добавил максимальное количество дополнительных фото.Введи сообщение");
+                            UpdateStage(message.From.Id, 8);
+                        }
+                        break;
+                    }
+                    if (GetFileCountInFolder($"../../../photos/{message.From.Id}/additional/") == 10)
+                    {
+                        await botClient.SendTextMessageAsync(message.From.Id,
+                            "Ты уже добавил максимальное количество главных фото.");
+                        UpdateStage(message.From.Id, 8);
+                        await BlankMenu.EnterAction( botClient, message.Chat.Id);
+                    }
+                    else
                     {
                         await AddInFolder(message, botClient, "additional");
                     }
-                    else
-                    {
-                        await botClient.SendTextMessageAsync(message.From.Id,
-                            "Ты уже добавил максимальное количество дополнительных фото.Введи сообщение");
-                        UpdateStage(message.From.Id, 8);
-                    }
-
                     break;
             }
         }
@@ -96,12 +126,22 @@ public class PhotoRepository
                 switch (folder)
                 {
                     case "main":
-                        await SendUserMainProfile(message, botClient);
-                        await BlankMenu.EnterMainPhotos(message, botClient);
+                        if (BlankMenu.UserRepository.GetUserStage(message.From.Id) != (int)Action.AddMainPhoto)
+                        { 
+                            await SendUserMainProfile(message.From.Id, botClient);
+                            await BlankMenu.EnterMainPhotos(message, botClient);
+                        }
+                        UpdateStage(message.From.Id, 8);
+                        await BlankMenu.EnterAction(botClient, message.Chat.Id);
                         break;
                     case "additional":
-                        await SendUserAdditionalProfile(message.From.Id, message.From.Id, botClient);
-                        await BlankMenu.EnterAdditionalPhotos(message, botClient);
+                        if (BlankMenu.UserRepository.GetUserStage(message.From.Id) != (int)Action.AddAdditionalPhoto)
+                        {
+                            await SendUserAdditionalProfile(message.From.Id, message.From.Id, botClient);
+                            await BlankMenu.EnterAdditionalPhotos(message, botClient);
+                        }
+                        UpdateStage(message.From.Id, 8);
+                        await BlankMenu.EnterAction(botClient, message.Chat.Id);
                         break;
                 }
 
@@ -150,13 +190,17 @@ public class PhotoRepository
             inputMedia,
             disableNotification: true
         );
+        for (var count = 0; count < numberOfFiles; count++)
+        {
+            streams[count].Close();
+        }
     }
 
-    public static async Task SendUserMainProfile(Message message, ITelegramBotClient botClient)
+    public static async Task SendUserMainProfile(long tgId, ITelegramBotClient botClient)
     {
-        var filePath = $"../../../photos/{message.From.Id}/main/";
+        var filePath = $"../../../photos/{tgId}/main/";
 
-        var user = BlankMenu.UserRepository.GetUser(message.From.Id);
+        var user = BlankMenu.UserRepository.GetUser(tgId);
 
         var caption = $"Твоя анкета выглядит так: \n" +
                       $"{user.Name}, {user.Age} лет, {user.City} \n" +
@@ -168,7 +212,7 @@ public class PhotoRepository
         var i = 0;
         while (i < numberOfFiles)
         {
-            streams.Add(File.OpenRead($"../../../photos/{message.From.Id}/main/{i + 1}.jpg"));
+            streams.Add(File.OpenRead($"../../../photos/{tgId}/main/{i + 1}.jpg"));
             i++;
         }
 
@@ -177,18 +221,21 @@ public class PhotoRepository
         for (var count = 0; count < numberOfFiles; count++)
         {
             var inputMediaPhoto = new InputMediaPhoto(new InputFileStream(streams[count], $"{count + 1}.jpg"));
-
             if (count == 0) inputMediaPhoto.Caption = caption;
 
             inputMedia.Add(inputMediaPhoto);
+           
         }
 
-
         await botClient.SendMediaGroupAsync(
-            message.From.Id,
+            tgId,
             inputMedia,
             disableNotification: true
         );
+        for (var count = 0; count < numberOfFiles; count++)
+        {
+            streams[count].Close();
+        }
     }
 
     public static string GetZodiacPicture(string zodiacSign)
@@ -297,4 +344,84 @@ public class PhotoRepository
             return -1;
         }
     }
+    public static async Task DeletePhoto(string folder, int numberOfPhoto, long tgId)
+    {
+        string folderPath = $"../../../photos/{tgId}/{folder}/";
+        string[] files = Directory.GetFiles(folderPath);
+        int numberOfFiles = GetFileCountInFolder(folderPath);
+
+        // Проверка, что файл существует
+        if (numberOfPhoto > 0 && numberOfPhoto <= numberOfFiles)
+        {
+            // Удаляем файл
+            File.Delete(files[numberOfPhoto - 1]);
+            int n = 0;
+            // Перебираем оставшиеся файлы
+            for (int i = 0; i < numberOfFiles; i++)
+            {
+                if (i == numberOfPhoto - 1)
+                {
+                    n = 1;
+                    continue;
+                }
+                if (n == 1)
+                {
+                    using (FileStream fs = new FileStream(files[i], FileMode.Open, FileAccess.Read))
+                    {
+                        byte[] buffer1 = new byte[fs.Length];
+                        fs.Read(buffer1, 0, buffer1.Length);
+                        files[i] = $"../../../photos/{tgId}/{folder}/{i}.jpg";
+
+                        // Закрываем поток
+                        fs.Close();
+
+                        // Записываем файл обратно
+                        using (FileStream newFs = new FileStream(files[i], FileMode.Create, FileAccess.Write))
+                        {
+                            newFs.Write(buffer1, 0, buffer1.Length);
+                            newFs.Close();
+                        }
+                        continue;   
+                    }
+                }
+                // Читаем файл в поток
+                using (FileStream fs = new FileStream(files[i], FileMode.Open, FileAccess.Read))
+                {
+                    byte[] buffer = new byte[fs.Length];
+                    fs.Read(buffer, 0, buffer.Length);
+                    files[i] = $"../../../photos/{tgId}/{folder}/{i + 1}.jpg";
+
+                    // Закрываем поток
+                    fs.Close();
+
+                    // Записываем файл обратно
+                    using (FileStream newFs = new FileStream(files[i], FileMode.Create, FileAccess.Write))
+                    {
+                        newFs.Write(buffer, 0, buffer.Length);
+                        newFs.Close();
+                    }
+                }
+            }
+            File.Delete($"../../../photos/{tgId}/{folder}/{numberOfFiles}.jpg");
+            Console.WriteLine("Файлы успешно прочитаны и записаны обратно.");
+        }
+        else
+        {
+            Console.WriteLine("Файл с указанным номером не существует.");
+        }
+    }
+
+    public static async Task UploadFileAsync(Stream stream, string targetFilePath)
+    {
+        using (var fileStream = new FileStream(targetFilePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+        {
+            if (stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
+
+            await stream.CopyToAsync(fileStream);
+        }
+    }
+ 
 }
