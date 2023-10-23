@@ -55,28 +55,31 @@ public class BlankMenu
 
         switch (Stage)
         {
-            case 0:
+            case (int)Action.SetName:
                 AddNameToDatabase(message);
                 await EnterAge(message, botClient, chat);
                 break;
-            case 1:
+            case (int)Action.SetAge:
                 if (!AddAgeToDatabase(message, botClient, chat)) break;
                 await EnterCity(message, botClient, chat);
                 break;
-            case 2:
+            case (int)Action.SetCity:
                 AddCityToDatabase(message);
                 await EnterAbout(message, botClient, chat);
                 break;
-            case 3:
+            case (int)Action.SetSex:
                 AddAboutToDatabase(message);
                 await EnterSex(message, botClient, chat);
                 break;
-            case 4:
+            case (int)Action.SetIsZodiacSignMatter:
                 if (!AddZodiacSignToDatabase(message, curUser, chat, botClient)) break;
                 await EnterPhoto(message, botClient, chat);
                 break;
-            case 8:
+            /*case 8:
                 await EnterAction(botClient, chat.Id);
+                break;*/
+            case (int)Action.SetInterestedSex:
+                await EnterInterestedGender(message, botClient, chat);
                 break;
             case (int)Action.EditName:
                 await SetNewName(message, botClient);
@@ -125,13 +128,14 @@ public class BlankMenu
                 UserRepository.UpdateUserStage(message.From.Id, 8);
                 await EnterAction(botClient, chat.Id);
                 break;
-            case 20:
+            
+            case 201:
                 await AddReactionKeyboard(message, botClient, chat);
                 _logger.LogInformation($"user({message.From.Id}): stage updated {21}");
                 UserRepository.UpdateUserStage(message.From.Id, 21);
                 ViewingProfilesMenu.ShowBlank(message, botClient);
-                goto case 21;
-            case 21:
+                goto case 211;
+            case 211:
                 _logger.LogInformation($"user({message.From.Id}): getted user()");
                 switch (message.Text)
                 {
@@ -180,12 +184,21 @@ public class BlankMenu
 
     
     
-    
-    
-    
-    
-    
-    
+    private static async Task EnterInterestedGender(Message message, ITelegramBotClient botClient, Chat chat)
+    {
+        InlineKeyboardMarkup sexKeyboard = new(new[]
+        {
+            InlineKeyboardButton.WithCallbackData("Парни", "boys"),
+            InlineKeyboardButton.WithCallbackData("Девушки", "girls"),
+            InlineKeyboardButton.WithCallbackData("Неважно", "any")
+        });
+        await botClient.SendTextMessageAsync(chat.Id, "Кто тебе интересен?", replyMarkup: sexKeyboard);
+        UserRepository.UpdateUserStage(message.From.Id, 5);
+        _logger.LogInformation($"user({message.From.Id}): Stage updated: {5}");
+    }
+
+
+
     
     
     
@@ -374,7 +387,7 @@ public class BlankMenu
     public static async Task HandleMessageTypePhoto(Message message, ITelegramBotClient botClient, Chat chat)
     {
         var Stage = UserRepository.GetUserStage(message.From.Id);
-        if (Stage != 5 && Stage != 6 && Stage != 7 && Stage != (int)Action.AddMainPhoto && Stage != (int)Action.AddAdditionalPhoto) //Refactor this
+        if (Stage != (int)Action.SetPhoto && Stage != (int)Action.SetMainPhoto && Stage != (int)Action.SetAdditionalPhoto && Stage != (int)Action.AddMainPhoto && Stage != (int)Action.AddAdditionalPhoto) //Refactor this
         {
             await botClient.SendTextMessageAsync(chat.Id, "Зачем мне твое фото");
             return;
@@ -445,8 +458,8 @@ public class BlankMenu
         await botClient.SendTextMessageAsync(
             chat.Id,
             "Сколько тебе лет?");
-        UserRepository.UpdateUserStage(message.From.Id, 1);
-        _logger.LogInformation($"user({message.From.Id}): Stage updated: {1}");
+        UserRepository.UpdateUserStage(message.From.Id, (int)Action.SetAge);
+        _logger.LogInformation($"user({message.From.Id}): Stage updated: {(int)Action.SetAge}");
     }
 
     private static bool AddAgeToDatabase(Message message, ITelegramBotClient botClient, Chat chat)
@@ -482,13 +495,13 @@ public class BlankMenu
             await botClient.SendTextMessageAsync(
                 chat.Id,
                 "Из какого ты города?");
-            UserRepository.UpdateUserStage(message.From.Id, 2);
+            UserRepository.UpdateUserStage(message.From.Id, (int)Action.SetCity);
             _logger.LogInformation($"user({message.From.Id}): Stage updated: {2}");
         }
         catch (FormatException e)
         {
             await botClient.SendTextMessageAsync(chat.Id, "Введи корректный возраст");
-            UserRepository.UpdateUserStage(message.From.Id, 2);
+            UserRepository.UpdateUserStage(message.From.Id, (int)Action.SetAge);
             _logger.LogInformation($"user({message.From.Id}): Stage updated: {2}");
         }
     }
@@ -517,8 +530,8 @@ public class BlankMenu
             "Расскажи о себе?",
             replyMarkup: skipKeyboard);
 
-        UserRepository.UpdateUserStage(message.From.Id, 3);
-        _logger.LogInformation($"user({message.From.Id}): Stage updated: {3}");
+        UserRepository.UpdateUserStage(message.From.Id, (int)Action.SetSex);
+        _logger.LogInformation($"user({message.From.Id}): Stage updated: {(int)Action.SetSex}");
     }
 
     private static void AddAboutToDatabase(Message message)
@@ -549,8 +562,8 @@ public class BlankMenu
             InlineKeyboardButton.WithCallbackData("Женщина", "woman")
         });
         await botClient.SendTextMessageAsync(chat.Id, "Какой у тебя гендер?", replyMarkup: sexKeyboard);
-        UserRepository.UpdateUserStage(message.From.Id, 4);
-        _logger.LogInformation($"user({message.From.Id}): Stage updated: {4}");
+        UserRepository.UpdateUserStage(message.From.Id, (int)Action.SetIsZodiacSignMatter);
+        _logger.LogInformation($"user({message.From.Id}): Stage updated: {(int)Action.SetIsZodiacSignMatter}");
     }
 
     private static bool AddZodiacSignToDatabase(Message message, UserEntity curUser, Chat chat,
@@ -566,8 +579,8 @@ public class BlankMenu
         if (!IsZodiacSignValid(message.Text))
         {
             botClient.SendTextMessageAsync(chat.Id, "Введи корректный знак задиака");
-            UserRepository.UpdateUserStage(message.From.Id, 4);
-            _logger.LogInformation($"user({message.From.Id}): Stage updated: {4}");
+            UserRepository.UpdateUserStage(message.From.Id, (int)Action.SetIsZodiacSignMatter);
+            _logger.LogInformation($"user({message.From.Id}): Stage updated: {(int)Action.SetIsZodiacSignMatter}");
             return false;
         }
 
@@ -582,8 +595,8 @@ public class BlankMenu
         var removeKeyboard = new ReplyKeyboardRemove();
         await botClient.SendTextMessageAsync(chat.Id, "Скинь свою фото",
             replyMarkup: removeKeyboard);
-        UserRepository.UpdateUserStage(message.From.Id, 5);
-        _logger.LogInformation($"user({message.From.Id}): Stage updated: {5}");
+        UserRepository.UpdateUserStage(message.From.Id, (int)Action.SetPhoto);
+        _logger.LogInformation($"user({message.From.Id}): Stage updated: {(int)Action.SetPhoto}");
     }
 
 

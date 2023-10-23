@@ -74,13 +74,38 @@ public class CallbackDataRepository
                 await SetGenger("Мужчина", botClient, user.Id, callbackQuery);
                 break;
             }
-
             case "woman":
             {
                 await SetGenger("Женщина", botClient, user.Id, callbackQuery);
                 break;
             }
-
+            case "boys":
+            {
+                var ur = new UserRepository();
+                ur.SetUserInterestedGender(callbackQuery.From.Id, "Парни");
+                await botClient.SendTextMessageAsync(
+                    callbackQuery.From.Id,
+                    "Введи свой знак зодиака");
+                break;
+            }
+            case "girls":
+            {
+                var ur = new UserRepository();
+                ur.SetUserInterestedGender(callbackQuery.From.Id, "Девушки");
+                await botClient.SendTextMessageAsync(
+                    callbackQuery.From.Id,
+                    "Введи свой знак зодиака");
+                break;
+            }
+            case "any":
+            {
+                var ur = new UserRepository();
+                ur.SetUserInterestedGender(callbackQuery.From.Id, "Неважно");
+                await botClient.SendTextMessageAsync(
+                    callbackQuery.From.Id,
+                    "Введи свой знак зодиака");
+                break;
+            }
             case "zodiacMatters":
             {
                 await SetZodiacMatters(user.Id, callbackQuery, botClient, true);
@@ -95,7 +120,7 @@ public class CallbackDataRepository
             {
                 if (PhotoRepository.GetFileCountInFolder($"../../../photos/{callbackQuery.From.Id}/main") == 3)
                 {
-                    UpdateStage(user.Id, 7);
+                    UpdateStage(user.Id, (int)Action.SetMainPhoto);
                     break;
                 }
 
@@ -119,7 +144,7 @@ public class CallbackDataRepository
                         });
                     await botClient.SendTextMessageAsync(callbackQuery.From.Id,
                         "Ты хочешь добавить дополнительные фото (до 10)?", replyMarkup: additionalPhoto);
-                    UpdateStage(user.Id, 7);
+                    UpdateStage(user.Id, (int)Action.SetAdditionalPhoto);
                 }
 
                 break;
@@ -129,7 +154,7 @@ public class CallbackDataRepository
                 _folder = "additional";
                 if (PhotoRepository.GetFileCountInFolder($"../../../photos/{callbackQuery.From.Id}/additional") == 10)
                 {
-                    UpdateStage(user.Id, 8);
+                    UpdateStage(user.Id, (int)Action.SetInterestedSex);
                     break;
                 }
 
@@ -141,7 +166,7 @@ public class CallbackDataRepository
                 break;
             case "additional_photo_no":
                 await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Теперь отправь любое сообщение");
-                UpdateStage(callbackQuery.From.Id, 8);
+                UpdateStage(user.Id, (int)Action.SetInterestedSex);
                 break;
             case "view_add_photo":
                 if (PhotoRepository.GetFileCountInFolder($"../../../photos/{callbackQuery.From.Id}/additional") == 0)
@@ -293,7 +318,7 @@ public class CallbackDataRepository
             _logger.LogError(e, $"Ошибка при попытке отправить сообщение о знаке зодиака пользователю {Id}");
 
             // Обновляем стадию пользователя
-            BlankMenu.UserRepository.UpdateUserStage(Id, 4);
+            UserRepository.UpdateUserStage(Id, 4);
 
             // В случае ошибки, возможно, вам также стоит сообщить пользователю об этом
             await botClient.SendTextMessageAsync(chat.Id, "Произошла ошибка, пожалуйста, попробуйте снова.");
@@ -302,7 +327,7 @@ public class CallbackDataRepository
 
     private static void UpdateStage(long tgId, int stage)
     {
-        BlankMenu.UserRepository.UpdateUserStage(tgId, stage);
+        UserRepository.UpdateUserStage(tgId, stage);
         _logger.LogInformation($"user({tgId}): Stage updated: {stage}");
     }
 }

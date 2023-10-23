@@ -8,7 +8,7 @@ public class UserRepository
     private static readonly Context _context = new();
 
 
-    public void UpdateUserStage(long tgId, int newStage)
+    public static void UpdateUserStage(long tgId, int newStage)
     {
         var user = _context.Users
             .FirstOrDefault(u => u.TgId == tgId);
@@ -162,6 +162,18 @@ public class UserRepository
             _context.SaveChanges();
         }
     }
+    
+    public void SetUserInterestedGender(long tgId, string gender)
+    {
+        UserRepository.UpdateUserStage(tgId, 8);
+        var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
+        if (user != null)
+        {
+            user.GenderOfInterest = gender;
+            _context.Entry(user).State = EntityState.Modified;
+            _context.SaveChanges();
+        }
+    }
 
 
     /*public void SetUserPhoto(long tgId, string photoPath)
@@ -199,7 +211,7 @@ public class UserRepository
             _context.SaveChanges();
         }
     }
-
+    
     public void SetUserIsZodiacSignMatters(long tgId, bool isZodiacSignMatters)
     {
         var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);

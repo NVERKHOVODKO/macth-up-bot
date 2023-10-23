@@ -485,7 +485,7 @@ public class PhotoRepository
                         {
                             await botClient.SendTextMessageAsync(message.From.Id,
                                 "Ты уже добавил максимальное количество главных фото.Введи сообщение");
-                            UpdateStage(message.From.Id, 7);
+                            UpdateStage(message.From.Id, (int)Action.SetAdditionalPhoto);
                         }
                         break;
                     }
@@ -494,8 +494,8 @@ public class PhotoRepository
                     {
                         await botClient.SendTextMessageAsync(message.From.Id,
                             "Ты уже добавил максимальное количество главных фото.");
-                        UpdateStage(message.From.Id, 8);
-                        await BlankMenu.EnterAction(botClient, message.Chat.Id);
+                        UpdateStage(message.From.Id, (int)Action.SetAdditionalPhoto);
+                        //await BlankMenu.EnterAction(botClient, message.Chat.Id);
                     }
                     else
                     {
@@ -513,16 +513,16 @@ public class PhotoRepository
                         {
                             await botClient.SendTextMessageAsync(message.From.Id,
                                 "Ты уже добавил максимальное количество дополнительных фото.Введи сообщение");
-                            UpdateStage(message.From.Id, 8);
+                            UpdateStage(message.From.Id, (int)Action.SetInterestedSex);
                         }
                         break;
                     }
                     if (GetFileCountInFolder($"../../../photos/{message.From.Id}/additional/") == 10)
                     {
                         await botClient.SendTextMessageAsync(message.From.Id,
-                            "Ты уже добавил максимальное количество главных фото.");
-                        UpdateStage(message.From.Id, 8);
-                        await BlankMenu.EnterAction( botClient, message.Chat.Id);
+                            "Ты уже добавил максимальное количество дополнительных фото.");
+                        UpdateStage(message.From.Id, (int)Action.SetInterestedSex);
+                       
                     }
                     else
                     {
@@ -539,7 +539,7 @@ public class PhotoRepository
 
     private static void UpdateStage(long tgId, int stage)
     {
-        BlankMenu.UserRepository.UpdateUserStage(tgId, stage);
+        UserRepository.UpdateUserStage(tgId, stage);
         _logger.LogInformation($"user({tgId}): Stage updated: {stage}");
     }
 
@@ -570,8 +570,8 @@ public class PhotoRepository
                             await SendUserMainProfile(message.From.Id, botClient);
                             await BlankMenu.EnterMainPhotos(message, botClient);
                         }
-                        UpdateStage(message.From.Id, 8);
-                        await BlankMenu.EnterAction(botClient, message.Chat.Id);
+                        UpdateStage(message.From.Id, (int)Action.SetMainPhoto);
+                        //await BlankMenu.EnterAction(botClient, message.Chat.Id);
                         break;
                     case "additional":
                         if (BlankMenu.UserRepository.GetUserStage(message.From.Id) != (int)Action.AddAdditionalPhoto)
@@ -579,7 +579,7 @@ public class PhotoRepository
                             await SendUserAdditionalProfile(message.From.Id, message.From.Id, botClient);
                             await BlankMenu.EnterAdditionalPhotos(message, botClient);
                         }
-                        UpdateStage(message.From.Id, 8);
+                        UpdateStage(message.From.Id, (int)Action.SetInterestedSex);
                         await BlankMenu.EnterAction(botClient, message.Chat.Id);
                         break;
                 }
