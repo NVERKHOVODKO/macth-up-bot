@@ -1,6 +1,7 @@
 ﻿using ConsoleApplication1.Menues;
 using Data;
 using EntityFrameworkLesson.Repositories;
+using MatchUpBot.Repositories;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -274,22 +275,25 @@ public class PhotoRepository
     
     public static async Task SendLikerBlank(Message message, ITelegramBotClient botClient, long userBlankId)
     {
+        await botClient.SendTextMessageAsync(
+            message.From.Id,
+            "Твоя анкета понравилась пользователю. Можешь написать ему или ответить взаимной симпатией");
+        
         var filePath = $"../../../photos/{userBlankId}/main/";
 
         var user = BlankMenu.UserRepository.GetUser(userBlankId);
-
-
+        
         string caption;
         if (BlankMenu.UserRepository.GetUser(message.From.Id).IsZodiacSignMatters)
         {
-            caption = $"Ваша анкета понравилась пользователю:\n {user.Name}, {user.Age} лет, {user.City} \n" +
+            caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
                       $"{user.About}\n" + $"{user.ZodiacSign} {GetZodiacPicture(user.ZodiacSign)} (85% совместимость)" +
-                      $"\n{user.Name}";
+                      $"\n@{user.TgUsername}";
         }
         else
         {
-            caption = $"Ваша анкета понравилась пользователю:\n {user.Name}, {user.Age} лет, {user.City} \n" +
-                      $"{user.About} \n{user.Name}";
+            caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
+                      $"{user.About} \n@{user.TgUsername}";
         }
         
 
@@ -314,11 +318,15 @@ public class PhotoRepository
             inputMedia.Add(inputMediaPhoto);
         }
 
+        UserRepository.SetLastShowedBlankTgId(message.From.Id, userBlankId);
+
         await botClient.SendMediaGroupAsync(
             message.From.Id,
             inputMedia,
             disableNotification: true
         );
+
+        ViewProfilesMenuRepository.RemoveLike(userBlankId, message.From.Id);
     }
     
     

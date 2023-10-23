@@ -5,7 +5,7 @@ namespace Data;
 
 public class UserRepository
 {
-    private readonly Context _context = new();
+    private static readonly Context _context = new();
 
 
     public void UpdateUserStage(long tgId, int newStage)
@@ -119,7 +119,7 @@ public class UserRepository
         }
     }
     
-    public void SetLastShowedBlankTgId(long tgId, long blankId)
+    public static void SetLastShowedBlankTgId(long tgId, long blankId)
     {
         var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
         if (user != null)

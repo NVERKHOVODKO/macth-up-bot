@@ -65,10 +65,22 @@ public class ViewProfilesMenuRepository
 
         return matchingProfile;
     }
-    
     public static long GetLikerId(long userId)
     {
         var like = _context.Likes.FirstOrDefault(like => like.LikedUserId == userId);
-        return like.LikedByUserId;
+        return like?.LikedByUserId ?? -1;
     }
+    
+    public static void RemoveLike(long likerId, long likedId)
+    {
+        var existingLike = _context.Likes.FirstOrDefault(like => like.LikedUserId == likedId && like.LikedByUserId == likerId);
+        //var like = _context.Likes.FirstOrDefault(l => l.Id == likeId);
+
+        if (existingLike != null)
+        {
+            _context.Likes.Remove(existingLike);
+            _context.SaveChanges();
+        }
+    }
+
 }

@@ -49,10 +49,10 @@ public class BlankMenu
 
         Console.WriteLine(Stage);
 
-        /*if (LikesMenu.GetLikerId(message.From.Id) == null)
+        if (LikesMenu.GetLikerId(message.From.Id) != -1)
         {
-            await PhotoRepository.SendLikerBlank(message, botClient, LikesMenu.GetLikerId(message.From.Id));
-        }*/
+            UserRepository.UpdateUserStage(message.From.Id, 22);
+        }
 
         switch (Stage)
         {
@@ -76,7 +76,6 @@ public class BlankMenu
                 if (!AddZodiacSignToDatabase(message, curUser, chat, botClient)) break;
                 await EnterPhoto(message, botClient, chat);
                 break;
-
             case 8:
                 await EnterAction(message, botClient, chat);
                 break;
@@ -90,6 +89,7 @@ public class BlankMenu
                 ViewingProfilesMenu.ShowBlank(message, botClient);
                 goto case 21;
             case 21:
+                _logger.LogInformation($"user({message.From.Id}): getted user()");
                 switch (message.Text)
                 {
                     case "❤️":
@@ -111,7 +111,11 @@ public class BlankMenu
                         await PhotoRepository.SendUserAdditionalProfile(message.From.Id, UserRepository.GetUser(message.From.Id).LastShowedBlankTgId, botClient);
                         break;
                 }
-                
+                break;
+            case 22:
+                _logger.LogInformation($"user({message.From.Id}): got Liker Blank({LikesMenu.GetLikerId(message.From.Id)})");
+                await PhotoRepository.SendLikerBlank(message, botClient, LikesMenu.GetLikerId(message.From.Id));
+                UserRepository.UpdateUserStage(message.From.Id, 21);
                 break;
             /*case (int)Action.EditName: //TODO 
                 curUser.Name = message.Text;

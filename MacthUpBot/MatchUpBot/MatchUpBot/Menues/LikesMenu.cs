@@ -35,7 +35,8 @@ public class LikesMenu
     
     public static long GetLikerId(long userId)
     {
-        var likerId = ViewProfilesMenuRepository.GetLikerId(userId);
+        long likerId = ViewProfilesMenuRepository.GetLikerId(userId);
+        _logger.LogInformation($"GetLikerId ({userId}): {likerId}");
         return likerId;    
     }
 }
