@@ -69,7 +69,7 @@ internal class Program
                         UserRepository.CreateUser(message.From.Id);
                         UserRepository.SetUserTgUsername(message.From.Id, message.From.Username);
                     }
-
+                    UserRepository.CreateRandomFemaleUsers();
                     switch (message.Type)
                     {
                         case MessageType.Text:

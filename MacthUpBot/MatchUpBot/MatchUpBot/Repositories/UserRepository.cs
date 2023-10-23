@@ -175,6 +175,44 @@ public class UserRepository
         }
     }
 
+    
+    public void CreateRandomFemaleUsers()
+    {
+        var random = new Random();
+        var zodiacSigns = new[] { "Рак", "Овен", "Телец", "Близнецы", "Рыбы", "Дева", "Лев", "Скорпион", "Стрелец", "Водолей", "Козерог" };
+        var names = new[] { "Анна", "Екатерина", "Мария", "Ольга", "Татьяна", "Елена", "Наталья", "Ирина", "Светлана" };
+        var descriptions = new[]
+        {
+            "Привет, я новая здесь и ищу интересных собеседников. Обожаю музыку и кино.",
+            "Я студентка, увлекаюсь спортом и мечтаю посетить много стран.",
+            "Люблю природу и путешествия. Ищу кого-то, кто разделит мои интересы.",
+            "Мне нравятся вечера в уютной компании. Давай встретимся в кафе?",
+            "Если ты тоже любишь животных, мы найдем общие темы для разговора."
+        };
+
+        for (int i = 1; i <= 20; i++)
+        {
+            var user = new UserEntity
+            {
+                TgId = i,
+                Name = names[random.Next(names.Length)],
+                Age = random.Next(17, 26),
+                City = "Минск",
+                Gender = "Женский",
+                TgUsername = $"user{i}_telegram",
+                Stage = 0,
+                About = descriptions[random.Next(descriptions.Length)],
+                ZodiacSign = zodiacSigns[random.Next(zodiacSigns.Length)],
+                IsZodiacSignMatters = random.Next(2) == 0,
+                GenderOfInterest = "Мужской",
+                LastShowedBlankTgId = 0 // Установите значение по умолчанию
+            };
+
+            _context.Users.Add(user);
+        }
+
+        _context.SaveChanges();
+    }
 
     /*public void SetUserPhoto(long tgId, string photoPath)
     {
