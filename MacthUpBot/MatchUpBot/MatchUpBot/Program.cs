@@ -45,6 +45,7 @@ internal class Program
     }
 
 
+    
     private static async Task UpdateHandler(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     {
@@ -69,12 +70,13 @@ internal class Program
                         UserRepository.CreateUser(message.From.Id);
                         UserRepository.SetUserTgUsername(message.From.Id, message.From.Username);
                     }
-                    UserRepository.CreateRandomFemaleUsers();
+
+                    //UserRepository.CreateRandomFemaleUsers();
                     switch (message.Type)
                     {
                         case MessageType.Text:
                         {
-                            await BlankMenu.HandleMessageTypeText(message, botClient, chat, cancellationToken, curUser);
+                            await BlankMenu.HandleMessageTypeText(message, botClient, chat, curUser);
                             return;
                         }
                         case MessageType.Photo:

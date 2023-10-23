@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Repositories;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ConsoleApplication1.Menues;
 
@@ -15,9 +14,10 @@ public class ViewingProfilesMenu
 
     private static ILogger<BlankMenu> _logger =
         LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<BlankMenu>();
-    private static ViewProfilesMenuRepository vpmr = new ViewProfilesMenuRepository();
-    
-    
+
+    private static readonly ViewProfilesMenuRepository vpmr = new();
+
+
     public ViewingProfilesMenu(ILogger<BlankMenu> logger)
     {
         _logger = logger;
@@ -26,7 +26,7 @@ public class ViewingProfilesMenu
     public static UserEntity GetMatchingProfile(int age, string city, long recieverId)
     {
         UserEntity user = null;
-        int ageDifference = 5;
+        var ageDifference = 5;
         while (user == null && ageDifference < 20)
         {
             _logger.LogInformation($"ageDifference = {ageDifference}");
@@ -36,12 +36,12 @@ public class ViewingProfilesMenu
 
         return user;
     }
-
+    
     public static async Task ShowBlank(Message message, ITelegramBotClient botClient)
     {
         var user = UserRepository.GetUser(message.From.Id);
         _logger.LogInformation($"user({message.From.Id}): getting a blank");
-        var userSearched = ViewingProfilesMenu.GetMatchingProfile(user.Age, user.City, message.From.Id);
+        var userSearched = GetMatchingProfile(user.Age, user.City, message.From.Id);
         if (userSearched == null)
         {
             await botClient.SendTextMessageAsync(message.From.Id, "Не получилось найти кого-то подходящего для тебя(");
@@ -54,6 +54,4 @@ public class ViewingProfilesMenu
             UserRepository.SetLastShowedBlankTgId(message.From.Id, userSearched.TgId);
         }
     }
-
-
 }

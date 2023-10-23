@@ -1,7 +1,6 @@
 ﻿using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
-using File = System.IO.File;
 
 namespace MatchUpBot.Repositories;
 
@@ -28,11 +27,11 @@ public class EditProfileRepository
                 },
                 new[]
                 {
-                InlineKeyboardButton.WithCallbackData("Назад", "back_to_action")
-            }
+                    InlineKeyboardButton.WithCallbackData("Назад", "back_to_action")
+                }
             });
-        botClient.EditMessageTextAsync(tgId, callbackQuery.Message.MessageId, "Что ты хочешь изменить?", replyMarkup: changeMenu);
-
+        botClient.EditMessageTextAsync(tgId, callbackQuery.Message.MessageId, "Что ты хочешь изменить?",
+            replyMarkup: changeMenu);
     }
 
     public static async Task EditKeyboardToAction(ITelegramBotClient botClient, long tgId, CallbackQuery callbackQuery)
@@ -53,7 +52,8 @@ public class EditProfileRepository
                     InlineKeyboardButton.WithCallbackData("Просмотреть доп фото", "view_add_photo")
                 }
             });
-        await botClient.EditMessageTextAsync(tgId,callbackQuery.Message.MessageId, "Выбери действие", replyMarkup: menuKeyboard);
+        await botClient.EditMessageTextAsync(tgId, callbackQuery.Message.MessageId, "Выбери действие",
+            replyMarkup: menuKeyboard);
     }
 
     public static async Task EditKeyboardToPhotoChoice(ITelegramBotClient botClient, long tgId,
@@ -75,7 +75,7 @@ public class EditProfileRepository
                     InlineKeyboardButton.WithCallbackData("Назад", "back_to_edit")
                 }
             });
-        await botClient.EditMessageTextAsync(callbackQuery.From.Id,callbackQuery.Message.MessageId,
+        await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
             "Какие фото ты хочешь изменить?", replyMarkup: editPhoto);
     }
 }

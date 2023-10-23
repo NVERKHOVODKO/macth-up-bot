@@ -61,7 +61,7 @@ public class UserRepository
             Age = 0,
             City = "N/A",
             Gender = "N/A",
-            TgUsername = "N/A",
+            TgUsername = "None",
             Stage = -1,
             About = "N/A",
             ZodiacSign = "N/A",
@@ -118,7 +118,7 @@ public class UserRepository
             _context.SaveChanges();
         }
     }
-    
+
     public static void SetLastShowedBlankTgId(long tgId, long blankId)
     {
         var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
@@ -162,7 +162,7 @@ public class UserRepository
             _context.SaveChanges();
         }
     }
-    
+
     public void SetUserInterestedGender(long tgId, string gender)
     {
         var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
@@ -174,44 +174,77 @@ public class UserRepository
         }
     }
 
-    
+
     public void CreateRandomFemaleUsers()
     {
         var random = new Random();
-        var zodiacSigns = new[] { "Рак", "Овен", "Телец", "Близнецы", "Рыбы", "Дева", "Лев", "Скорпион", "Стрелец", "Водолей", "Козерог" };
-        var names = new[] { "Анна", "Екатерина", "Мария", "Ольга", "Татьяна", "Елена", "Наталья", "Ирина", "Светлана" };
+        var zodiacSigns = new[]
+            { "Рак", "Овен", "Телец", "Близнцы", "Рыбы", "Дева", "Лев", "Скорпион", "Стрелец", "Водолей", "Козерог" };
+        var names = new[]
+        {
+            "Анна", "Екатерина", "Мария", "Ольга", "Татьяна",
+            "Елена", "Наталья", "Ирина", "Светлана", "Алиса",
+            "Виктория", "Евгения", "Дарья", "Ксения", "Милена",
+            "Надежда", "Полина", "Регина", "Юлия", "Ангелина"
+        };
         var descriptions = new[]
         {
             "Привет, я новая здесь и ищу интересных собеседников. Обожаю музыку и кино.",
             "Я студентка, увлекаюсь спортом и мечтаю посетить много стран.",
             "Люблю природу и путешествия. Ищу кого-то, кто разделит мои интересы.",
             "Мне нравятся вечера в уютной компании. Давай встретимся в кафе?",
-            "Если ты тоже любишь животных, мы найдем общие темы для разговора."
+            "Если ты тоже любишь животных, мы найдем общие темы для разговора.",
+            "Увлекаюсь искусством и живописью. Готова делиться своими впечатлениями.",
+            "Люблю активный образ жизни. Давай вместе заниматься спортом!",
+            "Мечтаю научиться играть на гитаре. Ищу учителя и вдохновение.",
+            "Обожаю готовить разные блюда. Может, устроим кулинарный поединок?",
+            "Интересуюсь наукой и новейшими технологиями. Обсудим актуальные темы?",
+            "Мечтаю о кругосветном путешествии. Присоединись к моим приключениям!",
+            "Люблю читать книги и обсуждать их с кем-то. Есть любимая книга?",
+            "Ищу собеседника, чтобы вместе учиться новому. Готов присоединиться?",
+            "Хочу стать лучшей версией себя. Поддержи меня в этом!",
+            "Мечтаю о большой семье. Ищу надежного партнера для серьезных отношений.",
+            "Путешественник и фотограф. Покажу тебе лучшие места для фотосессии.",
+            "Учусь на программиста. Расскажу тебе о мире IT и компьютерах.",
+            "Люблю музыку разных жанров. Поделишься своими музыкальными вкусами?",
+            "Считаю себя экологически грамотным человеком. Давай обсудим природу и экологию.",
+            "Увлекаюсь экстримальными видами спорта. Готов к адреналину?",
+            "Люблю искусство и культуру разных стран. Давай обсудим искусство мира.",
+            "Ищу интересных собеседников. Готов обсудить любые темы.",
+            "Увлекаюсь космосом и астрономией. Поделишься своими знаниями?",
+            "Ищу спутника для походов в кино и театр. Какие фильмы ты предпочитаешь?",
+            "Люблю животных и всегда готова помочь им. У тебя есть домашние питомцы?",
+            "Мечтаю научиться танцевать. Готов показать тебе свои танцевальные движения.",
+            "Интересуюсь модой и стилем. Расскажешь о своем стиле одежды?",
+            "Увлекаюсь историей и археологией. Давай поговорим о древних цивилизациях.",
+            "Ищу спутника для походов на природу. Готов провести время на свежем воздухе?"
         };
 
-        for (int i = 1; i <= 20; i++)
-        {
-            var user = new UserEntity
+        for (var i = 1; i <= 20; i++)
+            if (!_context.Users.Any(u => u.TgId == i))
             {
-                TgId = i,
-                Name = names[random.Next(names.Length)],
-                Age = random.Next(17, 26),
-                City = "Минск",
-                Gender = "Женский",
-                TgUsername = $"user{i}_telegram",
-                Stage = 0,
-                About = descriptions[random.Next(descriptions.Length)],
-                ZodiacSign = zodiacSigns[random.Next(zodiacSigns.Length)],
-                IsZodiacSignMatters = random.Next(2) == 0,
-                GenderOfInterest = "Мужской",
-                LastShowedBlankTgId = 0 // Установите значение по умолчанию
-            };
+                var user = new UserEntity
+                {
+                    TgId = i,
+                    Name = names[i - 1],
+                    Age = random.Next(17, 26),
+                    City = "Минск",
+                    Gender = "Женский",
+                    TgUsername = $"user{i}_telegram",
+                    Stage = 0,
+                    About = descriptions[random.Next(descriptions.Length)],
+                    ZodiacSign = zodiacSigns[random.Next(zodiacSigns.Length)],
+                    IsZodiacSignMatters = random.Next(2) == 0,
+                    GenderOfInterest = "Мужской",
+                    LastShowedBlankTgId = 0
+                };
 
-            _context.Users.Add(user);
-        }
+                _context.Users.Add(user);
+            }
 
         _context.SaveChanges();
     }
+
 
     /*public void SetUserPhoto(long tgId, string photoPath)
     {
@@ -248,7 +281,7 @@ public class UserRepository
             _context.SaveChanges();
         }
     }
-    
+
     public void SetUserIsZodiacSignMatters(long tgId, bool isZodiacSignMatters)
     {
         var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);

@@ -1,7 +1,5 @@
 ﻿using Data;
 using Entities;
-using EntityFrameworkLesson.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MatchUpBot.Repositories;
@@ -9,13 +7,13 @@ namespace MatchUpBot.Repositories;
 public class ViewProfilesMenuRepository
 {
     private static readonly Context _context = new();
-    
+
     private static readonly ILogger<ViewProfilesMenuRepository> _logger =
         LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<ViewProfilesMenuRepository>();
 
     public void AddLike(long likedUserId, long likerId)
     {
-        UserRepository ur = new UserRepository();
+        var ur = new UserRepository();
         var liker = ur.GetUser(likerId);
         var likedUser = ur.GetUser(likedUserId);
         _logger.LogInformation($"liker({liker.TgId})");
@@ -23,8 +21,8 @@ public class ViewProfilesMenuRepository
 
         var existingLike = _context.Likes
             .FirstOrDefault(like => like.LikedUserId == likedUser.TgId && like.LikedByUserId == liker.TgId);
-        
-        
+
+
         if (existingLike == null)
         {
             var like = new LikesEntity
@@ -39,10 +37,10 @@ public class ViewProfilesMenuRepository
         }
         else
         {
-            _logger.LogInformation($"Like hasn't been added because it already exists.");
+            _logger.LogInformation("Like hasn't been added because it already exists.");
         }
     }
-    
+
     public UserEntity GetMatchingProfile(int age, string city, long recieverId, int ageDifference)
     {
         var totalProfilesCount = _context.Users.Count();
@@ -50,31 +48,33 @@ public class ViewProfilesMenuRepository
         var randomStart = new Random().Next(totalProfilesCount);
 
         var matchingProfile = _context.Users
-            .Where(user => (user.Age >= age - ageDifference && user.Age <= age + ageDifference) && user.City == city && user.TgId != recieverId)
+            .Where(user => user.Age >= age - ageDifference && user.Age <= age + ageDifference && user.City == city &&
+                           user.TgId != recieverId)
             .OrderBy(user => user.TgId)
             .Skip(randomStart)
             .FirstOrDefault();
 
         if (matchingProfile == null)
-        {
             matchingProfile = _context.Users
-                .Where(user => (user.Age >= age - ageDifference && user.Age <= age + ageDifference) && user.City == city && user.TgId != recieverId)
+                .Where(user =>
+                    user.Age >= age - ageDifference && user.Age <= age + ageDifference && user.City == city &&
+                    user.TgId != recieverId)
                 .OrderBy(user => user.TgId)
                 .FirstOrDefault();
-        }
 
         return matchingProfile;
     }
+
     public static long GetLikerId(long userId)
     {
         var like = _context.Likes.FirstOrDefault(like => like.LikedUserId == userId);
         return like?.LikedByUserId ?? -1;
     }
-    
+
     public static void RemoveLike(long likerId, long likedId)
     {
-        var existingLike = _context.Likes.FirstOrDefault(like => like.LikedUserId == likedId && like.LikedByUserId == likerId);
-        //var like = _context.Likes.FirstOrDefault(l => l.Id == likeId);
+        var existingLike =
+            _context.Likes.FirstOrDefault(like => like.LikedUserId == likedId && like.LikedByUserId == likerId);
 
         if (existingLike != null)
         {
@@ -83,4 +83,13 @@ public class ViewProfilesMenuRepository
         }
     }
 
+    public List<long> GetUsersLikedByUser(long userId) //потом можно смотреть тех кто тебя лайкнул
+    {
+        var likedUsers = _context.Likes
+            .Where(like => like.LikedUserId == userId)
+            .Select(like => like.LikedUser.TgId)
+            .ToList();
+
+        return likedUsers;
+    }
 }

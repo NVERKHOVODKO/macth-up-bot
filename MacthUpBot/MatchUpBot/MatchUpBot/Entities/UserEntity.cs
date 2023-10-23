@@ -4,10 +4,6 @@ namespace Entities;
 
 public class UserEntity
 {
-    public UserEntity()
-    {
-    }
-
     [Key] public long TgId { get; set; }
     public string Name { get; set; }
     public int Age { get; set; }

@@ -16,9 +16,12 @@
     AddAdditionalPhoto,
     DeleteMainPhoto,
     DeleteAdditionalPhoto,
-    EditName ,
+    EditName,
     EditProfile,
     EditAge,
     EditDescription,
-    EnterAction
+    EnterAction,
+    GetFirstBlank,
+    GetBlank,
+    GetLikedBlank
 }
