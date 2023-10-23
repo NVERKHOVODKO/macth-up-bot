@@ -7,7 +7,6 @@ using Repositories;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
-using Action = Constants.Action;
 
 namespace ConsoleApplication1.Menues;
 
@@ -77,10 +76,54 @@ public class BlankMenu
                 await EnterPhoto(message, botClient, chat);
                 break;
             case 8:
-                await EnterAction(message, botClient, chat);
+                await EnterAction(botClient, chat.Id);
                 break;
-            case (int)Action.EditProfile:
-                await EditProfile(message, botClient, chat, cancellationToken);
+            case (int)Action.EditName:
+                await SetNewName(message, botClient);
+                await EnterAction(botClient, chat.Id);
+                break;
+            case (int)Action.EditAge:
+                await SetNewAge(message, botClient);
+                break;
+            case (int)Action.EditCity:
+                await SetNewCity(message, botClient);
+                await EnterAction(botClient, chat.Id);
+                break;
+            case (int)Action.EditDescription:
+                await SetNewAbout(message, botClient);
+                await EnterAction(botClient, chat.Id);
+                break;
+            case (int)Action.AddMainPhoto:
+                if (message.Text != "Отмена")
+                {
+                    await botClient.SendTextMessageAsync(message.From.Id, "Отправь новое фото \nДля отмены введи «Отмена»");
+                    break;
+                }
+                _logger.LogInformation($"user({message.From.Id}): stage updated {8}");
+                UserRepository.UpdateUserStage(message.From.Id, 8);
+                await EnterAction(botClient, chat.Id);
+                break;
+            case (int)Action.AddAdditionalPhoto:
+            {
+                if (message.Text != "Отмена")
+                {
+                    await botClient.SendTextMessageAsync(message.From.Id, "Отправь новое фото \nДля отмены введи «Отмена»");
+                    break;
+                }
+                _logger.LogInformation($"user({message.From.Id}): stage updated {8}");
+                UserRepository.UpdateUserStage(message.From.Id, 8);
+                await EnterAction(botClient, chat.Id);
+                break;
+            }
+            case (int)Action.DeleteMainPhoto:
+                if (message.Text != "Отмена")
+                {
+                    await DeleteMainPhoto(message, botClient);
+                    break;
+                }
+                _logger.LogInformation($"user({message.From.Id}): stage updated {8}");
+                UserRepository.UpdateUserStage(message.From.Id, 8);
+                await EnterAction(botClient, chat.Id);
                 break;
             case 20:
                 await AddReactionKeyboard(message, botClient, chat);
@@ -105,7 +148,7 @@ public class BlankMenu
                     case "🚪":
                         UserRepository.UpdateUserStage(message.From.Id, 8);
                         _logger.LogInformation($"user({message.From.Id}): Stage updated: {8}");
-                        await EnterAction(message, botClient, chat);
+                        await EnterAction(botClient, chat.Id);
                         return;
                     case "📷":
                         await PhotoRepository.SendUserAdditionalProfile(message.From.Id, UserRepository.GetUser(message.From.Id).LastShowedBlankTgId, botClient);
@@ -117,51 +160,6 @@ public class BlankMenu
                 await PhotoRepository.SendLikerBlank(message, botClient, LikesMenu.GetLikerId(message.From.Id));
                 UserRepository.UpdateUserStage(message.From.Id, 21);
                 break;
-            /*case (int)Action.EditName: //TODO 
-                curUser.Name = message.Text;
-                await botClient.SendTextMessageAsync(
-                    chat.Id,
-                    $"Твое новое имя: {curUser.Name}");
-                Stage = (int)Action.EditProfile;
-                await UpdateUserInfo(curUser, context);
-                break;
-            case (int)Action.EditAge: //TODO 
-                try
-                {
-                    curUser.Age = int.Parse(message.Text);
-                    await botClient.SendTextMessageAsync(
-                        chat.Id,
-                        $"Твой новый возраст:{curUser.Age}");
-
-                    Stage = (int)Action.EditProfile;
-                    context.UserEntity.Update(curUser);
-                    await context.SaveChangesAsync();
-                }
-                catch (FormatException e)
-                {
-                    await botClient.SendTextMessageAsync(
-                        chat.Id,
-                        "Введи корректный возраст");
-                }
-                break;
-            case (int)Action.EditCity: //TODO 
-
-                curUser.City = message.Text;
-                await botClient.SendTextMessageAsync(
-                    chat.Id,
-                    $"Твой новый город: {curUser.City}");
-
-                Stage = (int)Action.EditProfile;
-                break;
-            case (int)Action.EditDescription: //TODO 
-                curUser.About = message.Text;
-                await botClient.SendTextMessageAsync(
-                    chat.Id,
-                    $"Твое новое описание: {curUser.About}");
-
-                Stage = (int)Action.EditProfile;
-                curUser.PrintToConsole();
-                break;*/
             default:
             {
                 if (Stage == 6 || Stage == 7 || Stage == 5)
@@ -179,6 +177,133 @@ public class BlankMenu
             }
         }
     }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    private static async Task DeleteMainPhoto(Message message, ITelegramBotClient botClient)
+    {
+        try
+        {
+            if (int.Parse(message.Text) >
+                PhotoRepository.GetFileCountInFolder($"../../../photos/{message.From.Id}/main"))
+            {
+                botClient.SendTextMessageAsync(
+                    message.From.Id,
+                    "Введи корректный номер");
+                return;
+            }
+            Console.WriteLine(int.Parse(message.Text) + "dasa");
+            if (int.Parse(message.Text) < 1) throw new Exception();
+            await PhotoRepository.DeletePhoto("main", int.Parse(message.Text), message.From.Id);
+                await botClient.SendTextMessageAsync(
+                    message.From.Id,
+                    "Фото удалено");
+                await EnterAction(botClient, message.From.Id);
+                UserRepository.SetUserAge(message.From.Id, int.Parse(message.Text));
+           
+            UserRepository.UpdateUserStage(message.From.Id, 8);
+            _logger.LogInformation($"user({message.From.Id}): Stage updated: {8}");
+        }
+        catch (FormatException e)
+        {
+            botClient.SendTextMessageAsync(
+                message.From.Id,
+                "Введи корректный номер");
+        }
+        /*catch (Exception e)
+        {
+            botClient.SendTextMessageAsync(
+                message.From.Id,
+                "Номер не должен быть отрицательным. Попробуй еще раз");
+        }*/
+    }
+
+    private static async Task SetNewAbout(Message message, ITelegramBotClient botClient)
+    {
+        if (message.Text != "Отмена")
+        {
+            await botClient.SendTextMessageAsync(
+                message.From.Id,
+                $"Твое новое описание : {message.Text}");
+            UserRepository.SetUserAbout(message.From.Id, message.Text);
+        }
+        UserRepository.UpdateUserStage(message.From.Id, 8);
+        _logger.LogInformation($"user({message.From.Id}): Stage updated: {8}");
+    }
+    private static async Task SetNewCity(Message message, ITelegramBotClient botClient)
+    {
+        if (message.Text != "Отмена")
+        {
+            await botClient.SendTextMessageAsync(
+                message.From.Id,
+                $"Твое новый город : {message.Text}");
+            UserRepository.SetUserCity(message.From.Id, message.Text);
+        }
+        UserRepository.UpdateUserStage(message.From.Id, 8);
+        _logger.LogInformation($"user({message.From.Id}): Stage updated: {8}");
+    }
+    private static async Task SetNewAge(Message message, ITelegramBotClient botClient)
+    {
+        try
+        {
+            if (message.Text != "Отмена")
+            {
+
+                if (int.Parse(message.Text) < 1) throw new Exception();
+
+                UserRepository.SetUserAge(message.From.Id, int.Parse(message.Text));
+                _logger.LogInformation($"user({message.From.Id}): updated age: {message.Text}");
+                await botClient.SendTextMessageAsync(
+                    message.From.Id,
+                    $"Твой новый возраст: {message.Text}");
+                UserRepository.SetUserAge(message.From.Id, int.Parse(message.Text));
+            }
+            await EnterAction(botClient, message.From.Id);
+            UserRepository.UpdateUserStage(message.From.Id, 8);
+            _logger.LogInformation($"user({message.From.Id}): Stage updated: {8}");
+        }
+        catch (FormatException e)
+        {
+            botClient.SendTextMessageAsync(
+                message.From.Id,
+                "Введи корректный возраст");
+        }
+        catch (Exception e)
+        {
+            botClient.SendTextMessageAsync(
+                message.From.Id,
+                "Возраст не должен быть отрицательным. Попробуй еще раз");
+        }
+    }
+
+    private static async Task SetNewName(Message message, ITelegramBotClient botClient)
+    {
+        if (message.Text != "Отмена")
+        {
+            await botClient.SendTextMessageAsync(
+                message.From.Id,
+                $"Твое новое имя: {message.Text}");
+            UserRepository.SetUserName(message.From.Id, message.Text);
+        }
+        UserRepository.UpdateUserStage(message.From.Id, 8);
+        _logger.LogInformation($"user({message.From.Id}): Stage updated: {8}");
+    }
+
+
+
+
+
+
 
     public static async Task EnterMainPhotos(Message message, ITelegramBotClient botClient)
     {
@@ -249,7 +374,7 @@ public class BlankMenu
     public static async Task HandleMessageTypePhoto(Message message, ITelegramBotClient botClient, Chat chat)
     {
         var Stage = UserRepository.GetUserStage(message.From.Id);
-        if (Stage != 5 && Stage != 6 && Stage != 7)
+        if (Stage != 5 && Stage != 6 && Stage != 7 && Stage != (int)Action.AddMainPhoto && Stage != (int)Action.AddAdditionalPhoto) //Refactor this
         {
             await botClient.SendTextMessageAsync(chat.Id, "Зачем мне твое фото");
             return;
@@ -258,7 +383,7 @@ public class BlankMenu
         await PhotoRepository.HandlePhotoMessage(message, botClient);
     }
 
-    private static async Task EnterAction(Message message, ITelegramBotClient botClient, Chat chat)
+    public static async Task EnterAction(ITelegramBotClient botClient, long tgId)
     {
         //await PhotoRepository.SendUserMainProfile(message, botClient);
         var menuKeyboard = new InlineKeyboardMarkup(
@@ -277,7 +402,7 @@ public class BlankMenu
                     InlineKeyboardButton.WithCallbackData("Просмотреть доп фото", "view_add_photo")
                 }
             });
-        await botClient.SendTextMessageAsync(chat.Id, "Выбери действие", replyMarkup: menuKeyboard);
+        await botClient.SendTextMessageAsync(tgId, "Выбери действие", replyMarkup: menuKeyboard);
     }
     
     

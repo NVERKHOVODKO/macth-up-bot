@@ -1,5 +1,6 @@
 ﻿using ConsoleApplication1.Menues;
 using Data;
+using MatchUpBot.Repositories;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Repositories;
@@ -154,17 +155,116 @@ public class CallbackDataRepository
                 break;
             case "view_profiles":
                 UpdateStage(user.Id, 20);
-                /*var blankReactionKeyboardMarkup = new ReplyKeyboardMarkup(
-                    new List<KeyboardButton[]>
-                    {
-                        new KeyboardButton[] { new ("❤️"), new ("👎"), new ("🚪"), new ("📷") }
-                    })
-                {
-                    ResizeKeyboard = true
-                };*/
                 await botClient.SendTextMessageAsync(
                     callbackQuery.From.Id,
                     "Напиши что-то");
+                break;
+            case "edit_profile":
+                EditProfileRepository.SendEditKeyboard(botClient, callbackQuery.From.Id, callbackQuery);
+                break;
+            case "change_name":
+                await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
+                    "Введи новое имя. \nДля отмены введи «Отмена»");
+                UpdateStage(callbackQuery.From.Id,(int)Action.EditName);
+                break;
+            case "change_age":
+                await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
+                    "Введи новый возраст. \nДля отмены введи «Отмена»");
+                UpdateStage(callbackQuery.From.Id,(int)Action.EditAge);
+                break;
+            case "change_city":
+                await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
+                    "Введи новый город. \nДля отмены введи «Отмена»");
+                UpdateStage(callbackQuery.From.Id,(int)Action.EditCity);
+                break;
+            case "change_about":
+                await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
+                    "Введи новое описание. \nДля отмены введи «Отмена»");
+                UpdateStage(callbackQuery.From.Id,(int)Action.EditDescription);
+                break;
+            case "change_photo":
+                await EditProfileRepository.EditKeyboardToPhotoChoice(botClient, callbackQuery.From.Id, callbackQuery);
+                break;
+            case "add_additional_photos":
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Отправь новое дополнительное фото \nДля отмены введи «Отмена»");
+                UpdateStage(callbackQuery.From.Id,(int)Action.AddAdditionalPhoto);
+                break;
+            case "delete_main_photos":
+                if (PhotoRepository.GetFileCountInFolder($"../../../photos/{callbackQuery.From.Id}/main") == 1)
+                {
+                    await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Нельзя удалить последнее фото");
+                    break;
+                }
+                await PhotoRepository.SendUserMainProfile(callbackQuery.From.Id, botClient);
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Отправь номер фото,которое хочешь удалить \nДля отмены введи «Отмена»");
+                UpdateStage(callbackQuery.From.Id,(int)Action.DeleteMainPhoto);
+                break;
+            case "delete_additional_photos":
+                if (PhotoRepository.GetFileCountInFolder($"../../../photos/{callbackQuery.From.Id}/additional") == 0)
+                {
+                    await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Ты не добавил доп фото");
+                    break;
+                }
+                await PhotoRepository.SendUserAdditionalProfile(callbackQuery.From.Id,callbackQuery.From.Id, botClient);
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Отправь номер фото,которое хочешь удалить \nДля отмены введи «Отмена»");
+                UpdateStage(callbackQuery.From.Id,(int)Action.DeleteAdditionalPhoto);
+                break;
+            case "back_to_edit":
+            {
+                EditProfileRepository.SendEditKeyboard(botClient,callbackQuery.From.Id,callbackQuery);
+                break;
+            }
+            case  "back_to_action":
+                await EditProfileRepository.EditKeyboardToAction(botClient, callbackQuery.From.Id, callbackQuery);
+                break;
+            case "back_to_photo":
+                await EditProfileRepository.EditKeyboardToPhotoChoice(botClient, callbackQuery.From.Id, callbackQuery);
+                break;
+            case "edit_main_photos":
+                _folder = "main";
+                var editMain = new InlineKeyboardMarkup(
+                    new List<InlineKeyboardButton[]>
+                    {
+                        new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData("Добавить", "add_main_photos")
+                        },
+                        new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData("Удалить", "delete_main_photos")
+                        },
+                        new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData("Назад", "back_to_photo")
+                        }
+                    });
+                await botClient.EditMessageTextAsync(callbackQuery.From.Id,callbackQuery.Message.MessageId,
+                    "Что ты хочешь сделать с основными фото?", replyMarkup: editMain);
+                break;
+            case "edit_additional_photos":
+                _folder = "additional";
+                var editAdditional = new InlineKeyboardMarkup(
+                    new List<InlineKeyboardButton[]>
+                    {
+                        new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData("Добавить", "add_additional_photos")
+                        },
+                        new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData("Удалить", "delete_additional_photos")
+                        },
+                        new[]
+                        {
+                            InlineKeyboardButton.WithCallbackData("Назад", "back_to_photo")
+                        }
+                    });
+                await botClient.EditMessageTextAsync(callbackQuery.From.Id,callbackQuery.Message.MessageId,
+                    "Что ты хочешь сделать с дополнительными фото?", replyMarkup: editAdditional);
+                break;
+            case "add_main_photos":
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Отправь новое основное фото \nДля отмены введи «Отмена»");
+                UpdateStage(callbackQuery.From.Id,(int)Action.AddMainPhoto);
                 break;
         }
     }
