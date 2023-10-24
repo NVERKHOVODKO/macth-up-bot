@@ -26,7 +26,7 @@ public class ViewingProfilesMenu
     public static UserEntity GetMatchingProfile(int age, string city, long recieverId)
     {
         UserEntity user = null;
-        var ageDifference = 5;
+        var ageDifference = 10;
         while (user == null && ageDifference < 20)
         {
             _logger.LogInformation($"ageDifference = {ageDifference}");

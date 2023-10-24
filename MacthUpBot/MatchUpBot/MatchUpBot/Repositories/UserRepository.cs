@@ -1,12 +1,17 @@
-﻿using Entities;
+﻿using ConsoleApplication1.Menues;
+using Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Telegram.Bot;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Data;
 
 public class UserRepository
 {
     private static readonly Context _context = new();
-
+    private static readonly ILogger<UserRepository> _logger =
+        LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<UserRepository>();
 
     public static void UpdateUserStage(long tgId, int newStage)
     {
@@ -33,6 +38,19 @@ public class UserRepository
         return user.Gender;
     }
 
+    
+    public static List<InterestEntity> GetUserInterestsById(long userId)
+    {
+        var userInterests = _context.UserInterestsEntities
+            .Include(ui => ui.Interest)
+            .Where(ui => ui.UserId == userId)
+            .Select(ui => ui.Interest)
+            .ToList();
+
+        return userInterests;
+    }
+    
+    
     public UserEntity GetUser(long tgId)
     {
         var user = _context.Users.AsNoTracking().FirstOrDefault(e => e.TgId == tgId);
@@ -305,31 +323,82 @@ public class UserRepository
         }
     }
 
-    public void SeedInterests()
+    public async void AddInterestToUser(long userId, int interestNumber, ITelegramBotClient botClient)
     {
-        if (!_context.Interests.Any())
+        if (interestNumber == 16)
         {
-            var interests = new List<InterestEntity>
-            {
-                new() { Name = "Путешествия" },
-                new() { Name = "Кино и театр" },
-                new() { Name = "Спорт" },
-                new() { Name = "Музыка" },
-                new() { Name = "Чтение" },
-                new() { Name = "Искусство" },
-                new() { Name = "Наука и образование" },
-                new() { Name = "Киберспорт" },
-                new() { Name = "Игры" },
-                new() { Name = "Природа" },
-                new() { Name = "Фотография" },
-                new() { Name = "Технологии" },
-                new() { Name = "Мода и стиль" },
-                new() { Name = "Автомобили" },
-                new() { Name = "Здоровье и фитнес" }
-            };
+            await BlankMenu.EnterAction(botClient, userId);
+            UpdateUserStage(userId, (int)Action.EnterAction);
+            _logger.LogInformation($"Пользователь {userId} выбрал завершение добавления интересов.");
+            return;
+        }
 
-            _context.Interests.AddRange(interests);
-            _context.SaveChanges();
+        if (interestNumber >= 1 && interestNumber <= 15)
+        {
+            var user = _context.Users.Include(u => u.UserInterests).FirstOrDefault(u => u.TgId == userId);
+            if (user != null)
+            {
+                var interests = Interests.GetInterests();
+                if (interestNumber >= 0 && interestNumber < interests.Length)
+                {
+                    var interestName = interests[interestNumber - 1];
+
+                    // Проверим, добавлен ли интерес пользователем
+                    var existingInterest = user.UserInterests.FirstOrDefault(ui => ui.Interest.Name == interestName);
+
+                    if (existingInterest == null)
+                    {
+                        // Создаем новый интерес, если его нет в базе данных
+                        var interest = _context.Interests.FirstOrDefault(i => i.Name == interestName);
+                        if (interest == null)
+                        {
+                            interest = new InterestEntity
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = interestName
+                            };
+                            _context.Interests.Add(interest);
+                        }
+
+                        // Создаем связь между пользователем и интересом
+                        user.UserInterests.Add(new UserInterestsEntity
+                        {
+                            Interest = interest
+                        });
+                        _context.SaveChanges();
+
+                        var backToMenuKeyboard = new ReplyKeyboardMarkup(
+                            new List<KeyboardButton[]>
+                            {
+                                new KeyboardButton[]
+                                {
+                                    new("Вернуться в меню")
+                                }
+                            })
+                        {
+                            ResizeKeyboard = true
+                        };
+                        await botClient.SendTextMessageAsync(userId, "Интерес добавлен", replyMarkup: backToMenuKeyboard);
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(userId, "Такой интерес уже добавлен");
+                        _logger.LogInformation("Интерес не был добавлен, так как он уже существует.");
+                    }
+                }
+                else
+                {
+                    _logger.LogError($"Недопустимый номер интереса: {interestNumber}");
+                }
+            }
+            else
+            {
+                _logger.LogError($"Не удалось найти пользователя с TgId: {userId}");
+            }
+        }
+        else
+        {
+            _logger.LogError($"Недопустимый номер интереса: {interestNumber}");
         }
     }
 }

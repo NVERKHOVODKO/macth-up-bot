@@ -23,5 +23,6 @@
     EnterAction,
     GetFirstBlank,
     GetBlank,
-    GetLikedBlank
+    GetLikedBlank,
+    AddInterest
 }

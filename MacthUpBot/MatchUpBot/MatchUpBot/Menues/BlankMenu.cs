@@ -45,6 +45,12 @@ public class BlankMenu
             await EnterName(message, botClient, chat);
             return;
         }
+        if (message.Text == "Вернуться в меню" && UserRepository.GetUser(message.From.Id).Stage > (int)Action.AddAdditionalPhoto)
+        {
+            UserRepository.UpdateUserStage(message.From.Id, (int)Action.EnterAction);
+            await EnterAction(botClient, chat.Id);
+            return;
+        }
 
         Console.WriteLine(Stage);
         if (LikesMenu.GetLikerId(message.From.Id) != -1)
@@ -73,6 +79,17 @@ public class BlankMenu
                 break;
             case (int)Action.SetInterestedSex:
                 await EnterInterestedGender(message, botClient, chat);
+                break;
+            case (int)Action.AddInterest:
+                try
+                {
+                    UserRepository.AddInterestToUser(message.From.Id, Int32.Parse(message.Text), botClient);
+                }
+                catch
+                {
+                    await botClient.SendTextMessageAsync(chat.Id, "Используй числа от 1 до 16");
+                    _logger.LogInformation($"Incorrect input");
+                }
                 break;
             case (int)Action.EditName:
                 await SetNewName(message, botClient);
@@ -239,8 +256,8 @@ public class BlankMenu
                 }
             });
         await botClient.SendTextMessageAsync(chat.Id, "Кто тебе интересен?", replyMarkup: sexKeyboard);
-        UserRepository.UpdateUserStage(message.From.Id, (int)Action.EnterAction);
-        _logger.LogInformation($"user({message.From.Id}): Stage updated: {(int)Action.EnterAction}");
+        UserRepository.UpdateUserStage(message.From.Id, (int)Action.AddInterest);
+        _logger.LogInformation($"user({message.From.Id}): Stage updated: {(int)Action.AddInterest}");
     }
 
 
@@ -450,6 +467,10 @@ public class BlankMenu
                 new[]
                 {
                     InlineKeyboardButton.WithCallbackData("Просмотреть доп фото", "view_add_photo")
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Добавить интересы", "add_interests")
                 }
             });
         await botClient.SendTextMessageAsync(tgId, "Выбери действие", replyMarkup: menuKeyboard);

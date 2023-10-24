@@ -292,6 +292,18 @@ public class CallbackDataRepository
                     "Отправь новое основное фото \nДля отмены введи «Отмена»");
                 UpdateStage(callbackQuery.From.Id, (int)Action.AddMainPhoto);
                 break;
+            case "add_interests":
+                var interests = Interests.GetInterests();
+
+                var messageText = "Выберите ваши интересы:\n";
+                for (int i = 0; i < interests.Length; i++)
+                {
+                    messageText += $"{i + 1}. {interests[i]}\n";
+                }
+
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, messageText);
+                UpdateStage(callbackQuery.From.Id, (int)Action.AddInterest);
+                break;
         }
     }
 
