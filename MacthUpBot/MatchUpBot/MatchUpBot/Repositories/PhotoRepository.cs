@@ -270,7 +270,7 @@ public class PhotoRepository
     }
     
     
-    public static async Task SendBlank(Message message, ITelegramBotClient botClient, long userBlankId)
+    public static async Task SendBlank(long tgId, ITelegramBotClient botClient, long userBlankId)
     {
         var filePath = $"../../../photos/{userBlankId}/main/";
 
@@ -285,7 +285,11 @@ public class PhotoRepository
         }
         
         string caption;
-        if (BlankMenu.UserRepository.GetUser(message.From.Id).IsZodiacSignMatters)
+        if (userBlankId == tgId)
+            caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
+                      $"{user.About}\n" + $"{user.ZodiacSign} {GetZodiacPicture(user.ZodiacSign)}" +
+                      $"\n{interestsText}";
+        else if (BlankMenu.UserRepository.GetUser(tgId).IsZodiacSignMatters)
             caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
                       $"{user.About}\n" + $"{user.ZodiacSign} {GetZodiacPicture(user.ZodiacSign)}" +
                       $"(85% совместимость)\n{interestsText}";
@@ -316,7 +320,7 @@ public class PhotoRepository
         }
 
         await botClient.SendMediaGroupAsync(
-            message.From.Id,
+            tgId,
             inputMedia,
             disableNotification: true
         );

@@ -37,21 +37,21 @@ public class ViewingProfilesMenu
         return user;
     }
     
-    public static async Task ShowBlank(Message message, ITelegramBotClient botClient)
+    public static async Task ShowBlank(long userId, ITelegramBotClient botClient)
     {
-        var user = UserRepository.GetUser(message.From.Id);
-        _logger.LogInformation($"user({message.From.Id}): getting a blank");
-        var userSearched = GetMatchingProfile(user.Age, user.City, message.From.Id);
+        var user = UserRepository.GetUser(userId);
+        _logger.LogInformation($"user({userId}): getting a blank");
+        var userSearched = GetMatchingProfile(user.Age, user.City, userId);
         if (userSearched == null)
         {
-            await botClient.SendTextMessageAsync(message.From.Id, "Не получилось найти кого-то подходящего для тебя(");
+            await botClient.SendTextMessageAsync(userId, "Не получилось найти кого-то подходящего для тебя(");
         }
         else
         {
-            _logger.LogInformation($"user({userSearched.TgId}): getted to user({message.From.Id})");
-            await PhotoRepository.SendBlank(message, botClient, userSearched.TgId);
-            _logger.LogInformation($"user({userSearched.TgId}): sended to user({message.From.Id})");
-            UserRepository.SetLastShowedBlankTgId(message.From.Id, userSearched.TgId);
+            _logger.LogInformation($"user({userSearched.TgId}): getted to user({userId})");
+            await PhotoRepository.SendBlank(userId, botClient, userSearched.TgId);
+            _logger.LogInformation($"user({userSearched.TgId}): sended to user({userId})");
+            UserRepository.SetLastShowedBlankTgId(userId, userSearched.TgId);
         }
     }
 }

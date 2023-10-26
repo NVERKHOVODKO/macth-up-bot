@@ -24,5 +24,6 @@
     GetFirstBlank,
     GetBlank,
     GetLikedBlank,
-    AddInterest
+    AddInterest,
+    ViewMyself
 }

@@ -343,12 +343,10 @@ public class UserRepository
                 {
                     var interestName = interests[interestNumber - 1];
 
-                    // Проверим, добавлен ли интерес пользователем
                     var existingInterest = user.UserInterests.FirstOrDefault(ui => ui.Interest.Name == interestName);
 
                     if (existingInterest == null)
                     {
-                        // Создаем новый интерес, если его нет в базе данных
                         var interest = _context.Interests.FirstOrDefault(i => i.Name == interestName);
                         if (interest == null)
                         {
@@ -360,7 +358,6 @@ public class UserRepository
                             _context.Interests.Add(interest);
                         }
 
-                        // Создаем связь между пользователем и интересом
                         user.UserInterests.Add(new UserInterestsEntity
                         {
                             Interest = interest
@@ -389,16 +386,19 @@ public class UserRepository
                 else
                 {
                     _logger.LogError($"Недопустимый номер интереса: {interestNumber}");
+                    await botClient.SendTextMessageAsync(userId, "Недопустимый номер интереса");
                 }
             }
             else
             {
                 _logger.LogError($"Не удалось найти пользователя с TgId: {userId}");
+                await botClient.SendTextMessageAsync(userId, "Не удалось найти пользователя");
             }
         }
         else
         {
             _logger.LogError($"Недопустимый номер интереса: {interestNumber}");
+            await botClient.SendTextMessageAsync(userId, "Недопустимый номер интереса");
         }
     }
 }

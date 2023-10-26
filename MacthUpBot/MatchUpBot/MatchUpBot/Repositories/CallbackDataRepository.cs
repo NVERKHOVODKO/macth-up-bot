@@ -158,7 +158,7 @@ public class CallbackDataRepository
             }
                 break;
             case "additional_photo_no":
-                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Теперь отправь любое сообщение");
+                await BlankMenu.EnterInterestedGender(callbackQuery.From.Id, botClient);
                 UpdateStage(user.Id, (int)Action.SetInterestedSex);
                 break;
             case "view_add_photo":
@@ -174,9 +174,10 @@ public class CallbackDataRepository
                 break;
             case "view_profiles":
                 UpdateStage(user.Id, (int)Action.GetFirstBlank);
-                await botClient.SendTextMessageAsync(
-                    callbackQuery.From.Id,
-                    "Напиши что-то");
+                await BlankMenu.AddReactionKeyboard(botClient, callbackQuery.From.Id);
+                UserRepository.UpdateUserStage(callbackQuery.From.Id, (int)Action.GetBlank);
+                ViewingProfilesMenu.ShowBlank(callbackQuery.From.Id, botClient);
+                //BlankMenu.GetBlankReaction(message, botClient, callbackQuery.From.Id);
                 break;
             case "edit_profile":
                 EditProfileRepository.SendEditKeyboard(botClient, callbackQuery.From.Id, callbackQuery);
@@ -303,6 +304,11 @@ public class CallbackDataRepository
 
                 await botClient.SendTextMessageAsync(callbackQuery.From.Id, messageText);
                 UpdateStage(callbackQuery.From.Id, (int)Action.AddInterest);
+                break;
+            case "view_myself":
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Твоя анкета выглядит так:");
+                await PhotoRepository.SendBlank(callbackQuery.From.Id, botClient, callbackQuery.From.Id);
+                await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
                 break;
         }
     }

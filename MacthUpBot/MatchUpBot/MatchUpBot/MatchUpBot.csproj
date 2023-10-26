@@ -21,7 +21,6 @@
 
     <ItemGroup>
       <Folder Include="DTO\" />
-      <Folder Include="photos\770532180\main\" />
     </ItemGroup>
 
 </Project>

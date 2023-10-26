@@ -78,11 +78,18 @@ public class BlankMenu
                 await EnterPhoto(message, botClient, chat);
                 break;
             case (int)Action.SetInterestedSex:
-                await EnterInterestedGender(message, botClient, chat);
+                await EnterInterestedGender(message.From.Id, botClient);
                 break;
             case (int)Action.AddInterest:
                 try
                 {
+                    if (UserRepository.GetUserInterestsById(message.From.Id).Count > 3)
+                    {
+                        await botClient.SendTextMessageAsync(chat.Id, "Ты уже добавил максиальное количество интересов");
+                        UserRepository.UpdateUserStage(message.From.Id, (int)Action.EnterAction);
+                        await EnterAction(botClient, chat.Id);
+                        return;
+                    }
                     UserRepository.AddInterestToUser(message.From.Id, Int32.Parse(message.Text), botClient);
                 }
                 catch
@@ -95,6 +102,8 @@ public class BlankMenu
                 await SetNewName(message, botClient);
                 await EnterAction(botClient, chat.Id);
                 break;
+            case (int)Action.ViewMyself:
+                
             case (int)Action.EditAge:
                 await SetNewAge(message, botClient);
                 break;
@@ -154,14 +163,14 @@ public class BlankMenu
                 break;
 
             case (int)Action.GetFirstBlank:
-                await AddReactionKeyboard(message, botClient, chat);
+                await AddReactionKeyboard(botClient, chat.Id);
                 _logger.LogInformation($"user({message.From.Id}): stage updated {(int)Action.GetBlank}");
                 UserRepository.UpdateUserStage(message.From.Id, (int)Action.GetBlank);
-                ViewingProfilesMenu.ShowBlank(message, botClient);
-                GetBlankReaction(message, botClient, chat);
+                ViewingProfilesMenu.ShowBlank(message.From.Id, botClient);
+                GetBlankReaction(message, botClient, chat.Id);
                 break;
             case (int)Action.GetBlank:
-                GetBlankReaction(message, botClient, chat);
+                GetBlankReaction(message, botClient, chat.Id);
                 break;
             case (int)Action.GetLikedBlank:
                 _logger.LogInformation(
@@ -207,13 +216,13 @@ public class BlankMenu
     }
     
     
-    private static async Task GetBlankReaction(Message message, ITelegramBotClient botClient, Chat chat)
+    public static async Task GetBlankReaction(Message message, ITelegramBotClient botClient, long chatId)
     {
         _logger.LogInformation($"user({message.From.Id}): getted user()");
         switch (message.Text)
         {
             case "❤️":
-                ViewingProfilesMenu.ShowBlank(message, botClient);
+                ViewingProfilesMenu.ShowBlank(message.From.Id, botClient);
                 _logger.LogInformation(
                     $"user({message.From.Id}): liked user({UserRepository.GetUser(message.From.Id).LastShowedBlankTgId})");
                 var vpmr = new ViewProfilesMenuRepository();
@@ -222,12 +231,12 @@ public class BlankMenu
             case "👎":
                 _logger.LogInformation(
                     $"user({message.From.Id}): disliked user({UserRepository.GetUser(message.From.Id).LastShowedBlankTgId})");
-                ViewingProfilesMenu.ShowBlank(message, botClient);
+                ViewingProfilesMenu.ShowBlank(message.From.Id, botClient);
                 break;
             case "🚪":
                 UserRepository.UpdateUserStage(message.From.Id, 8);
                 _logger.LogInformation($"user({message.From.Id}): Stage updated: {8}");
-                await EnterAction(botClient, chat.Id);
+                await EnterAction(botClient, chatId);
                 return;
             case "📷":
                 await PhotoRepository.SendUserAdditionalProfile(message.From.Id,
@@ -237,7 +246,7 @@ public class BlankMenu
     }
 
 
-    private static async Task EnterInterestedGender(Message message, ITelegramBotClient botClient, Chat chat)
+    public static async Task EnterInterestedGender(long tgId, ITelegramBotClient botClient)
     {
         var sexKeyboard = new InlineKeyboardMarkup(
             new List<InlineKeyboardButton[]>
@@ -255,9 +264,9 @@ public class BlankMenu
                     InlineKeyboardButton.WithCallbackData("Неважно", "any")
                 }
             });
-        await botClient.SendTextMessageAsync(chat.Id, "Кто тебе интересен?", replyMarkup: sexKeyboard);
-        UserRepository.UpdateUserStage(message.From.Id, (int)Action.AddInterest);
-        _logger.LogInformation($"user({message.From.Id}): Stage updated: {(int)Action.AddInterest}");
+        await botClient.SendTextMessageAsync(tgId, "Кто тебе интересен?", replyMarkup: sexKeyboard);
+        UserRepository.UpdateUserStage(tgId, (int)Action.AddInterest);
+        _logger.LogInformation($"user({tgId}): Stage updated: {(int)Action.AddInterest}");
     }
 
 
@@ -471,13 +480,17 @@ public class BlankMenu
                 new[]
                 {
                     InlineKeyboardButton.WithCallbackData("Добавить интересы", "add_interests")
+                },
+                new[]
+                {
+                InlineKeyboardButton.WithCallbackData("Посмотреть свою анкету", "view_myself")
                 }
             });
         await botClient.SendTextMessageAsync(tgId, "Выбери действие", replyMarkup: menuKeyboard);
     }
 
 
-    private static async Task AddReactionKeyboard(Message message, ITelegramBotClient botClient, Chat chat)
+    public static async Task AddReactionKeyboard(ITelegramBotClient botClient, long chatId)
     {
         var blankReactionKeyboardMarkup = new ReplyKeyboardMarkup(
             new List<KeyboardButton[]>
@@ -488,7 +501,7 @@ public class BlankMenu
             ResizeKeyboard = true
         };
         await botClient.SendTextMessageAsync(
-            chat.Id,
+            chatId,
             "Вот подходящие тебе анкеты",
             replyMarkup: blankReactionKeyboardMarkup);
     }
