@@ -3,9 +3,9 @@
 public static class MatchCalculator
 {
 
-    private static readonly double AGE_MATCH_MULTIPLIER = 0.4; 
-    private static readonly double ZODIAC_MATCH_MULTIPLIER = 0.2; 
-    private static readonly double INTERESTS_MATCH_MULTIPLIER = 0.4;
+    private static readonly double FIRST_MATCH_MULTIPLIER = 0.4; 
+    private static readonly double SECOND_MATCH_MULTIPLIER = 0.4; 
+    private static readonly double THIRD_MATCH_MULTIPLIER = 0.2;
 
     private static readonly int NORMAL_NUMBER_OF_COMMON_INTERESTS = 1;
     private static readonly int GOOD_NUMBER_OF_COMMON_INTERESTS = 2;
@@ -15,13 +15,18 @@ public static class MatchCalculator
                                         string firstPersonZodiacSign,
                                         string secPersonZodiacSign,
                                         List<string> firstPersonInterests,
-                                        List<string> secPersonInterests )
+                                        List<string> secPersonInterests,bool isZodiacSignImportant)
     {
-        return CalculateMatchByAge(firstPersonAge,secPersonAge) * AGE_MATCH_MULTIPLIER +
-               CalculateMatchByZodiac(firstPersonZodiacSign,secPersonZodiacSign) * ZODIAC_MATCH_MULTIPLIER + 
-               CalculateMatchByInterests(firstPersonInterests,secPersonInterests) * INTERESTS_MATCH_MULTIPLIER;
+        if (isZodiacSignImportant)
+            return CalculateMatchByAge(firstPersonAge,secPersonAge) * FIRST_MATCH_MULTIPLIER +
+                   CalculateMatchByZodiac(firstPersonZodiacSign,secPersonZodiacSign) * SECOND_MATCH_MULTIPLIER + 
+                   CalculateMatchByInterests(firstPersonInterests,secPersonInterests) * THIRD_MATCH_MULTIPLIER;
+        
+        return CalculateMatchByAge(firstPersonAge,secPersonAge) * FIRST_MATCH_MULTIPLIER +
+               CalculateMatchByZodiac(firstPersonZodiacSign,secPersonZodiacSign) * THIRD_MATCH_MULTIPLIER + 
+               CalculateMatchByInterests(firstPersonInterests,secPersonInterests) * SECOND_MATCH_MULTIPLIER;
     }
-
+ 
 
     private static double CalculateMatchByInterests( List<string> firstPersonInterests,
         List<string> secPersonInterests )
