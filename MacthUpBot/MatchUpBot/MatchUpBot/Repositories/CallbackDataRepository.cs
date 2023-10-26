@@ -1,5 +1,6 @@
 ﻿using ConsoleApplication1.Menues;
 using Data;
+using EntityFrameworkLesson.Utils;
 using MatchUpBot.Repositories;
 using Microsoft.Extensions.Logging;
 using Repositories;
@@ -81,14 +82,14 @@ public class CallbackDataRepository
             case "boys":
             {
                 var ur = new UserRepository();
-                ur.SetUserInterestedGender(callbackQuery.From.Id, "Парни");
+                ur.SetUserInterestedGender(callbackQuery.From.Id, "Мужчина");
                 await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
                 break;
             }
             case "girls":
             {
                 var ur = new UserRepository();
-                ur.SetUserInterestedGender(callbackQuery.From.Id, "Девушки");
+                ur.SetUserInterestedGender(callbackQuery.From.Id, "Женский");
                 await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
                 break;
             }
@@ -297,10 +298,7 @@ public class CallbackDataRepository
                 var interests = Interests.GetInterests();
 
                 var messageText = "Выберите ваши интересы:\n";
-                for (int i = 0; i < interests.Length; i++)
-                {
-                    messageText += $"{i + 1}. {interests[i]}\n";
-                }
+                for (var i = 0; i < interests.Length; i++) messageText += $"{i + 1}. {interests[i]}\n";
 
                 await botClient.SendTextMessageAsync(callbackQuery.From.Id, messageText);
                 UpdateStage(callbackQuery.From.Id, (int)Action.AddInterest);
@@ -310,8 +308,21 @@ public class CallbackDataRepository
                 await PhotoRepository.SendBlank(callbackQuery.From.Id, botClient, callbackQuery.From.Id);
                 await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
                 break;
+            case "delete_profile":
+                UserRepository.DeleteUser(callbackQuery.From.Id);
+                if (!UserRepository.IsUserExists(callbackQuery.From.Id))
+                {
+                    //(int)Action.ConfirmDeleting
+                    DeleteFolderHandle.DeleteFolder($"../../../photos/{callbackQuery.From.Id}/");
+                    _logger.LogInformation("message.From.Id: user created");
+                    UserRepository.CreateUser(callbackQuery.From.Id);
+                    UserRepository.SetUserTgUsername(callbackQuery.From.Id, callbackQuery.From.Username);
+                    await BlankMenu.EnterName(callbackQuery.From.Id, botClient);
+                }
+                break;
         }
     }
+    
 
     public static string GetFolder()
     {

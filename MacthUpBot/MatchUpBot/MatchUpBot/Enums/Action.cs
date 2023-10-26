@@ -25,5 +25,6 @@
     GetBlank,
     GetLikedBlank,
     AddInterest,
-    ViewMyself
+    ViewMyself,
+    ConfirmDeleting
 }

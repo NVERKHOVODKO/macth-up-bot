@@ -1,6 +1,5 @@
 ﻿using ConsoleApplication1.Menues;
 using Data;
-using Entities;
 using EntityFrameworkLesson.Repositories;
 using MatchUpBot.Repositories;
 using Microsoft.Extensions.Logging;
@@ -268,8 +267,8 @@ public class PhotoRepository
             return zodiacSymbols[zodiacSign];
         return string.Empty;
     }
-    
-    
+
+
     public static async Task SendBlank(long tgId, ITelegramBotClient botClient, long userBlankId)
     {
         var filePath = $"../../../photos/{userBlankId}/main/";
@@ -277,13 +276,13 @@ public class PhotoRepository
         var user = BlankMenu.UserRepository.GetUser(userBlankId);
 
         var interests = UserRepository.GetUserInterestsById(userBlankId);
-        string interestsText = string.Empty;
+        var interestsText = string.Empty;
         if (interests != null && interests.Any())
         {
             interestsText = "Интересы:\n";
             interestsText += string.Join("\n", interests.Select(interest => interest.Name));
         }
-        
+
         string caption;
         if (userBlankId == tgId)
             caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +

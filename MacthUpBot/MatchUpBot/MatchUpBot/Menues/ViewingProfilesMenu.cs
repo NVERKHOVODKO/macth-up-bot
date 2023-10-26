@@ -4,7 +4,6 @@ using MatchUpBot.Repositories;
 using Microsoft.Extensions.Logging;
 using Repositories;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 
 namespace ConsoleApplication1.Menues;
 
@@ -23,25 +22,26 @@ public class ViewingProfilesMenu
         _logger = logger;
     }
 
-    public static UserEntity GetMatchingProfile(int age, string city, long recieverId)
+    public static UserEntity GetMatchingProfile(long recieverId)
     {
-        UserEntity user = null;
-        var ageDifference = 10;
-        while (user == null && ageDifference < 20)
+        double priority = 90;
+        UserEntity userEntity = null;
+        while (userEntity == null)
         {
-            _logger.LogInformation($"ageDifference = {ageDifference}");
-            user = vpmr.GetMatchingProfile(age, city, recieverId, ageDifference);
-            ageDifference++;
+            userEntity = vpmr.GetMatchingProfile(recieverId, priority);
+            if (priority < 50)
+                return null;
+            priority -= 5;
         }
 
-        return user;
+        return userEntity;
     }
-    
+
     public static async Task ShowBlank(long userId, ITelegramBotClient botClient)
     {
         var user = UserRepository.GetUser(userId);
         _logger.LogInformation($"user({userId}): getting a blank");
-        var userSearched = GetMatchingProfile(user.Age, user.City, userId);
+        var userSearched = GetMatchingProfile(userId);
         if (userSearched == null)
         {
             await botClient.SendTextMessageAsync(userId, "Не получилось найти кого-то подходящего для тебя(");

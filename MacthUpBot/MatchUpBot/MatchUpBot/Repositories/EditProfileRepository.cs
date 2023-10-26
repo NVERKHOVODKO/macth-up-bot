@@ -27,6 +27,10 @@ public class EditProfileRepository
                 },
                 new[]
                 {
+                    InlineKeyboardButton.WithCallbackData("Удалить профиль", "delete_profile")
+                },
+                new[]
+                {
                     InlineKeyboardButton.WithCallbackData("Назад", "back_to_action")
                 }
             });
@@ -50,6 +54,14 @@ public class EditProfileRepository
                 new[]
                 {
                     InlineKeyboardButton.WithCallbackData("Просмотреть доп фото", "view_add_photo")
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Добавить интересы", "add_interests")
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Посмотреть свою анкету", "view_myself")
                 }
             });
         await botClient.EditMessageTextAsync(tgId, callbackQuery.Message.MessageId, "Выбери действие",

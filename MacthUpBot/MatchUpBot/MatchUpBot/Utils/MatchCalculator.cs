@@ -2,41 +2,40 @@
 
 public static class MatchCalculator
 {
-
-    private static readonly double FIRST_MATCH_MULTIPLIER = 0.4; 
-    private static readonly double SECOND_MATCH_MULTIPLIER = 0.4; 
+    private static readonly double FIRST_MATCH_MULTIPLIER = 0.4;
+    private static readonly double SECOND_MATCH_MULTIPLIER = 0.4;
     private static readonly double THIRD_MATCH_MULTIPLIER = 0.2;
+    private static readonly double FORTH_MATCH_MULTIPLIER = 0.8;
+    private static readonly double FIFTH_MATCH_MULTIPLIER = 0.2;
 
     private static readonly int NORMAL_NUMBER_OF_COMMON_INTERESTS = 1;
     private static readonly int GOOD_NUMBER_OF_COMMON_INTERESTS = 2;
     private static readonly int PERFECT_NUMBER_OF_COMMON_INTERESTS = 4;
-    
+
     public static double CalculateMatch(int firstPersonAge, int secPersonAge,
-                                        string firstPersonZodiacSign,
-                                        string secPersonZodiacSign,
-                                        List<string> firstPersonInterests,
-                                        List<string> secPersonInterests,bool isZodiacSignImportant)
+        string firstPersonZodiacSign,
+        string secPersonZodiacSign,
+        List<string> firstPersonInterests,
+        List<string> secPersonInterests, bool isZodiacSignImportant)
     {
         if (isZodiacSignImportant)
-            return CalculateMatchByAge(firstPersonAge,secPersonAge) * FIRST_MATCH_MULTIPLIER +
-                   CalculateMatchByZodiac(firstPersonZodiacSign,secPersonZodiacSign) * SECOND_MATCH_MULTIPLIER + 
-                   CalculateMatchByInterests(firstPersonInterests,secPersonInterests) * THIRD_MATCH_MULTIPLIER;
-        
-        return CalculateMatchByAge(firstPersonAge,secPersonAge) * FIRST_MATCH_MULTIPLIER +
-               CalculateMatchByZodiac(firstPersonZodiacSign,secPersonZodiacSign) * THIRD_MATCH_MULTIPLIER + 
-               CalculateMatchByInterests(firstPersonInterests,secPersonInterests) * SECOND_MATCH_MULTIPLIER;
-    }
- 
+            return CalculateMatchByAge(firstPersonAge, secPersonAge) * FIRST_MATCH_MULTIPLIER +
+                   CalculateMatchByZodiac(firstPersonZodiacSign, secPersonZodiacSign) * SECOND_MATCH_MULTIPLIER +
+                   CalculateMatchByInterests(firstPersonInterests, secPersonInterests) * THIRD_MATCH_MULTIPLIER;
 
-    private static double CalculateMatchByInterests( List<string> firstPersonInterests,
-        List<string> secPersonInterests )
+        return CalculateMatchByAge(firstPersonAge, secPersonAge) * FORTH_MATCH_MULTIPLIER +
+               CalculateMatchByInterests(firstPersonInterests, secPersonInterests) * FIFTH_MATCH_MULTIPLIER;
+    }
+
+
+    private static double CalculateMatchByInterests(List<string> firstPersonInterests,
+        List<string> secPersonInterests)
     {
-        // Получаем количество совпадений интересов 
-        int matchCount = firstPersonInterests.Intersect(secPersonInterests).Count();
+        var matchCount = firstPersonInterests.Intersect(secPersonInterests).Count();
 
         if (matchCount < NORMAL_NUMBER_OF_COMMON_INTERESTS)
             return 60.0;
-        
+
         if (matchCount < NORMAL_NUMBER_OF_COMMON_INTERESTS)
             return 80.0;
 
@@ -45,10 +44,10 @@ public static class MatchCalculator
 
         return 0.0;
     }
+
     private static double CalculateMatchByZodiac(string firstZodiac, string secondZodiac)
     {
-        // Создаем словарь с элементами и качествами каждого знака зодиака
-        Dictionary<string, (string Element, string Quality)> zodiacCharacteristics = new Dictionary<string, (string, string)>
+        Dictionary<string, (string Element, string Quality)> zodiacCharacteristics = new()
         {
             { "овен", ("Fire", "Cardinal") },
             { "телец", ("Earth", "Fixed") },
@@ -64,37 +63,28 @@ public static class MatchCalculator
             { "рыбы", ("Water", "Mutable") }
         };
 
-        // Проверяем, совпадают ли элементы знаков
-        string elementFirst = zodiacCharacteristics[firstZodiac].Element;
-        string elementSecond = zodiacCharacteristics[secondZodiac].Element;
+        var elementFirst = zodiacCharacteristics[firstZodiac].Element;
+        var elementSecond = zodiacCharacteristics[secondZodiac].Element;
 
         if (elementFirst == elementSecond)
         {
-            // Если элементы совпадают, добавляем баллы
-            double compatibilityScore = 70.0;
+            var compatibilityScore = 70.0;
 
-            // Проверяем, совпадают ли качества знаков
-            string qualityFirst = zodiacCharacteristics[firstZodiac].Quality;
-            string qualitySecond = zodiacCharacteristics[secondZodiac].Quality;
+            var qualityFirst = zodiacCharacteristics[firstZodiac].Quality;
+            var qualitySecond = zodiacCharacteristics[secondZodiac].Quality;
 
-            if (qualityFirst == qualitySecond)
-            {
-                // Если и качества совпадают, увеличиваем баллы
-                compatibilityScore += 30.0;
-            }
+            if (qualityFirst == qualitySecond) compatibilityScore += 30.0;
 
             return compatibilityScore;
         }
 
-        // Если элементы не совпадают, совместимость равна 0
         return 0.0;
     }
-    
+
     private static double CalculateMatchByAge(int firstPersonAge, int secPersonAge)
     {
-        // Получаем разницу в возрасте 
         double yearDeference = Math.Abs(firstPersonAge - secPersonAge);
-        
+
         switch (yearDeference)
         {
             case < 4:
@@ -109,6 +99,4 @@ public static class MatchCalculator
                 return 10.0;
         }
     }
-    
-    
 }

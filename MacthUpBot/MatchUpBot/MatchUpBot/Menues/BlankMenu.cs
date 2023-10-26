@@ -42,10 +42,12 @@ public class BlankMenu
         };
         if (Stage == -1)
         {
-            await EnterName(message, botClient, chat);
+            await EnterName(message.From.Id, botClient);
             return;
         }
-        if (message.Text == "Вернуться в меню" && UserRepository.GetUser(message.From.Id).Stage > (int)Action.AddAdditionalPhoto)
+
+        if (message.Text == "Вернуться в меню" &&
+            UserRepository.GetUser(message.From.Id).Stage > (int)Action.AddAdditionalPhoto)
         {
             UserRepository.UpdateUserStage(message.From.Id, (int)Action.EnterAction);
             await EnterAction(botClient, chat.Id);
@@ -85,25 +87,28 @@ public class BlankMenu
                 {
                     if (UserRepository.GetUserInterestsById(message.From.Id).Count > 3)
                     {
-                        await botClient.SendTextMessageAsync(chat.Id, "Ты уже добавил максиальное количество интересов");
+                        await botClient.SendTextMessageAsync(chat.Id,
+                            "Ты уже добавил максиальное количество интересов");
                         UserRepository.UpdateUserStage(message.From.Id, (int)Action.EnterAction);
                         await EnterAction(botClient, chat.Id);
                         return;
                     }
-                    UserRepository.AddInterestToUser(message.From.Id, Int32.Parse(message.Text), botClient);
+
+                    UserRepository.AddInterestToUser(message.From.Id, int.Parse(message.Text), botClient);
                 }
                 catch
                 {
                     await botClient.SendTextMessageAsync(chat.Id, "Используй числа от 1 до 16");
-                    _logger.LogInformation($"Incorrect input");
+                    _logger.LogInformation("Incorrect input");
                 }
+
                 break;
             case (int)Action.EditName:
                 await SetNewName(message, botClient);
                 await EnterAction(botClient, chat.Id);
                 break;
             case (int)Action.ViewMyself:
-                
+
             case (int)Action.EditAge:
                 await SetNewAge(message, botClient);
                 break;
@@ -180,7 +185,8 @@ public class BlankMenu
                 break;
             default:
             {
-                if (Stage == (int)Action.SetPhoto || Stage == (int)Action.SetAdditionalPhoto || Stage == (int)Action.AddMainPhoto) 
+                if (Stage == (int)Action.SetPhoto || Stage == (int)Action.SetAdditionalPhoto ||
+                    Stage == (int)Action.AddMainPhoto)
                 {
                     await botClient.SendTextMessageAsync(
                         chat.Id,
@@ -195,10 +201,10 @@ public class BlankMenu
             }
         }
     }
-    
-    
-    
-    public static async Task ClearUserChat(ITelegramBotClient botClient, Message message)//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111
+
+
+    public static async Task
+        ClearUserChat(ITelegramBotClient botClient, Message message) //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111
     {
         var messageToDelete = await botClient.SendTextMessageAsync(message.From.Id, "Clearing chat...");
 
@@ -214,8 +220,8 @@ public class BlankMenu
 
         await botClient.DeleteMessageAsync(message.From.Id, messageToDelete.MessageId);
     }
-    
-    
+
+
     public static async Task GetBlankReaction(Message message, ITelegramBotClient botClient, long chatId)
     {
         _logger.LogInformation($"user({message.From.Id}): getted user()");
@@ -483,7 +489,7 @@ public class BlankMenu
                 },
                 new[]
                 {
-                InlineKeyboardButton.WithCallbackData("Посмотреть свою анкету", "view_myself")
+                    InlineKeyboardButton.WithCallbackData("Посмотреть свою анкету", "view_myself")
                 }
             });
         await botClient.SendTextMessageAsync(tgId, "Выбери действие", replyMarkup: menuKeyboard);
@@ -507,19 +513,28 @@ public class BlankMenu
     }
 
 
-    private static async Task EnterName(Message message, ITelegramBotClient botClient, Chat chat)
+    public static async Task EnterName(long tgId, ITelegramBotClient botClient)
     {
         var Stage = 0;
-        UserRepository.UpdateUserStage(message.From.Id, 0);
-        _logger.LogInformation($"Stage user({message.From.Id}): updated {Stage}");
+        UserRepository.UpdateUserStage(tgId, (int)Action.SetName);
+        _logger.LogInformation($"Stage user({tgId}): updated {Stage}");
+        var removeKeyboard = new ReplyKeyboardRemove();
+
         await botClient.SendTextMessageAsync(
-            chat.Id,
-            "Как тебя зовут?");
+            tgId,
+            "Как тебя зовут?",
+            replyMarkup: removeKeyboard);
     }
 
     private static async Task AddNameToDatabase(Message message, ITelegramBotClient botClient, Chat chat)
     {
-        if (message.Text.Length > 20)
+        if (message.Text[0] == '/')
+        {
+            await botClient.SendTextMessageAsync(
+                chat.Id,
+                "Введи корректное имя: ");
+        }
+        else if (message.Text.Length > 20)
         {
             await botClient.SendTextMessageAsync(
                 chat.Id,

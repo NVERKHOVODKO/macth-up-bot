@@ -24,7 +24,7 @@ public class Interests
             "Вернуться в меню 🔙"
         };
     }
-    
+
     /*private static readonly Dictionary<string, string> interestStickers = new Dictionary<string, string>
     {
         { "Спорт", "🏀" },

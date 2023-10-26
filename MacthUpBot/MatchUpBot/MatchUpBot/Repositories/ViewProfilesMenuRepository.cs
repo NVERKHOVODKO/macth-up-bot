@@ -1,5 +1,7 @@
 ﻿using Data;
 using Entities;
+using EntityFrameworkLesson.Utils;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MatchUpBot.Repositories;
@@ -41,26 +43,45 @@ public class ViewProfilesMenuRepository
         }
     }
 
-    public UserEntity GetMatchingProfile(int age, string city, long recieverId, int ageDifference)
+
+    public UserEntity GetUser(long tgId)
+    {
+        var user = _context.Users.AsNoTracking().FirstOrDefault(e => e.TgId == tgId);
+        return user;
+    }
+
+    public UserEntity GetMatchingProfile(long recieverId, double priority)
     {
         var totalProfilesCount = _context.Users.Count();
-
+        var reciever = GetUser(recieverId);
         var randomStart = new Random().Next(totalProfilesCount);
 
         var matchingProfile = _context.Users
-            .Where(user => user.Age >= age - ageDifference && user.Age <= age + ageDifference && user.City == city &&
-                           user.TgId != recieverId)
-            .OrderBy(user => user.TgId)
             .Skip(randomStart)
-            .FirstOrDefault();
+            .FirstOrDefault(user => user.City == reciever.City && user.TgId != recieverId &&
+                                    (user.Gender == reciever.GenderOfInterest ||
+                                     reciever.GenderOfInterest == "Неважно") &&
+                                    (user.GenderOfInterest == reciever.Gender || user.GenderOfInterest == "Неважно"));
 
         if (matchingProfile == null)
             matchingProfile = _context.Users
-                .Where(user =>
-                    user.Age >= age - ageDifference && user.Age <= age + ageDifference && user.City == city &&
-                    user.TgId != recieverId)
-                .OrderBy(user => user.TgId)
-                .FirstOrDefault();
+                .FirstOrDefault(user => user.City == reciever.City && user.TgId != recieverId &&
+                                        (user.Gender == reciever.GenderOfInterest ||
+                                         reciever.GenderOfInterest == "Неважно") &&
+                                        (user.GenderOfInterest == reciever.Gender ||
+                                         user.GenderOfInterest == "Неважно"));
+
+        var interestsEntities1 = UserRepository.GetUserInterestsById(reciever.TgId);
+        var interestNames1 = interestsEntities1.Select(interest => interest.Name).ToList();
+        if (matchingProfile == null)
+            return null;
+        var interestsEntities2 = UserRepository.GetUserInterestsById(matchingProfile.TgId);
+        var interestNames2 = interestsEntities2.Select(interest => interest.Name).ToList();
+        
+        if (MatchCalculator.CalculateMatch(reciever.Age, matchingProfile.Age,
+                reciever.ZodiacSign, matchingProfile.ZodiacSign,
+                interestNames1, interestNames2, reciever.IsZodiacSignMatters) < priority)
+            return null;
 
         return matchingProfile;
     }

@@ -1,5 +1,6 @@
 ﻿using MatchUpBot.Repositories;
 using Microsoft.Extensions.Logging;
+
 namespace ConsoleApplication1.Menues;
 
 public class LikesMenu
@@ -11,7 +12,7 @@ public class LikesMenu
     {
         _logger = logger;
     }
-    
+
     public static long GetLikerId(long userId)
     {
         var likerId = ViewProfilesMenuRepository.GetLikerId(userId);

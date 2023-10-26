@@ -17,7 +17,6 @@ internal class Program
     private static ReceiverOptions _receiverOptions;
     private static int Stage = -1;
     private static readonly UserEntity curUser = new();
-    private static readonly UserRepository UserRepository = new();
 
     private static ILogger<Program> _logger =
         LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<Program>();
@@ -45,7 +44,6 @@ internal class Program
     }
 
 
-    
     private static async Task UpdateHandler(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     {
