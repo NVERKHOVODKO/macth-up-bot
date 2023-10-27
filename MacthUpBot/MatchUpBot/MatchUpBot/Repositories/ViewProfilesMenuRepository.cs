@@ -77,7 +77,7 @@ public class ViewProfilesMenuRepository
             return null;
         var interestsEntities2 = UserRepository.GetUserInterestsById(matchingProfile.TgId);
         var interestNames2 = interestsEntities2.Select(interest => interest.Name).ToList();
-        
+
         if (MatchCalculator.CalculateMatch(reciever.Age, matchingProfile.Age,
                 reciever.ZodiacSign, matchingProfile.ZodiacSign,
                 interestNames1, interestNames2, reciever.IsZodiacSignMatters) < priority)

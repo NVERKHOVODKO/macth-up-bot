@@ -19,16 +19,4 @@ public class UserEntity
     public List<UserInterestsEntity> UserInterests { get; set; }
     public List<LikesEntity> LikedByUsers { get; set; }
     public List<LikesEntity> LikedUsers { get; set; }
-
-    public void PrintToConsole()
-    {
-        Console.WriteLine("User Profile:");
-        Console.WriteLine($"Telegram ID: {TgId}");
-        Console.WriteLine($"Profile Name: {Name ?? "N/A"}");
-        Console.WriteLine($"Username: {TgUsername ?? "N/A"}");
-        Console.WriteLine($"Age: {Age.ToString() ?? "N/A"}");
-        Console.WriteLine($"Sex: {Gender ?? "N/A"}");
-        Console.WriteLine($"About: {About ?? "N/A"}");
-        Console.WriteLine($"City: {City ?? "N/A"}");
-    }
 }

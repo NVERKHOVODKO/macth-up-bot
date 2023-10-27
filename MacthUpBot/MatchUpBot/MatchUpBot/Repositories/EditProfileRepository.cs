@@ -1,4 +1,7 @@
-﻿using Telegram.Bot;
+﻿using ConsoleApplication1.Menues;
+using Data;
+using EntityFrameworkLesson.Utils;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -27,7 +30,7 @@ public class EditProfileRepository
                 },
                 new[]
                 {
-                    InlineKeyboardButton.WithCallbackData("Удалить профиль", "delete_profile")
+                    InlineKeyboardButton.WithCallbackData("⚠️Удалить профиль⚠️", "delete_profile")
                 },
                 new[]
                 {
@@ -68,6 +71,20 @@ public class EditProfileRepository
             replyMarkup: menuKeyboard);
     }
 
+    public static async Task DeleteProfile(long tgId, ITelegramBotClient botClient, string username)
+    {
+        UserRepository.DeleteUserAndRelatedEntities(tgId);
+        if (!UserRepository.IsUserExists(tgId))
+        {
+            //(int)Action.ConfirmDeleting
+            DeleteFolderHandle.DeleteFolder($"../../../photos/{tgId}/");
+            UserRepository.CreateUser(tgId);
+            UserRepository.SetUserTgUsername(tgId, username);
+            await BlankMenu.EnterName(tgId, botClient);
+        }
+    }
+    
+    
     public static async Task EditKeyboardToPhotoChoice(ITelegramBotClient botClient, long tgId,
         CallbackQuery callbackQuery)
     {

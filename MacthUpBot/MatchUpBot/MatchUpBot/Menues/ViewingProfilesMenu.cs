@@ -24,7 +24,7 @@ public class ViewingProfilesMenu
 
     public static UserEntity GetMatchingProfile(long recieverId)
     {
-        double priority = 90;
+        double priority = 70;
         UserEntity userEntity = null;
         while (userEntity == null)
         {
@@ -33,18 +33,18 @@ public class ViewingProfilesMenu
                 return null;
             priority -= 5;
         }
-
         return userEntity;
     }
 
     public static async Task ShowBlank(long userId, ITelegramBotClient botClient)
     {
         var user = UserRepository.GetUser(userId);
-        _logger.LogInformation($"user({userId}): getting a blank");
         var userSearched = GetMatchingProfile(userId);
+        _logger.LogInformation($"user({userId}): getting a blank({userSearched.TgId})");
         if (userSearched == null)
         {
             await botClient.SendTextMessageAsync(userId, "Не получилось найти кого-то подходящего для тебя(");
+            return;
         }
         else
         {
@@ -52,6 +52,7 @@ public class ViewingProfilesMenu
             await PhotoRepository.SendBlank(userId, botClient, userSearched.TgId);
             _logger.LogInformation($"user({userSearched.TgId}): sended to user({userId})");
             UserRepository.SetLastShowedBlankTgId(userId, userSearched.TgId);
+            return;
         }
     }
 }

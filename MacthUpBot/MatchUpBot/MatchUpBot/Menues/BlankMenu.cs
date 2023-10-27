@@ -54,6 +54,17 @@ public class BlankMenu
             return;
         }
 
+        if (message.Text == "/menu" && UserRepository.GetUser(message.From.Id).Stage > 8)
+        {
+            UserRepository.UpdateUserStage(message.From.Id, (int)Action.EnterAction);
+            await EnterAction(botClient, chat.Id);
+        }
+        
+        if (message.Text == "/delete" && UserRepository.GetUser(message.From.Id).Stage > 8)
+        {
+            await EditProfileRepository.DeleteProfile(message.From.Id, botClient, message.From.Username);
+        }
+
         Console.WriteLine(Stage);
         if (LikesMenu.GetLikerId(message.From.Id) != -1)
             UserRepository.UpdateUserStage(message.From.Id, (int)Action.GetLikedBlank);
@@ -153,7 +164,6 @@ public class BlankMenu
                     break;
                 }
 
-                _logger.LogInformation($"user({message.From.Id}): stage updated {8}");
                 UserRepository.UpdateUserStage(message.From.Id, 8);
                 await EnterAction(botClient, chat.Id);
                 break;
@@ -166,7 +176,6 @@ public class BlankMenu
 
                 await EnterAction(botClient, chat.Id);
                 break;
-
             case (int)Action.GetFirstBlank:
                 await AddReactionKeyboard(botClient, chat.Id);
                 _logger.LogInformation($"user({message.From.Id}): stage updated {(int)Action.GetBlank}");
@@ -468,30 +477,33 @@ public class BlankMenu
 
     public static async Task EnterAction(ITelegramBotClient botClient, long tgId)
     {
-        var menuKeyboard = new InlineKeyboardMarkup(
-            new List<InlineKeyboardButton[]>
+        var removeKeyboard = new ReplyKeyboardRemove();
+        var message = await botClient.SendTextMessageAsync(tgId, "Выбери действие", replyMarkup: removeKeyboard);
+        var messageIdToRemove = message.MessageId;
+        await botClient.DeleteMessageAsync(tgId, messageIdToRemove);
+        var menuKeyboard = new InlineKeyboardMarkup( new List<InlineKeyboardButton[]>
+        {
+            new[]
             {
-                new[]
-                {
-                    InlineKeyboardButton.WithCallbackData("Редактировать профиль", "edit_profile")
-                },
-                new[]
-                {
-                    InlineKeyboardButton.WithCallbackData("Просмотреть анкеты", "view_profiles")
-                },
-                new[]
-                {
-                    InlineKeyboardButton.WithCallbackData("Просмотреть доп фото", "view_add_photo")
-                },
-                new[]
-                {
-                    InlineKeyboardButton.WithCallbackData("Добавить интересы", "add_interests")
-                },
-                new[]
-                {
-                    InlineKeyboardButton.WithCallbackData("Посмотреть свою анкету", "view_myself")
-                }
-            });
+                InlineKeyboardButton.WithCallbackData("Редактировать профиль", "edit_profile")
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Просмотреть анкеты", "view_profiles")
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Добавить интересы", "add_interests")
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Посмотреть свою анкету", "view_myself")
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Просмотреть доп. фото", "view_add_photo")
+            }
+        });
         await botClient.SendTextMessageAsync(tgId, "Выбери действие", replyMarkup: menuKeyboard);
     }
 
@@ -698,7 +710,7 @@ public class BlankMenu
             return false;
         }
 
-        curUser.ZodiacSign = message.Text;
+        curUser.ZodiacSign = message.Text.ToLower();
         UserRepository.SetUserZodiacSign(message.From.Id, curUser.ZodiacSign);
         _logger.LogInformation($"user({message.From.Id}): updated ZodiacSign: {message.Text}");
         return true;

@@ -2,11 +2,11 @@
 
 public static class MatchCalculator
 {
-    private static readonly double FIRST_MATCH_MULTIPLIER = 0.4;
-    private static readonly double SECOND_MATCH_MULTIPLIER = 0.4;
+    private static readonly double FIRST_MATCH_MULTIPLIER = 0.6;
+    private static readonly double SECOND_MATCH_MULTIPLIER = 0.2;
     private static readonly double THIRD_MATCH_MULTIPLIER = 0.2;
-    private static readonly double FORTH_MATCH_MULTIPLIER = 0.8;
-    private static readonly double FIFTH_MATCH_MULTIPLIER = 0.2;
+    private static readonly double FORTH_MATCH_MULTIPLIER = 0.85;
+    private static readonly double FIFTH_MATCH_MULTIPLIER = 0.15;
 
     private static readonly int NORMAL_NUMBER_OF_COMMON_INTERESTS = 1;
     private static readonly int GOOD_NUMBER_OF_COMMON_INTERESTS = 2;
@@ -20,7 +20,7 @@ public static class MatchCalculator
     {
         if (isZodiacSignImportant)
             return CalculateMatchByAge(firstPersonAge, secPersonAge) * FIRST_MATCH_MULTIPLIER +
-                   CalculateMatchByZodiac(firstPersonZodiacSign, secPersonZodiacSign) * SECOND_MATCH_MULTIPLIER +
+                   CalculateMatchByZodiac(firstPersonZodiacSign.ToLower(), secPersonZodiacSign.ToLower()) * SECOND_MATCH_MULTIPLIER +
                    CalculateMatchByInterests(firstPersonInterests, secPersonInterests) * THIRD_MATCH_MULTIPLIER;
 
         return CalculateMatchByAge(firstPersonAge, secPersonAge) * FORTH_MATCH_MULTIPLIER +

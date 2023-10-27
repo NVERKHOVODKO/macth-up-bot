@@ -37,6 +37,25 @@ public class UserRepository
             _context.SaveChanges();
         }
     }
+    
+    public static void DeleteUserAndRelatedEntities(long userId)
+    {
+        var user = _context.Users.Include(u => u.UserInterests).Include(u => u.LikedByUsers).Include(u => u.LikedUsers)
+            .SingleOrDefault(u => u.TgId == userId);
+
+        if (user != null)
+        {
+            _context.Interests.RemoveRange(GetUserInterestsById(userId));
+            var likedByUsers = _context.Likes.Where(like => like.Liker.TgId == userId);
+            var likedUsers = _context.Likes.Where(like => like.LikedUser.TgId == userId);
+            _context.Likes.RemoveRange(likedByUsers);
+            _context.Likes.RemoveRange(likedUsers);
+
+            _context.Users.Remove(user);
+
+            _context.SaveChanges();
+        }
+    }
 
 
     public int GetUserStage(long tgId)
@@ -62,18 +81,11 @@ public class UserRepository
 
         return userInterests;
     }
-
-
+    
     public UserEntity GetUser(long tgId)
     {
         var user = _context.Users.AsNoTracking().FirstOrDefault(e => e.TgId == tgId);
         return user;
-    }
-
-    public bool GetUserZodiacSignMatter(long tgId)
-    {
-        var user = _context.Users.AsNoTracking().FirstOrDefault(e => e.TgId == tgId);
-        return user.IsZodiacSignMatters;
     }
 
     public string GetUserAbout(long tgId)
@@ -166,7 +178,7 @@ public class UserRepository
         var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
         if (user != null)
         {
-            user.City = city;
+            user.City = city.ToLower();
             _context.Entry(user).State = EntityState.Modified;
             _context.SaveChanges();
         }
@@ -206,7 +218,7 @@ public class UserRepository
     }
 
 
-    public void CreateRandomFemaleUsers()
+    public void CreateRandomFemaleUsers_0_100()
     {
         var random = new Random();
         var zodiacSigns = new[]
@@ -216,7 +228,7 @@ public class UserRepository
             "Анна", "Екатерина", "Мария", "Ольга", "Татьяна",
             "Елена", "Наталья", "Ирина", "Светлана", "Алиса",
             "Виктория", "Евгения", "Дарья", "Ксения", "Милена",
-            "Надежда", "Полина", "Регина", "Юлия", "Ангелина"
+            "Надежда", "Полина", "Виолетта", "Юлия", "Ангелина"
         };
         var descriptions = new[]
         {
@@ -266,7 +278,7 @@ public class UserRepository
                     About = descriptions[random.Next(descriptions.Length)],
                     ZodiacSign = zodiacSigns[random.Next(zodiacSigns.Length)],
                     IsZodiacSignMatters = random.Next(2) == 0,
-                    GenderOfInterest = "Мужской",
+                    GenderOfInterest = "Мужчина",
                     LastShowedBlankTgId = 0
                 };
 
@@ -275,18 +287,80 @@ public class UserRepository
 
         _context.SaveChanges();
     }
-
-
-    /*public void SetUserPhoto(long tgId, string photoPath)
+    
+    public void CreateRandomMaleUsers_100_200()
     {
-        var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
-        if (user != null)
+        var random = new Random();
+        var zodiacSigns = new[]
         {
-            user.Photo = photoPath;
-            _context.Entry(user).State = EntityState.Modified;
-            _context.SaveChanges();
+            "Рак", "Овен", "Телец", "Близнцы", "Рыбы", "Дева", "Лев", "Скорпион", "Стрелец", "Водолей", "Козерог"
+        };
+        var names = new[]
+        {
+            "Иван", "Алексей", "Сергей", "Дмитрий", "Андрей",
+            "Павел", "Михаил", "Владимир", "Николай", "Георгий",
+            "Константин", "Артем", "Максим", "Игорь", "Олег",
+            "Юрий", "Федор", "Виктор", "Геннадий", "Станислав"
+        };
+        string[] descriptions = new string[]
+        {
+            "Люблю активный образ жизни и ищу единомышленников для спортивных приключений.",
+            "Студент, увлекаюсь программированием и готов поделиться своими знаниями.",
+            "Мечтаю стать профессиональным музыкантом. Любишь музыку?",
+            "Если у тебя есть домашние питомцы, мы точно найдем общие темы для разговора.",
+            "Обожаю путешествия и готов поделиться историями своих приключений.",
+            "Учусь в университете и ищу интересные беседы и друзей.",
+            "Люблю науку и технологии. Готов обсудить актуальные темы и новейшие открытия.",
+            "Активно занимаюсь спортом и приглашаю присоединиться к тренировкам.",
+            "Увлекаюсь экологией и природой. Можем поговорить о сохранении окружающей среды.",
+            "Жизнерадостный и веселый. Готов создавать позитивные моменты вместе.",
+            "Интересуюсь астрономией и мечтаю смотреть звезды вдвоем.",
+            "Музыкант и автор песен. Готов исполнить что-то специально для тебя.",
+            "Люблю экстремальные виды спорта. Если ты любишь адреналин, напиши мне.",
+            "Готов с тобой делиться вдохновением и мечтами.",
+            "Природолюб и готов к приключениям на свежем воздухе.",
+            "Любитель искусства и культуры. Давай посетим музеи и выставки вместе.",
+            "Заинтересован в истории и археологии. Обсудим древние цивилизации?",
+            "Фанат кино и театра. Давай вместе посмотрим новинки и спектакли.",
+            "Увлекаюсь фотографией. Готов провести фотосессию на природе.",
+            "Мечтаю об большой семье. Ищу серьезные отношения и надежного партнера.",
+            "Люблю танцевать и готов показать тебе свои танцевальные движения.",
+            "Интересуюсь модой и стилем. Расскажешь о своем стиле одежды?",
+            "Заинтересован в архитектуре и дизайне. Можем обсудить новые тенденции.",
+            "Мечтаю научиться готовить вкусные блюда. Готов соревноваться в кулинарии.",
+            "Люблю книги и читаю много. Есть любимая книга?",
+            "Интересуюсь футболом и болельщиком. Можем смотреть матчи вместе.",
+            "Заинтересован в фотографии и искусстве. Давай обсудим творчество.",
+            "Жизнерадостный и всегда в поиске новых приключений.",
+            "Мечтаю об большой семье. Ищу серьезные отношения и надежного партнера.",
+            "Люблю приключения и экстрима. Путешествия и адреналин - это о нас."
+        };
+
+
+        for (var i = 100; i <= 200; i++)
+        {
+            if (!_context.Users.Any(u => u.TgId == i))
+            {
+                var user = new UserEntity
+                {
+                    TgId = i,
+                    Name = names[i - 21],
+                    Age = random.Next(17, 26),
+                    City = "Минск",
+                    Gender = "Мужской",
+                    TgUsername = $"user{i}_telegram",
+                    Stage = 0,
+                    About = descriptions[random.Next(descriptions.Length)],
+                    ZodiacSign = zodiacSigns[random.Next(zodiacSigns.Length)],
+                    IsZodiacSignMatters = random.Next(2) == 0,
+                    GenderOfInterest = "Женский",
+                    LastShowedBlankTgId = 0
+                };
+                _context.Users.Add(user);
+            }
         }
-    }*/
+        _context.SaveChanges();
+    }
 
 
     public static void SetUserTgUsername(long tgId, string tgUsername)
@@ -321,18 +395,6 @@ public class UserRepository
         {
             user.IsZodiacSignMatters = isZodiacSignMatters;
             _context.Entry(user).State = EntityState.Modified;
-            _context.SaveChanges();
-        }
-    }
-
-
-    public void DeleteUserById(long userId)
-    {
-        var user = _context.Users.Find(userId);
-
-        if (user != null)
-        {
-            _context.Users.Remove(user);
             _context.SaveChanges();
         }
     }

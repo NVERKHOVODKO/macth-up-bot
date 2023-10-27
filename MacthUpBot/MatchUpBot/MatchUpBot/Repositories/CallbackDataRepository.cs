@@ -309,16 +309,7 @@ public class CallbackDataRepository
                 await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
                 break;
             case "delete_profile":
-                UserRepository.DeleteUser(callbackQuery.From.Id);
-                if (!UserRepository.IsUserExists(callbackQuery.From.Id))
-                {
-                    //(int)Action.ConfirmDeleting
-                    DeleteFolderHandle.DeleteFolder($"../../../photos/{callbackQuery.From.Id}/");
-                    _logger.LogInformation("message.From.Id: user created");
-                    UserRepository.CreateUser(callbackQuery.From.Id);
-                    UserRepository.SetUserTgUsername(callbackQuery.From.Id, callbackQuery.From.Username);
-                    await BlankMenu.EnterName(callbackQuery.From.Id, botClient);
-                }
+                await EditProfileRepository.DeleteProfile(callbackQuery.From.Id, botClient,callbackQuery.From.Username);
                 break;
         }
     }

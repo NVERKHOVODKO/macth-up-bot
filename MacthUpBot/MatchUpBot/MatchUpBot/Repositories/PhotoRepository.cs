@@ -286,11 +286,11 @@ public class PhotoRepository
         string caption;
         if (userBlankId == tgId)
             caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
-                      $"{user.About}\n" + $"{user.ZodiacSign} {GetZodiacPicture(user.ZodiacSign)}" +
+                      $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign)}" +
                       $"\n{interestsText}";
         else if (BlankMenu.UserRepository.GetUser(tgId).IsZodiacSignMatters)
             caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
-                      $"{user.About}\n" + $"{user.ZodiacSign} {GetZodiacPicture(user.ZodiacSign)}" +
+                      $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign)}" +
                       $"(85% совместимость)\n{interestsText}";
         else
             caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
@@ -323,6 +323,17 @@ public class PhotoRepository
             inputMedia,
             disableNotification: true
         );
+    }
+    
+    public static string CapitalizeFirstLetter(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return input; // Вернуть без изменений, если строка пуста или null
+        }
+
+        // Преобразовать первую букву в заглавную, оставив остальные символы как есть
+        return char.ToUpper(input[0]) + input.Substring(1).ToLower();
     }
 
     public static async Task SendLikerBlank(Message message, ITelegramBotClient botClient, long userBlankId)
