@@ -24,7 +24,7 @@ public class CallbackDataRepository
     {
         try
         {
-            if (BlankMenu.UserRepository.GetUserStage(userId) != 4)
+            if (BlankMenu.UserRepository.GetUserStage(userId) != (int)Action.SetSex)
             {
                 await botClient.SendTextMessageAsync(userId, "Куда ты тыкаешь, аболтус");
                 return;
@@ -50,15 +50,16 @@ public class CallbackDataRepository
     public static async Task SetZodiacMatters(long tgId, CallbackQuery callbackQuery, ITelegramBotClient botClient,
         bool matters)
     {
-        if (BlankMenu.UserRepository.GetUserStage(tgId) != 4)
+        if (BlankMenu.UserRepository.GetUserStage(tgId) != (int)Action.SetSex)
         {
             await botClient.SendTextMessageAsync(tgId, "Куда ты тыкаешь, аболтус");
             return;
         }
 
+        await botClient.EditMessageTextAsync(tgId, callbackQuery.Message.MessageId, "Отлично!");
         await EnterZodiacSign(botClient, callbackQuery.Message.Chat, tgId);
         BlankMenu.UserRepository.SetUserIsZodiacSignMatters(tgId, matters);
-        UpdateStage(tgId, 4);
+        UpdateStage(tgId, (int)Action.SetIsZodiacSignMatter);
         _isZodiacMattersEntered = true;
     }
 
@@ -83,6 +84,7 @@ public class CallbackDataRepository
             {
                 var ur = new UserRepository();
                 ur.SetUserInterestedGender(callbackQuery.From.Id, "М");
+                UpdateStage(user.Id, (int)Action.EnterAction);
                 await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
                 break;
             }
@@ -90,6 +92,7 @@ public class CallbackDataRepository
             {
                 var ur = new UserRepository();
                 ur.SetUserInterestedGender(callbackQuery.From.Id, "Ж");
+                UpdateStage(user.Id, (int)Action.EnterAction);
                 await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
                 break;
             }
@@ -97,6 +100,7 @@ public class CallbackDataRepository
             {
                 var ur = new UserRepository();
                 ur.SetUserInterestedGender(callbackQuery.From.Id, "Неважно");
+                UpdateStage(user.Id, (int)Action.EnterAction);
                 await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
                 break;
             }
@@ -136,7 +140,7 @@ public class CallbackDataRepository
                                 InlineKeyboardButton.WithCallbackData("Нет", "additional_photo_no")
                             }
                         });
-                    await botClient.SendTextMessageAsync(callbackQuery.From.Id,
+                    await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
                         "Ты хочешь добавить дополнительные фото (до 10)?", replyMarkup: additionalPhoto);
                     UpdateStage(user.Id, (int)Action.SetAdditionalPhoto);
                 }
@@ -148,6 +152,7 @@ public class CallbackDataRepository
                 _folder = "additional";
                 if (PhotoRepository.GetFileCountInFolder($"../../../photos/{callbackQuery.From.Id}/additional") == 10)
                 {
+                    await BlankMenu.EnterInterestedGender(callbackQuery, botClient);
                     UpdateStage(user.Id, (int)Action.SetInterestedSex);
                     break;
                 }
@@ -159,7 +164,7 @@ public class CallbackDataRepository
             }
                 break;
             case "additional_photo_no":
-                await BlankMenu.EnterInterestedGender(callbackQuery.From.Id, botClient);
+                await BlankMenu.EnterInterestedGender(callbackQuery, botClient);
                 UpdateStage(user.Id, (int)Action.SetInterestedSex);
                 break;
             case "view_add_photo":
@@ -171,7 +176,7 @@ public class CallbackDataRepository
 
                 await PhotoRepository.SendUserAdditionalProfile(callbackQuery.From.Id, callbackQuery.From.Id,
                     botClient);
-                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Введи текст");
+                await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
                 break;
             case "view_profiles":
                 UpdateStage(user.Id, (int)Action.GetFirstBlank);
@@ -309,7 +314,27 @@ public class CallbackDataRepository
                 await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
                 break;
             case "delete_profile":
-                await EditProfileRepository.DeleteProfile(callbackQuery.From.Id, botClient,callbackQuery.From.Username);
+                var confirmKeyboard = new InlineKeyboardMarkup( new List<InlineKeyboardButton[]>
+                {
+                    new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Да", "deleted_confirmed"),
+                        InlineKeyboardButton.WithCallbackData("Нет", "back_to_edit")
+                    },
+                    new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Назад", "back_to_edit")
+                    },
+                });
+                await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId, 
+                    "Ты точно хочешь удалить свою анкету?", replyMarkup:confirmKeyboard);
+                break;
+            case "deleted_confirmed":
+                await EditProfileRepository.DeleteProfile(callbackQuery.From.Id, botClient,
+                    callbackQuery.From.Username);
+                break;
+            case "get_vip":
+                //do something
                 break;
         }
     }
@@ -339,8 +364,7 @@ public class CallbackDataRepository
             _logger.LogError(e, $"Ошибка при попытке отправить сообщение о знаке зодиака пользователю {Id}");
 
             // Обновляем стадию пользователя
-            UserRepository.UpdateUserStage(Id, 4);
-
+            UpdateStage(Id, (int)Action.SetIsZodiacSignMatter);
             // В случае ошибки, возможно, вам также стоит сообщить пользователю об этом
             await botClient.SendTextMessageAsync(chat.Id, "Произошла ошибка, пожалуйста, попробуйте снова.");
         }

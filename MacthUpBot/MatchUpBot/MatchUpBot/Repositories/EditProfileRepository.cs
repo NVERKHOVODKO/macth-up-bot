@@ -30,6 +30,10 @@ public class EditProfileRepository
                 },
                 new[]
                 {
+                    InlineKeyboardButton.WithCallbackData("Добавить интересы", "add_interests")
+                },
+                new[]
+                {
                     InlineKeyboardButton.WithCallbackData("⚠️Удалить профиль⚠️", "delete_profile")
                 },
                 new[]
@@ -58,10 +62,7 @@ public class EditProfileRepository
                 {
                     InlineKeyboardButton.WithCallbackData("Просмотреть доп фото", "view_add_photo")
                 },
-                new[]
-                {
-                    InlineKeyboardButton.WithCallbackData("Добавить интересы", "add_interests")
-                },
+
                 new[]
                 {
                     InlineKeyboardButton.WithCallbackData("Посмотреть свою анкету", "view_myself")

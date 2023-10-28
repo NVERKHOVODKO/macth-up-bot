@@ -134,19 +134,23 @@ public class PhotoRepository
                         {
                             await SendUserMainProfile(message.From.Id, botClient);
                             await BlankMenu.EnterMainPhotos(message, botClient);
+                            UpdateStage(message.From.Id, (int)Action.SetMainPhoto);
+                            
+                            return;
                         }
-
-                        UpdateStage(message.From.Id, (int)Action.SetMainPhoto);
-                        //await BlankMenu.EnterAction(botClient, message.Chat.Id);
+                        UpdateStage(message.From.Id,(int)Action.EnterAction);
+                        await BlankMenu.EnterAction(botClient, message.Chat.Id);
                         break;
                     case "additional":
                         if (BlankMenu.UserRepository.GetUserStage(message.From.Id) != (int)Action.AddAdditionalPhoto)
                         {
                             await SendUserAdditionalProfile(message.From.Id, message.From.Id, botClient);
                             await BlankMenu.EnterAdditionalPhotos(message, botClient);
+                            UpdateStage(message.From.Id, (int)Action.SetAdditionalPhoto);
+                            return;
                         }
 
-                        UpdateStage(message.From.Id, (int)Action.SetInterestedSex);
+                        UpdateStage(message.From.Id, (int)Action.EnterAction);
                         await BlankMenu.EnterAction(botClient, message.Chat.Id);
                         break;
                 }
@@ -167,22 +171,25 @@ public class PhotoRepository
 
     public static async Task SendUserAdditionalProfile(long tgIdSearcher, long tgIdShowed, ITelegramBotClient botClient)
     {
-        _logger.LogInformation($"tgIdSearcher({tgIdSearcher})");
-        _logger.LogInformation($"tgIdShowed({tgIdShowed})");
-
         var filePath = $"../../../photos/{tgIdShowed}/additional/";
-
-        var user = BlankMenu.UserRepository.GetUser(tgIdShowed);
-
-        var streams = new List<Stream>();
         var numberOfFiles = GetFileCountInFolder(filePath);
         _logger.LogInformation($"numberOfFiles: {numberOfFiles}");
+
         if (numberOfFiles < 1)
         {
             _logger.LogInformation("User can't get additional photos");
             await botClient.SendTextMessageAsync(tgIdSearcher, "Пользователь не добавлял дополнительные фото");
             return;
         }
+
+        _logger.LogInformation($"tgIdSearcher({tgIdSearcher})");
+        _logger.LogInformation($"tgIdShowed({tgIdShowed})");
+
+        
+
+        var user = BlankMenu.UserRepository.GetUser(tgIdShowed);
+
+        var streams = new List<Stream>();
 
         var i = 0;
         while (i < numberOfFiles)
@@ -205,6 +212,7 @@ public class PhotoRepository
             disableNotification: true
         );
         _logger.LogInformation($"user({tgIdSearcher}): getted additional photos");
+        for (var count = 0; count < numberOfFiles; count++) streams[count].Close();
     }
 
     public static async Task SendUserMainProfile(long tgId, ITelegramBotClient botClient)
@@ -323,6 +331,7 @@ public class PhotoRepository
             inputMedia,
             disableNotification: true
         );
+        for (var count = 0; count < numberOfFiles; count++) streams[count].Close();
     }
     
     public static string CapitalizeFirstLetter(string input)
@@ -384,6 +393,7 @@ public class PhotoRepository
             inputMedia,
             disableNotification: true
         );
+        for (var count = 0; count < numberOfFiles; count++) streams[count].Close();
 
         ViewProfilesMenuRepository.RemoveLike(userBlankId, tgId);
         UserRepository.SetIsNotified(tgId, false);
