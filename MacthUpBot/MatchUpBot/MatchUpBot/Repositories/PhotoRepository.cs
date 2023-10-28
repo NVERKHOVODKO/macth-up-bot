@@ -336,10 +336,10 @@ public class PhotoRepository
         return char.ToUpper(input[0]) + input.Substring(1).ToLower();
     }
 
-    public static async Task SendLikerBlank(Message message, ITelegramBotClient botClient, long userBlankId)
+    public static async Task SendLikerBlank(long tgId, ITelegramBotClient botClient, long userBlankId)
     {
         await botClient.SendTextMessageAsync(
-            message.From.Id,
+            tgId,
             "Твоя анкета понравилась пользователю. Можешь написать ему или ответить взаимной симпатией");
 
         var filePath = $"../../../photos/{userBlankId}/main/";
@@ -347,7 +347,7 @@ public class PhotoRepository
         var user = BlankMenu.UserRepository.GetUser(userBlankId);
 
         string caption;
-        if (BlankMenu.UserRepository.GetUser(message.From.Id).IsZodiacSignMatters)
+        if (BlankMenu.UserRepository.GetUser(tgId).IsZodiacSignMatters)
             caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
                       $"{user.About}\n" + $"{user.ZodiacSign} {GetZodiacPicture(user.ZodiacSign)} (85% совместимость)" +
                       $"\n@{user.TgUsername}";
@@ -377,15 +377,16 @@ public class PhotoRepository
             inputMedia.Add(inputMediaPhoto);
         }
 
-        UserRepository.SetLastShowedBlankTgId(message.From.Id, userBlankId);
+        UserRepository.SetLastShowedBlankTgId(tgId, userBlankId);
 
         await botClient.SendMediaGroupAsync(
-            message.From.Id,
+            tgId,
             inputMedia,
             disableNotification: true
         );
 
-        ViewProfilesMenuRepository.RemoveLike(userBlankId, message.From.Id);
+        ViewProfilesMenuRepository.RemoveLike(userBlankId, tgId);
+        UserRepository.SetIsNotified(tgId, false);
     }
 
     private static async Task EnterReaction(Message message, ITelegramBotClient botClient, Chat chat)

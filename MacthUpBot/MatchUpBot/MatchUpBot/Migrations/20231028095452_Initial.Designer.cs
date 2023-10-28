@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MatchUpBot.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20231022145406_Initial")]
+    [Migration("20231028095452_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -87,6 +87,9 @@ namespace MatchUpBot.Migrations
                     b.Property<string>("GenderOfInterest")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsNotified")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsZodiacSignMatters")
                         .HasColumnType("boolean");

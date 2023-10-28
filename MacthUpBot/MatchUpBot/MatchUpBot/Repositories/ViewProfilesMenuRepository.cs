@@ -1,8 +1,11 @@
-﻿using Data;
+﻿using ConsoleApplication1.Menues;
+using Data;
 using Entities;
 using EntityFrameworkLesson.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Repositories;
+using Telegram.Bot;
 
 namespace MatchUpBot.Repositories;
 
@@ -13,8 +16,26 @@ public class ViewProfilesMenuRepository
     private static readonly ILogger<ViewProfilesMenuRepository> _logger =
         LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<ViewProfilesMenuRepository>();
 
-    public void AddLike(long likedUserId, long likerId)
+    public async Task AddLike(long likedUserId, long likerId, ITelegramBotClient botClient)
     {
+        try// не может отправить фейкам, поэтому надо try
+        {
+            var user = GetUser(likedUserId);
+            
+            if (GetUser(likedUserId).Stage != (int)Action.GetBlank && user.IsNotified == false)
+            {
+                await botClient.SendTextMessageAsync(
+                    likedUserId,
+                    "Твоя анкета понравилась пользователю, перейди в меню просмотра анкет чтобы увидеть его");
+                UserRepository.SetIsNotified(likedUserId, true);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogInformation($"failed to send notification to user({likedUserId})");
+        }
+        
+        
         var ur = new UserRepository();
         var liker = ur.GetUser(likerId);
         var likedUser = ur.GetUser(likedUserId);

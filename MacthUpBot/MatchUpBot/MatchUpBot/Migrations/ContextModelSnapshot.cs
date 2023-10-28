@@ -85,6 +85,9 @@ namespace MatchUpBot.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsNotified")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsZodiacSignMatters")
                         .HasColumnType("boolean");
 

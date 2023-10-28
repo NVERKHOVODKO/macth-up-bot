@@ -187,9 +187,7 @@ public class BlankMenu
                 GetBlankReaction(message, botClient, chat.Id);
                 break;
             case (int)Action.GetLikedBlank:
-                _logger.LogInformation(
-                    $"user({message.From.Id}): got Liker Blank({LikesMenu.GetLikerId(message.From.Id)})");
-                await PhotoRepository.SendLikerBlank(message, botClient, LikesMenu.GetLikerId(message.From.Id));
+                await PhotoRepository.SendLikerBlank(message.From.Id, botClient, LikesMenu.GetLikerId(message.From.Id));
                 UserRepository.UpdateUserStage(message.From.Id, (int)Action.GetBlank);
                 break;
             default:
@@ -241,7 +239,7 @@ public class BlankMenu
                 _logger.LogInformation(
                     $"user({message.From.Id}): liked user({UserRepository.GetUser(message.From.Id).LastShowedBlankTgId})");
                 var vpmr = new ViewProfilesMenuRepository();
-                vpmr.AddLike(UserRepository.GetUser(message.From.Id).LastShowedBlankTgId, message.From.Id);
+                vpmr.AddLike(UserRepository.GetUser(message.From.Id).LastShowedBlankTgId, message.From.Id, botClient);
                 break;
             case "👎":
                 _logger.LogInformation(

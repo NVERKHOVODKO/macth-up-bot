@@ -71,25 +71,25 @@ public class CallbackDataRepository
         {
             case "man":
             {
-                await SetGenger("Мужчина", botClient, user.Id, callbackQuery);
+                await SetGenger("М", botClient, user.Id, callbackQuery);
                 break;
             }
             case "woman":
             {
-                await SetGenger("Женщина", botClient, user.Id, callbackQuery);
+                await SetGenger("Ж", botClient, user.Id, callbackQuery);
                 break;
             }
             case "boys":
             {
                 var ur = new UserRepository();
-                ur.SetUserInterestedGender(callbackQuery.From.Id, "Мужчина");
+                ur.SetUserInterestedGender(callbackQuery.From.Id, "М");
                 await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
                 break;
             }
             case "girls":
             {
                 var ur = new UserRepository();
-                ur.SetUserInterestedGender(callbackQuery.From.Id, "Женский");
+                ur.SetUserInterestedGender(callbackQuery.From.Id, "Ж");
                 await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
                 break;
             }

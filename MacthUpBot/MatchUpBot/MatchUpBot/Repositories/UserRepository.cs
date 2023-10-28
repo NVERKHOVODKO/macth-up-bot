@@ -108,6 +108,7 @@ public class UserRepository
             Stage = -1,
             About = "N/A",
             ZodiacSign = "N/A",
+            IsNotified = false,
             GenderOfInterest = "N/A",
             LastShowedBlankTgId = 0
         };
@@ -150,6 +151,18 @@ public class UserRepository
             _context.SaveChanges();
         }
     }
+    
+    public static void SetIsNotified(long tgId, bool status)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
+        if (user != null)
+        {
+            user.IsNotified = status;
+            _context.Entry(user).State = EntityState.Modified;
+            _context.SaveChanges();
+        }
+    }
+
 
     public void SetUserAge(long tgId, int age)
     {
@@ -218,7 +231,7 @@ public class UserRepository
     }
 
 
-    public void CreateRandomFemaleUsers_0_100()
+    public static void CreateRandomFemaleUsers_0_100()
     {
         var random = new Random();
         var zodiacSigns = new[]
@@ -271,14 +284,14 @@ public class UserRepository
                     TgId = i,
                     Name = names[i - 1],
                     Age = random.Next(17, 26),
-                    City = "Минск",
-                    Gender = "Женский",
+                    City = "минск",
+                    Gender = "Ж",
                     TgUsername = $"user{i}_telegram",
                     Stage = 0,
                     About = descriptions[random.Next(descriptions.Length)],
                     ZodiacSign = zodiacSigns[random.Next(zodiacSigns.Length)],
                     IsZodiacSignMatters = random.Next(2) == 0,
-                    GenderOfInterest = "Мужчина",
+                    GenderOfInterest = "М",
                     LastShowedBlankTgId = 0
                 };
 
@@ -336,7 +349,6 @@ public class UserRepository
             "Люблю приключения и экстрима. Путешествия и адреналин - это о нас."
         };
 
-
         for (var i = 100; i <= 200; i++)
         {
             if (!_context.Users.Any(u => u.TgId == i))
@@ -346,14 +358,14 @@ public class UserRepository
                     TgId = i,
                     Name = names[i - 21],
                     Age = random.Next(17, 26),
-                    City = "Минск",
-                    Gender = "Мужской",
+                    City = "минск",
+                    Gender = "М",
                     TgUsername = $"user{i}_telegram",
                     Stage = 0,
                     About = descriptions[random.Next(descriptions.Length)],
                     ZodiacSign = zodiacSigns[random.Next(zodiacSigns.Length)],
                     IsZodiacSignMatters = random.Next(2) == 0,
-                    GenderOfInterest = "Женский",
+                    GenderOfInterest = "Ж",
                     LastShowedBlankTgId = 0
                 };
                 _context.Users.Add(user);

@@ -40,7 +40,8 @@ namespace MatchUpBot.Migrations
                     ZodiacSign = table.Column<string>(type: "text", nullable: false),
                     IsZodiacSignMatters = table.Column<bool>(type: "boolean", nullable: false),
                     GenderOfInterest = table.Column<string>(type: "text", nullable: false),
-                    LastShowedBlankTgId = table.Column<long>(type: "bigint", nullable: false)
+                    LastShowedBlankTgId = table.Column<long>(type: "bigint", nullable: false),
+                    IsNotified = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
