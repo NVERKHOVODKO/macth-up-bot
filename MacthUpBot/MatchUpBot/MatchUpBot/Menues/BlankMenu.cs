@@ -460,7 +460,7 @@ public class BlankMenu
             Stage != (int)Action.SetAdditionalPhoto && Stage != (int)Action.AddMainPhoto &&
             Stage != (int)Action.AddAdditionalPhoto) //Refactor this
         {
-            await botClient.SendTextMessageAsync(chat.Id, "Зачем мне твое фото");
+            await botClient.SendTextMessageAsync(chat.Id, "Используй текст");
             return;
         }
 

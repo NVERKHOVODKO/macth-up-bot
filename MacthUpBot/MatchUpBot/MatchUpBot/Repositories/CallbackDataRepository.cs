@@ -334,7 +334,7 @@ public class CallbackDataRepository
                     callbackQuery.From.Username);
                 break;
             case "get_vip":
-                //do something
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Попробуй позже");
                 break;
         }
     }

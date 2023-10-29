@@ -35,18 +35,13 @@ public class ViewProfilesMenuRepository
             _logger.LogInformation($"failed to send notification to user({likedUserId})");
         }
         
-        
         var ur = new UserRepository();
         var liker = ur.GetUser(likerId);
         var likedUser = ur.GetUser(likedUserId);
         _logger.LogInformation($"liker({liker.TgId})");
         _logger.LogInformation($"likedUser({likedUser.TgId})");
 
-        var existingLike = _context.Likes
-            .FirstOrDefault(like => like.LikedUserId == likedUser.TgId && like.LikedByUserId == liker.TgId);
-
-
-        if (existingLike == null)
+        if (!LikesMenu.IsLikeExists(likedUser, liker))
         {
             var like = new LikesEntity
             {
@@ -56,7 +51,7 @@ public class ViewProfilesMenuRepository
             };
 
             _context.Likes.Add(like);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
         else
         {
@@ -104,8 +99,42 @@ public class ViewProfilesMenuRepository
                 interestNames1, interestNames2, reciever.IsZodiacSignMatters) < priority)
             return null;
 
-        return matchingProfile;
+        if (IsUserValid(matchingProfile))
+        {
+            return matchingProfile;
+        }
+        else
+        {
+            return null;
+        }
     }
+    
+    public bool IsUserValid(UserEntity user)
+    {
+        if (user == null)
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(user.Name) ||
+            string.IsNullOrWhiteSpace(user.City) ||
+            string.IsNullOrWhiteSpace(user.Gender) ||
+            string.IsNullOrWhiteSpace(user.TgUsername) ||
+            string.IsNullOrWhiteSpace(user.About) ||
+            string.IsNullOrWhiteSpace(user.ZodiacSign) ||
+            string.IsNullOrWhiteSpace(user.GenderOfInterest))
+        {
+            return false;
+        }
+
+        if (user.Age < 0 || user.Stage < 0 || user.LastShowedBlankTgId < 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
 
     public static long GetLikerId(long userId)
     {

@@ -29,7 +29,7 @@ public class ViewingProfilesMenu
         while (userEntity == null)
         {
             userEntity = vpmr.GetMatchingProfile(recieverId, priority);
-            if (priority < 50)
+            if (priority < 20)
                 return null;
             priority -= 5;
         }
@@ -38,7 +38,6 @@ public class ViewingProfilesMenu
 
     public static async Task ShowBlank(long userId, ITelegramBotClient botClient)
     {
-        var user = UserRepository.GetUser(userId);
         var userSearched = GetMatchingProfile(userId);
         _logger.LogInformation($"user({userId}): getting a blank({userSearched.TgId})");
         if (userSearched == null)

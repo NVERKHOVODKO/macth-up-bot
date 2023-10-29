@@ -293,11 +293,11 @@ public class PhotoRepository
 
         string caption;
         if (userBlankId == tgId)
-            caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
+            caption = $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
                       $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign)}" +
                       $"\n{interestsText}";
         else if (BlankMenu.UserRepository.GetUser(tgId).IsZodiacSignMatters)
-            caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
+            caption = $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
                       $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign)}" +
                       $"(85% совместимость)\n{interestsText}";
         else
@@ -338,10 +338,9 @@ public class PhotoRepository
     {
         if (string.IsNullOrEmpty(input))
         {
-            return input; // Вернуть без изменений, если строка пуста или null
+            return input;
         }
 
-        // Преобразовать первую букву в заглавную, оставив остальные символы как есть
         return char.ToUpper(input[0]) + input.Substring(1).ToLower();
     }
 
@@ -357,11 +356,11 @@ public class PhotoRepository
 
         string caption;
         if (BlankMenu.UserRepository.GetUser(tgId).IsZodiacSignMatters)
-            caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
-                      $"{user.About}\n" + $"{user.ZodiacSign} {GetZodiacPicture(user.ZodiacSign)} (85% совместимость)" +
+            caption = $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
+                      $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign)} (85% совместимость)" +
                       $"\n@{user.TgUsername}";
         else
-            caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
+            caption = $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
                       $"{user.About} \n@{user.TgUsername}";
 
 
