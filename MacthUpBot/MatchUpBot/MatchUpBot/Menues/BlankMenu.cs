@@ -1,5 +1,4 @@
 ﻿using Data;
-using Entities;
 using EntityFrameworkLesson.Repositories;
 using MatchUpBot.Repositories;
 using Microsoft.Extensions.Logging;
@@ -22,12 +21,33 @@ public class BlankMenu
         _logger = logger;
     }
 
-    public static async Task HandleMessageTypeText(Message message, ITelegramBotClient botClient, Chat chat,
-        UserEntity curUser)
+    public static async Task HandleMessageTypeText(Message message, ITelegramBotClient botClient, Chat chat)
     {
-        var tgId = message.From.Id;
-        var Stage = UserRepository.GetUserStage(tgId);
-        _logger.LogInformation($"Stage user({tgId}): {Stage}");
+        if (message.Text == "/delete")
+        {
+            await EditProfileRepository.DeleteProfile(message.From.Id, botClient, message.From.Username);
+            var skipKeyboard = new ReplyKeyboardMarkup(
+                new List<KeyboardButton[]>
+                {
+                    new KeyboardButton[]
+                    {
+                        new("Регистрация")
+                    }
+                })
+            {
+                ResizeKeyboard = true
+            };
+            await botClient.SendTextMessageAsync(
+                chat.Id,
+                "Ваш аккаунт успешно удален",
+                replyMarkup: skipKeyboard);
+            _logger.LogInformation($"user({message.From.Id}) deleted");
+            return;
+        }
+
+        
+        var Stage = UserRepository.GetUserStage(message.From.Id);
+        _logger.LogInformation($"Stage user({message.From.Id}): {Stage}");
         var replyKeyboard = new ReplyKeyboardMarkup(
             new List<KeyboardButton[]>
             {
@@ -61,11 +81,6 @@ public class BlankMenu
             return;
         }
         
-        if (message.Text == "/delete" && UserRepository.GetUser(message.From.Id).Stage > 10)
-        {
-            await EditProfileRepository.DeleteProfile(message.From.Id, botClient, message.From.Username);
-        }
-
         Console.WriteLine(Stage);
         if (LikesMenu.GetLikerId(message.From.Id) != -1)
             await UpdateStage(message.From.Id, (int)Action.GetLikedBlank);
@@ -88,7 +103,7 @@ public class BlankMenu
                 await EnterSex(message, botClient, chat);
                 break;
             case (int)Action.SetIsZodiacSignMatter:
-                if (!AddZodiacSignToDatabase(message, curUser, chat, botClient)) break;
+                if (!AddZodiacSignToDatabase(message, chat, botClient)) break;
                 await EnterPhoto(message, botClient, chat);
                 break;
             case (int)Action.SetInterestedSex:
@@ -682,7 +697,7 @@ public class BlankMenu
         await botClient.SendTextMessageAsync(chat.Id, "Какой у тебя гендер?", replyMarkup: sexKeyboard);
     }
 
-    private static bool AddZodiacSignToDatabase(Message message, UserEntity curUser, Chat chat,
+    private static bool AddZodiacSignToDatabase(Message message, Chat chat,
         ITelegramBotClient botClient)
     {
         if (UserRepository.GetUserGender(message.From.Id) == "N/A" ||
@@ -698,9 +713,9 @@ public class BlankMenu
             UpdateStage(message.From.Id, (int)Action.SetIsZodiacSignMatter);
             return false;
         }
-
-        curUser.ZodiacSign = message.Text.ToLower();
-        UserRepository.SetUserZodiacSign(message.From.Id, curUser.ZodiacSign);
+        var user = UserRepository.GetUser(message.From.Id);
+        user.ZodiacSign = message.Text.ToLower();
+        UserRepository.SetUserZodiacSign(message.From.Id, user.ZodiacSign);
         _logger.LogInformation($"user({message.From.Id}): updated ZodiacSign: {message.Text}");
         return true;
     }

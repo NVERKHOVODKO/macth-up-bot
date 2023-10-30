@@ -74,7 +74,7 @@ internal class Program
                     {
                         case MessageType.Text:
                         {
-                            await BlankMenu.HandleMessageTypeText(message, botClient, chat, curUser);
+                            await BlankMenu.HandleMessageTypeText(message, botClient, chat);
                             return;
                         }
                         case MessageType.Photo:

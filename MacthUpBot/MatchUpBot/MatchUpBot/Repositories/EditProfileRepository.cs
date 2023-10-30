@@ -77,11 +77,7 @@ public class EditProfileRepository
         UserRepository.DeleteUserAndRelatedEntities(tgId);
         if (!UserRepository.IsUserExists(tgId))
         {
-            //(int)Action.ConfirmDeleting
             DeleteFolderHandle.DeleteFolder($"../../../photos/{tgId}/");
-            UserRepository.CreateUser(tgId);
-            UserRepository.SetUserTgUsername(tgId, username);
-            await BlankMenu.EnterName(tgId, botClient);
         }
     }
     
