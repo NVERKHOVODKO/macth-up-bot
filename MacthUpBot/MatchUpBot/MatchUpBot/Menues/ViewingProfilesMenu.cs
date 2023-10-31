@@ -24,28 +24,28 @@ public class ViewingProfilesMenu
 
     public static UserEntity GetMatchingProfile(long recieverId)
     {
-        double priority = 70;
+        double priority = 70;//"очки совпадения" 0-100. но у нас 70 тк нет идеальных совпадений
         UserEntity userEntity = null;
-        while (userEntity == null)
+        while (userEntity == null)//цикл для поиска
         {
             userEntity = vpmr.GetMatchingProfile(recieverId, priority);
-            if (priority < 20)
+            if (priority < 20)//если плохое совпадение то возвращаем null
                 return null;
-            priority -= 5;
+            priority -= 5;//с каждой итерацией менее придирчиво подбираем анкету
         }
         return userEntity;
     }
 
     public static async Task ShowBlank(long userId, ITelegramBotClient botClient)
     {
-        var userSearched = GetMatchingProfile(userId);
-        _logger.LogInformation($"user({userId}): getting a blank({userSearched.TgId})");
+        var userSearched = GetMatchingProfile(userId);//берем подходящий профиль
+        _logger.LogInformation($"user({userId}): getting a blank({userSearched.TgId})");//если нет такого то кидаем это
         if (userSearched == null)
         {
             await botClient.SendTextMessageAsync(userId, "Не получилось найти кого-то подходящего для тебя(");
             return;
         }
-        else
+        else//если такой есть отправляем в нужный чат
         {
             _logger.LogInformation($"user({userSearched.TgId}): getted to user({userId})");
             await PhotoRepository.SendBlank(userId, botClient, userSearched.TgId);

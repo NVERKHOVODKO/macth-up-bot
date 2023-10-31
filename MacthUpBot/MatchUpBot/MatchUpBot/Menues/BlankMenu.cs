@@ -201,7 +201,7 @@ public class BlankMenu
             case (int)Action.GetFirstBlank:
                 await AddReactionKeyboard(botClient, chat.Id);
                 await UpdateStage(message.From.Id, (int)Action.GetBlank);
-                ViewingProfilesMenu.ShowBlank(message.From.Id, botClient);
+                ViewingProfilesMenu.ShowBlank(message.From.Id, botClient);//подбираем анкету
                 GetBlankReaction(message, botClient, chat.Id);
                 break;
             case (int)Action.GetBlank:

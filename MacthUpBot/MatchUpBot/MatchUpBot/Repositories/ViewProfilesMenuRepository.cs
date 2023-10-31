@@ -70,23 +70,24 @@ public class ViewProfilesMenuRepository
     {
         var totalProfilesCount = _context.Users.Count();
         var reciever = GetUser(recieverId);
-        var randomStart = new Random().Next(totalProfilesCount);
+        var randomStart = new Random().Next(totalProfilesCount);//идем в случайное место бд
 
-        var matchingProfile = _context.Users
+        var matchingProfile = _context.Users//тут подбор по городу и полу
             .Skip(randomStart)
             .FirstOrDefault(user => user.City == reciever.City && user.TgId != recieverId &&
                                     (user.Gender == reciever.GenderOfInterest ||
                                      reciever.GenderOfInterest == "Неважно") &&
                                     (user.GenderOfInterest == reciever.Gender || user.GenderOfInterest == "Неважно"));
 
-        if (matchingProfile == null)
+        if (matchingProfile == null)//тут подбор по городу и полу в оставшейся части бд
             matchingProfile = _context.Users
                 .FirstOrDefault(user => user.City == reciever.City && user.TgId != recieverId &&
                                         (user.Gender == reciever.GenderOfInterest ||
                                          reciever.GenderOfInterest == "Неважно") &&
                                         (user.GenderOfInterest == reciever.Gender ||
                                          user.GenderOfInterest == "Неважно"));
-
+        
+        // тут получаем инетерсы и приводим их к нормальному виду
         var interestsEntities1 = UserRepository.GetUserInterestsById(reciever.TgId);
         var interestNames1 = interestsEntities1.Select(interest => interest.Name).ToList();
         if (matchingProfile == null)
@@ -94,12 +95,14 @@ public class ViewProfilesMenuRepository
         var interestsEntities2 = UserRepository.GetUserInterestsById(matchingProfile.TgId);
         var interestNames2 = interestsEntities2.Select(interest => interest.Name).ToList();
 
+        
+        //проверяем совместимость с priority
         if (MatchCalculator.CalculateMatch(reciever.Age, matchingProfile.Age,
                 reciever.ZodiacSign, matchingProfile.ZodiacSign,
                 interestNames1, interestNames2, reciever.IsZodiacSignMatters) < priority)
             return null;
 
-        if (IsUserValid(matchingProfile))
+        if (IsUserValid(matchingProfile))//проверка на корректность пользователя
         {
             return matchingProfile;
         }
