@@ -88,18 +88,15 @@ public class ViewProfilesMenuRepository
                                          user.GenderOfInterest == "Неважно"));
         
         // тут получаем инетерсы и приводим их к нормальному виду
-        var interestsEntities1 = UserRepository.GetUserInterestsById(reciever.TgId);
-        var interestNames1 = interestsEntities1.Select(interest => interest.Name).ToList();
+        // var interestsEntities1 = UserRepository.GetUserInterestsById(reciever.TgId);
+        // var interestNames1 = interestsEntities1.Select(interest => interest.Name).ToList();
         if (matchingProfile == null)
             return null;
-        var interestsEntities2 = UserRepository.GetUserInterestsById(matchingProfile.TgId);
-        var interestNames2 = interestsEntities2.Select(interest => interest.Name).ToList();
-
+        var interestNames2 = UserRepository.GetUserInterestsById(matchingProfile.TgId).Select(interest => interest.Name).ToList();
         
         //проверяем совместимость с priority
-        if (MatchCalculator.CalculateMatch(reciever.Age, matchingProfile.Age,
-                reciever.ZodiacSign, matchingProfile.ZodiacSign,
-                interestNames1, interestNames2, reciever.IsZodiacSignMatters) < priority)
+        if (MatchCalculator.CalculateMatch(reciever.TgId,reciever.Age, matchingProfile.Age,
+                reciever.ZodiacSign, matchingProfile.ZodiacSign, interestNames2, reciever.IsZodiacSignMatters) < priority)
             return null;
 
         if (IsUserValid(matchingProfile))//проверка на корректность пользователя

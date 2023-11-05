@@ -20,4 +20,6 @@ public class UserEntity
     public List<UserInterestsEntity> UserInterests { get; set; }
     public List<LikesEntity> LikedByUsers { get; set; }
     public List<LikesEntity> LikedUsers { get; set; }
+    
+    public InterestWeightEntity InterestWeight { get; set; }
 }

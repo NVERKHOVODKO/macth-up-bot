@@ -12,7 +12,8 @@ namespace ConsoleApplication1.Menues;
 public class BlankMenu
 {
     public static readonly UserRepository UserRepository = new();
-
+    public static readonly InterestWeightRepository InterestWeightRepository = new();
+    
     private static ILogger<BlankMenu> _logger =
         LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<BlankMenu>();
 
@@ -122,6 +123,7 @@ public class BlankMenu
                     }
 
                     UserRepository.AddInterestToUser(message.From.Id, int.Parse(message.Text), botClient);
+                    InterestWeightRepository.CreateInterestWeight(message.From.Id);
                 }
                 catch
                 {
@@ -261,11 +263,16 @@ public class BlankMenu
                     $"user({message.From.Id}): liked user({UserRepository.GetUser(message.From.Id).LastShowedBlankTgId})");
                 var vpmr = new ViewProfilesMenuRepository();
                 vpmr.AddLike(UserRepository.GetUser(message.From.Id).LastShowedBlankTgId, message.From.Id, botClient);
+                await new InterestWeightRepository().UpdateUserInterestWeightIncrement(message.From.Id,UserRepository.GetUserInterestsById(
+                    UserRepository.GetUser(message.From.Id).LastShowedBlankTgId).Select(interest => interest.Name).ToList());
+               
                 break;
             case "👎":
                 _logger.LogInformation(
                     $"user({message.From.Id}): disliked user({UserRepository.GetUser(message.From.Id).LastShowedBlankTgId})");
-                ViewingProfilesMenu.ShowBlank(message.From.Id, botClient);
+                await new InterestWeightRepository().UpdateUserInterestWeightDecrement(message.From.Id,UserRepository.GetUserInterestsById(
+                    UserRepository.GetUser(message.From.Id).LastShowedBlankTgId).Select(interest => interest.Name).ToList());
+                await ViewingProfilesMenu.ShowBlank(message.From.Id, botClient);
                 break;
             case "🚪":
                 await UpdateStage(message.From.Id, (int)Action.EnterAction);
