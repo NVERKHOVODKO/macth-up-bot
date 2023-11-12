@@ -34,7 +34,7 @@ internal class Context : DbContext
         // optionsBuilder.UseNpgsql(
         //     @"host=localhost;port=5432;database=Messenger;username=postgres;password=root");
         
-      //   optionsBuilder.UseNpgsql(
-        //     @"host=localhost;port=5432;database=TelegramBot;username=postgres;password=postgres"); 
+        optionsBuilder.UseNpgsql(
+           @"host=localhost;port=5432;database=TelegramBot;username=postgres;password=postgres"); 
     }
 }

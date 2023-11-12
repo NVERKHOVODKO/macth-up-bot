@@ -6,10 +6,10 @@ namespace MatchUpBot.Repositories;
 
 public class InterestWeightRepository
 {
-    private readonly Context _context = new();
+    private static readonly Context _context = new();
 
 
-    public async void CreateInterestWeight(long tgId)
+    public static async void CreateInterestWeight(long tgId)
     {
         _context.InterestWeightEntities.Add(new InterestWeightEntity
         {

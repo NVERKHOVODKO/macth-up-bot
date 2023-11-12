@@ -123,7 +123,7 @@ public class BlankMenu
                     }
 
                     UserRepository.AddInterestToUser(message.From.Id, int.Parse(message.Text), botClient);
-                    InterestWeightRepository.CreateInterestWeight(message.From.Id);
+                    
                 }
                 catch
                 {

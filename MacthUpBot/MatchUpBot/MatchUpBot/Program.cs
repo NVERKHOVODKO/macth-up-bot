@@ -4,6 +4,7 @@ using ConsoleApplication1.Menues;
 using Data;
 using Entities;
 using EntityFrameworkLesson.Repositories;
+using MatchUpBot.Repositories;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -67,6 +68,7 @@ internal class Program
                         _logger.LogInformation("message.From.Id: user created");
                         UserRepository.CreateUser(message.From.Id);
                         UserRepository.SetUserTgUsername(message.From.Id, message.From.Username);
+                        InterestWeightRepository.CreateInterestWeight(message.From.Id);
                     }
 
                     //UserRepository.CreateRandomFemaleUsers_0_100();
