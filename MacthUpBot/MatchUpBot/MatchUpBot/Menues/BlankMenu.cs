@@ -150,7 +150,7 @@ public class BlankMenu
                 await EnterAction(botClient, chat.Id);
                 break;
             case (int)Action.AddMainPhoto:
-                if (message.Text != "Отмена")
+                if (message.Text.ToLower() != "отмена")
                 {
                     await botClient.SendTextMessageAsync(message.From.Id,
                         "Отправь новое фото \nДля отмены введи «Отмена»");
@@ -161,7 +161,7 @@ public class BlankMenu
                 break;
             case (int)Action.AddAdditionalPhoto:
             {
-                if (message.Text != "Отмена")
+                if (message.Text.ToLower() != "отмена")
                 {
                     await botClient.SendTextMessageAsync(message.From.Id,
                         "Отправь новое фото \nДля отмены введи «Отмена»");
@@ -172,7 +172,7 @@ public class BlankMenu
                 break;
             }
             case (int)Action.DeleteMainPhoto:
-                if (message.Text != "Отмена")
+                if (message.Text.ToLower() != "отмена")
                 {
                     await DeleteUserPhoto(message, botClient,"main");
                     break;
@@ -182,7 +182,7 @@ public class BlankMenu
                 await EnterAction(botClient, chat.Id);
                 break;
             case (int)Action.DeleteAdditionalPhoto:
-                if (message.Text != "Отмена")
+                if (message.Text.ToLower() != "отмена")
                 {
                     await DeleteUserPhoto(message, botClient, "additional");
                     break;
@@ -213,6 +213,84 @@ public class BlankMenu
                 await PhotoRepository.SendLikerBlank(message.From.Id, botClient, LikesMenu.GetLikerId(message.From.Id));
                 await UpdateStage(message.From.Id, (int)Action.GetBlank);
                 break;
+            case (int)Action.SetCardNumber:
+                if (message.Text.ToLower() != "отмена")
+                {
+                    var ccr = new CreditCardRepository();
+                    if (!ccr.IsValidCreditCardNumber(message.Text))
+                    {
+                        await botClient.SendTextMessageAsync(message.From.Id, "Неверный номер карты. Попробуй еще раз ");
+                        break;
+                    }
+
+                    UserRepository.CreateEmptyCard(message.From.Id);
+                    UserRepository.AddCardNumber(currentCardId, message.Text);
+                    await botClient.SendTextMessageAsync(message.From.Id, "Введи срок дейтвия в формате XX/XX \n"
+                                                                          + "Для отмены введи «Отмена»");
+                    await UpdateStage(message.From.Id, (int)Action.SetCardValidTrue);
+                    break;
+                }
+                UserRepository.DeleteCard(currentCardId);
+                await UpdateStage(message.From.Id, (int)Action.EnterAction);
+                await EnterAction(botClient, chat.Id);
+                break;
+            case (int)Action.SetCardValidTrue:
+                if (message.Text.ToLower() != "отмена")
+                {
+                    var ccr = new CreditCardRepository();
+                    if (!ccr.IsValidExpirationDate(message.Text))
+                    {
+                        await botClient.SendTextMessageAsync(message.From.Id, "Неверный срок дейтвия. Попробуй еще раз ");
+                        break;
+                    }
+                    UserRepository.AddExpirationTime(currentCardId, message.Text);
+                    await botClient.SendTextMessageAsync(message.From.Id, "Введи имя держателя \n"
+                                                                          + "Для отмены введи «Отмена»");
+                    await UpdateStage(message.From.Id, (int)Action.SetCardOwner);
+                    break;
+                }
+                UserRepository.DeleteCard(currentCardId);
+                await UpdateStage(message.From.Id, (int)Action.EnterAction);
+                await EnterAction(botClient, chat.Id);
+                break;
+            case (int)Action.SetCardOwner:
+                if (message.Text.ToLower() != "отмена")
+                {
+                    var ccr = new CreditCardRepository();
+                    if (!ccr.IsValidCardholderName(message.Text))
+                    {
+                        await botClient.SendTextMessageAsync(message.From.Id, "Неверное имя держателя. Попробуй еще раз");
+                        break;
+                    }
+                    UserRepository.AddHolderName(currentCardId, message.Text);
+                    await botClient.SendTextMessageAsync(message.From.Id, "Введи cvv \n"
+                                                                          + "Для отмены введи «Отмена»");
+                    await UpdateStage(message.From.Id, (int)Action.SetCardCvv);
+                    break;
+                }
+                UserRepository.DeleteCard(currentCardId);
+                await UpdateStage(message.From.Id, (int)Action.EnterAction);
+                await EnterAction(botClient, chat.Id);
+                break;
+            case (int)Action.SetCardCvv:
+                if (message.Text.ToLower() != "отмена")
+                {
+                    var ccr = new CreditCardRepository();
+                    if (!ccr.IsValidCVV(message.Text))
+                    {
+                        await botClient.SendTextMessageAsync(message.From.Id, "Неверный cvv. Попробуй еще раз");
+                        break;
+                    }
+                    UserRepository.AddCVV(currentCardId, message.Text);
+                    await UpdateStage(message.From.Id, (int)Action.EnterAction);
+                    await EnterAction(botClient, chat.Id);
+                    break;
+                }
+                UserRepository.DeleteCard(currentCardId);
+                await UpdateStage(message.From.Id, (int)Action.EnterAction);
+                await EnterAction(botClient, chat.Id);
+                break;
+
             default:
             {
                 if (Stage == (int)Action.SetPhoto || Stage == (int)Action.SetAdditionalPhoto ||
@@ -232,6 +310,7 @@ public class BlankMenu
         }
     }
 
+    public static Guid currentCardId;
 
     public static async Task
         ClearUserChat(ITelegramBotClient botClient, Message message) //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111
@@ -340,7 +419,7 @@ public class BlankMenu
 
     private static async Task SetNewAbout(Message message, ITelegramBotClient botClient)
     {
-        if (message.Text != "Отмена")
+        if (message.Text.ToLower() != "отмена")
         {
             await botClient.SendTextMessageAsync(
                 message.From.Id,
@@ -353,7 +432,7 @@ public class BlankMenu
 
     private static async Task SetNewCity(Message message, ITelegramBotClient botClient)
     {
-        if (message.Text != "Отмена")
+        if (message.Text.ToLower() != "отмена")
         {
             await botClient.SendTextMessageAsync(
                 message.From.Id,
@@ -368,7 +447,7 @@ public class BlankMenu
     {
         try
         {
-            if (message.Text != "Отмена")
+            if (message.Text.ToLower() != "отмена")
             {
                 if (int.Parse(message.Text) < 1) throw new Exception();
 
@@ -399,7 +478,7 @@ public class BlankMenu
 
     private static async Task SetNewName(Message message, ITelegramBotClient botClient)
     {
-        if (message.Text != "Отмена")
+        if (message.Text.ToLower() != "отмена")
         {
             await botClient.SendTextMessageAsync(
                 message.From.Id,

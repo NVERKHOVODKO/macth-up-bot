@@ -66,6 +66,11 @@ public class EditProfileRepository
                 new[]
                 {
                     InlineKeyboardButton.WithCallbackData("Посмотреть свою анкету", "view_myself")
+                },
+                
+                new[]
+                {
+                InlineKeyboardButton.WithCallbackData("Получить VIP", "get_vip")
                 }
             });
         await botClient.EditMessageTextAsync(tgId, callbackQuery.Message.MessageId, "Выбери действие",
@@ -79,6 +84,8 @@ public class EditProfileRepository
         {
             DeleteFolderHandle.DeleteFolder($"../../../photos/{tgId}/");
         }
+
+        await botClient.SendTextMessageAsync(tgId, "Твой аккаунт удален, начни регистрацию заново");
     }
     
     

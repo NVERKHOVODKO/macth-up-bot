@@ -1,5 +1,6 @@
 ﻿using ConsoleApplication1.Menues;
 using Data;
+using Entities;
 using EntityFrameworkLesson.Utils;
 using MatchUpBot.Repositories;
 using Microsoft.Extensions.Logging;
@@ -67,6 +68,7 @@ public class CallbackDataRepository
     {
         var callbackQuery = update.CallbackQuery;
         var user = callbackQuery.From;
+        List<CardEntity> cardEntities = BlankMenu.UserRepository.GetCardsForUser(callbackQuery.From.Id);
 
         switch (callbackQuery.Data)
         {
@@ -334,7 +336,51 @@ public class CallbackDataRepository
                     callbackQuery.From.Username);
                 break;
             case "get_vip":
-                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Попробуй позже");
+                HandleCards(callbackQuery, botClient,cardEntities);
+                break;
+            case "add_card":
+                await botClient.EditMessageTextAsync(callbackQuery.From.Id,callbackQuery.Message.MessageId, 
+                    "Введи номер кредитной карты \n " +
+                    "в формате XXXXXXXXXXXXXXXX \n"
+                    + "Для отмены введи «Отмена»");
+                UpdateStage(callbackQuery.From.Id, (int)Action.SetCardNumber);
+                break;
+            case "next_card":
+                if (numberOfCard + 1 >= BlankMenu.UserRepository.GetCardCountForUser(callbackQuery.From.Id))
+                {
+                    return;
+                }
+                numberOfCard++;
+                
+                ShowCards(callbackQuery, botClient, cardEntities);
+                break;
+            case "previous_card":
+                if(numberOfCard < 1)
+                {
+                    return;
+                }
+                numberOfCard--;
+                ShowCards(callbackQuery, botClient, cardEntities);
+                break;
+            case "pay_from_card":
+                if (BlankMenu.UserRepository.GetUserVip(callbackQuery.From.Id))
+                {
+                    await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Ты уже VIP, родной");
+                    return;
+                }
+                BlankMenu.UserRepository.SetVipStatus(callbackQuery.From.Id, true);
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Теперь ты VIP");
+                await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
+                UpdateStage(callbackQuery.From.Id, (int)Action.EnterAction);
+                break;
+            case "delete_card":
+                if (numberOfCard  >= BlankMenu.UserRepository.GetCardCountForUser(callbackQuery.From.Id) || numberOfCard < 0)
+                {
+                    return;
+                }
+                BlankMenu.UserRepository.DeleteCard(cardEntities[numberOfCard].Id);
+                HandleCards(callbackQuery, botClient,cardEntities);
+                await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Карта удалена");
                 break;
         }
     }
@@ -374,5 +420,63 @@ public class CallbackDataRepository
     {
         UserRepository.UpdateUserStage(tgId, stage);
         _logger.LogInformation($"user({tgId}): Stage updated: {stage}");
+    }
+    private static async void HandleCards(CallbackQuery callbackQuery, ITelegramBotClient botClient, List<CardEntity> cardEntities)
+    {
+        numberOfCard = 0;
+        if (BlankMenu.UserRepository.GetCardCountForUser(callbackQuery.From.Id) == 0)
+        {
+            var noCardKeyboard = new InlineKeyboardMarkup( new List<InlineKeyboardButton[]>
+            {
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Добавить карту", "add_card"),
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Назад", "back_to_action")
+                },
+            });
+             await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId, "Ты еще не добавил кредитных карт", replyMarkup:noCardKeyboard);
+            return;
+        }
+        ShowCards(callbackQuery, botClient, cardEntities);
+    }
+
+    public static int numberOfCard;
+
+    private static async void ShowCards(CallbackQuery callbackQuery, ITelegramBotClient botClient,
+        List<CardEntity> cardEntities)
+    {
+        var cardKeyboard = new InlineKeyboardMarkup( new List<InlineKeyboardButton[]>
+        {
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("<<", "previous_card"),
+                InlineKeyboardButton.WithCallbackData(">>", "next_card")
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Оплатить", "pay_from_card")
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Добавить карту", "add_card"),
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Удалить карту", "delete_card")
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Назад", "back_to_action")
+            },
+        });
+        await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId, "Список твоих кредитных карт: \n" +
+                                                              "Номер: " + cardEntities[numberOfCard].CardNumber + "\n" +
+                                                              "Годен: " + cardEntities[numberOfCard].ExpirationTime +
+                                                              "\n" + "Имя: " + cardEntities[numberOfCard].HolderName +
+                                                              "          cvv: " + cardEntities[numberOfCard].CVV,
+            replyMarkup: cardKeyboard);
     }
 }

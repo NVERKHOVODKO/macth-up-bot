@@ -17,6 +17,7 @@ public class UserEntity
     public string GenderOfInterest { get; set; }
     public long LastShowedBlankTgId { get; set; }
     public bool IsNotified { get; set; }
+    public bool IsVip { get; set;}
     public List<UserInterestsEntity> UserInterests { get; set; }
     public List<LikesEntity> LikedByUsers { get; set; }
     public List<LikesEntity> LikedUsers { get; set; }

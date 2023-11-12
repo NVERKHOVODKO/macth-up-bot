@@ -10,6 +10,8 @@ internal class Context : DbContext
     public DbSet<LikesEntity> Likes { get; set; }
     public DbSet<UserInterestsEntity> UserInterestsEntities { get; set; }
     public DbSet<InterestWeightEntity> InterestWeightEntities { get; set; } //TODO
+    
+    public DbSet<CardEntity> CreditCards { get; set;}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,7 +36,7 @@ internal class Context : DbContext
         // optionsBuilder.UseNpgsql(
         //     @"host=localhost;port=5432;database=Messenger;username=postgres;password=root");
         
-      //   optionsBuilder.UseNpgsql(
-        //     @"host=localhost;port=5432;database=TelegramBot;username=postgres;password=postgres"); 
+         optionsBuilder.UseNpgsql(
+             @"host=localhost;port=5432;database=TelegramBot;username=postgres;password=postgres"); 
     }
 }

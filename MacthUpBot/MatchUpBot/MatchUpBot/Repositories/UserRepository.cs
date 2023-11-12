@@ -50,6 +50,7 @@ public class UserRepository
             var likedUsers = _context.Likes.Where(like => like.LikedUser.TgId == userId);
             _context.Likes.RemoveRange(likedByUsers);
             _context.Likes.RemoveRange(likedUsers);
+            _context.CreditCards.RemoveRange(_context.CreditCards.Where(card => card.UserId == userId));
 
             _context.Users.Remove(user);
 
@@ -110,7 +111,8 @@ public class UserRepository
             ZodiacSign = "N/A",
             IsNotified = false,
             GenderOfInterest = "N/A",
-            LastShowedBlankTgId = 0
+            LastShowedBlankTgId = 0,
+            IsVip = false
         };
 
         _context.Users.Add(newUser);
@@ -158,6 +160,16 @@ public class UserRepository
         if (user != null)
         {
             user.IsNotified = status;
+            _context.Entry(user).State = EntityState.Modified;
+            _context.SaveChanges();
+        }
+    }
+    public static void SetIsVip(long tgId, bool status)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
+        if (user != null)
+        {
+            user.IsVip = status;
             _context.Entry(user).State = EntityState.Modified;
             _context.SaveChanges();
         }
@@ -292,7 +304,8 @@ public class UserRepository
                     ZodiacSign = zodiacSigns[random.Next(zodiacSigns.Length)],
                     IsZodiacSignMatters = random.Next(2) == 0,
                     GenderOfInterest = "М",
-                    LastShowedBlankTgId = 0
+                    LastShowedBlankTgId = 0,
+                    IsVip = false
                 };
 
                 _context.Users.Add(user);
@@ -410,7 +423,7 @@ public class UserRepository
             _context.SaveChanges();
         }
     }
-
+    
     public async void AddInterestToUser(long userId, int interestNumber, ITelegramBotClient botClient)
     {
         if (interestNumber == 16)
@@ -488,6 +501,109 @@ public class UserRepository
         {
             _logger.LogError($"Недопустимый номер интереса: {interestNumber}");
             await botClient.SendTextMessageAsync(userId, "Недопустимый номер интереса");
+        }
+    }
+    
+    public void DeleteCard(Guid cardId)
+    {
+        // Находим карту по идентификатору
+        var cardToDelete = _context.CreditCards.FirstOrDefault(c => c.Id == cardId);
+
+        if (cardToDelete != null)
+        {
+            // Удаляем карту из контекста и сохраняем изменения в базе данных
+            _context.CreditCards.Remove(cardToDelete);
+            _context.SaveChanges();
+        }
+    }
+    public void AddCard(CardEntity card)
+    {
+        _context.CreditCards.Add(card);
+        _context.SaveChanges();
+    }
+    public int GetCardCountForUser(long userId)
+    {
+        return _context.CreditCards.Count(c => c.UserId == userId);
+    }
+    public List<CardEntity> GetCardsForUser(long userId)
+    {
+        return _context.CreditCards.Where(c => c.UserId == userId).ToList();
+    }
+    public CardEntity CreateEmptyCard(long userId)
+    {
+        // Создаем новую пустую карту с установленным UserId
+        BlankMenu.currentCardId = Guid.NewGuid();
+        var newCard = new CardEntity
+        {
+            Id = BlankMenu.currentCardId,
+            UserId = userId,
+            CardNumber = "N/A",
+            HolderName = "N/A",
+            ExpirationTime = "N/A",
+            CVV = "N/A"
+        };
+       
+        // Добавляем новую карту в контекст и сохраняем изменения в базе данных
+        _context.CreditCards.Add(newCard);
+        _context.SaveChanges();
+
+        // Возвращаем созданную карту
+        return newCard;
+    }
+
+    public void AddCardNumber(Guid cardId, string cardNumber)
+    {
+        var cardToUpdate = _context.CreditCards.FirstOrDefault(c => c.Id == cardId);
+        if (cardToUpdate != null)
+        {
+            cardToUpdate.CardNumber = cardNumber;
+            _context.SaveChanges();
+        }
+    }
+
+    public void AddHolderName(Guid cardId, string holderName)
+    {
+        var cardToUpdate = _context.CreditCards.FirstOrDefault(c => c.Id == cardId);
+        if (cardToUpdate != null)
+        {
+            cardToUpdate.HolderName = holderName;
+            _context.SaveChanges();
+        }
+    }
+
+    public void AddExpirationTime(Guid cardId, string expirationTime)
+    {
+        var cardToUpdate = _context.CreditCards.FirstOrDefault(c => c.Id == cardId);
+        if (cardToUpdate != null)
+        {
+            cardToUpdate.ExpirationTime = expirationTime;
+            _context.SaveChanges();
+        }
+    }
+
+    public void AddCVV(Guid cardId, string cvv)
+    {
+        var cardToUpdate = _context.CreditCards.FirstOrDefault(c => c.Id == cardId);
+        if (cardToUpdate != null)
+        {
+            cardToUpdate.CVV = cvv;
+            _context.SaveChanges();
+        }
+    }
+    public bool GetUserVip(long tgId)
+    {
+        var user = _context.Users.AsNoTracking().FirstOrDefault(e => e.TgId == tgId);
+        return user.IsVip;
+    }
+        
+    public void SetVipStatus(long tgId, bool status)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.TgId == tgId);
+        if (user != null)
+        {
+            user.IsVip = status;
+            _context.Entry(user).State = EntityState.Modified;
+            _context.SaveChanges();
         }
     }
 }

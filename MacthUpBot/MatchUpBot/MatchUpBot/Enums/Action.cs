@@ -26,5 +26,8 @@
     GetLikedBlank,
     AddInterest,
     ViewMyself,
-    ConfirmDeleting
+    SetCardNumber,
+    SetCardOwner,
+    SetCardValidTrue,
+    SetCardCvv
 }
