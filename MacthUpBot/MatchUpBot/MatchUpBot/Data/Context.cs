@@ -9,7 +9,8 @@ internal class Context : DbContext
     public DbSet<InterestEntity> Interests { get; set; }
     public DbSet<LikesEntity> Likes { get; set; }
     public DbSet<UserInterestsEntity> UserInterestsEntities { get; set; }
-    public DbSet<InterestWeightEntity> InterestWeightEntities { get; set; } //TODO
+    public DbSet<InterestWeightEntity> InterestWeightEntities { get; set; } 
+    public DbSet<CardEntity> CreditCards { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

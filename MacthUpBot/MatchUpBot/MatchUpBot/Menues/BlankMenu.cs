@@ -282,6 +282,7 @@ public class BlankMenu
                         break;
                     }
                     UserRepository.AddCVV(currentCardId, message.Text);
+                    await botClient.SendTextMessageAsync(message.From.Id, "Карта добавлена");
                     await UpdateStage(message.From.Id, (int)Action.EnterAction);
                     await EnterAction(botClient, chat.Id);
                     break;
