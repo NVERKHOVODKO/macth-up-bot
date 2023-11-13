@@ -282,6 +282,8 @@ public class PhotoRepository
         var filePath = $"../../../photos/{userBlankId}/main/";
 
         var user = BlankMenu.UserRepository.GetUser(userBlankId);
+        
+        var userReceiver = BlankMenu.UserRepository.GetUser(tgId);
 
         var interests = UserRepository.GetUserInterestsById(userBlankId);
         var interestsText = string.Empty;
@@ -291,19 +293,26 @@ public class PhotoRepository
             interestsText += string.Join("\n", interests.Select(interest => interest.Name));
         }
 
-        string caption;
+        string caption = "";
+        if (user.IsVip == true)
+        {
+            caption += "👑VIP👑\n";
+        }
         if (userBlankId == tgId)
-            caption = $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
+            caption += $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
                       $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign)}" +
                       $"\n{interestsText}";
         else if (BlankMenu.UserRepository.GetUser(tgId).IsZodiacSignMatters)
-            caption = $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
+            caption += $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
                       $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign)}" +
                       $"(85% совместимость)\n{interestsText}";
         else
-            caption = $"{user.Name}, {user.Age} лет, {user.City} \n" +
+            caption += $"{user.Name}, {user.Age} лет, {user.City} \n" +
                       $"{user.About}\n{interestsText}";
-
+        if (userReceiver.IsVip == true)
+        {
+            caption += $"\n\n@{user.TgUsername}";
+        }
 
         Message[] messages;
         var streams = new List<Stream>();

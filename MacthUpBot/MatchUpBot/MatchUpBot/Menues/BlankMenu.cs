@@ -123,8 +123,7 @@ public class BlankMenu
                     }
 
                     UserRepository.AddInterestToUser(message.From.Id, int.Parse(message.Text), botClient);
-                    
-                }
+                    }
                 catch
                 {
                     await botClient.SendTextMessageAsync(chat.Id, "Используй числа от 1 до 16");
