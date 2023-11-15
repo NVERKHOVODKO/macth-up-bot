@@ -26,6 +26,14 @@ public class EditProfileRepository
                 },
                 new[]
                 {
+                    InlineKeyboardButton.WithCallbackData("Пол", "change_gender"),
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Предпочитаемый пол", "change_interested_gender")
+                },
+                new[]
+                {
                     InlineKeyboardButton.WithCallbackData("Редактировать фото", "change_photo")
                 },
                 new[]
@@ -67,7 +75,6 @@ public class EditProfileRepository
                 {
                     InlineKeyboardButton.WithCallbackData("Посмотреть свою анкету", "view_myself")
                 },
-                
                 new[]
                 {
                 InlineKeyboardButton.WithCallbackData("Получить VIP", "get_vip")

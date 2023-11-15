@@ -382,10 +382,118 @@ public class CallbackDataRepository
                 HandleCards(callbackQuery, botClient,cardEntities);
                 await botClient.SendTextMessageAsync(callbackQuery.From.Id, "Карта удалена");
                 break;
+            case "change_gender":
+                await ChangeGender(callbackQuery, botClient);
+                break;
+            case "edit_gender_to_man":
+                await ChangeGender(callbackQuery, botClient, "М");
+                break;
+            case "edit_gender_to_woman":
+                await ChangeGender(callbackQuery, botClient, "Ж");
+                break;
+            case "change_interested_gender":
+                await ChangeInterestedGender(callbackQuery, botClient);
+                break;
+            case "edit_interested_gender_to_man":
+                await ChangeInterestedGender(callbackQuery, botClient,"М");
+                break;
+            case "edit_interested_gender_to_woman":
+                await ChangeInterestedGender(callbackQuery, botClient,"Ж");
+                break;
+            case "edit_interested_gender_to_any":
+                await ChangeInterestedGender(callbackQuery, botClient,"Неважно");
+                break;
         }
     }
-    
 
+    private static async Task ChangeGender(CallbackQuery callbackQuery, ITelegramBotClient botClient, string gender = "")
+    {
+        long tgId = callbackQuery.From.Id;
+        if (gender.Equals(BlankMenu.UserRepository.GetUserGender(tgId)))
+        {
+            return;
+        }
+        if (gender != "")
+        {
+            BlankMenu.UserRepository.SetUserGender(callbackQuery.From.Id, gender);
+        }
+        gender = BlankMenu.UserRepository.GetUserGender(tgId);
+        switch (gender)
+        {
+            case "М":
+                gender = "Мужчина";
+                break;
+            case "Ж":
+                gender = "Женщина";
+                break;
+        }
+        var genderKeyboard = new InlineKeyboardMarkup( new List<InlineKeyboardButton[]>
+        {
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Мужчина", "edit_gender_to_man"),
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Женщина", "edit_gender_to_woman")
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Назад", "back_to_edit")
+            },
+        });
+        await botClient.EditMessageTextAsync(tgId, callbackQuery.Message.MessageId, $"Твой пол: {gender} \nИзменить на:", replyMarkup:genderKeyboard);
+    }
+
+    private static async Task ChangeInterestedGender(CallbackQuery callbackQuery, ITelegramBotClient botClient,
+        string interestedGender = "")
+    {
+        long tgId = callbackQuery.From.Id;
+        var user = BlankMenu.UserRepository.GetUser(tgId);
+        
+        if (interestedGender == user.GenderOfInterest)
+        {
+            return;
+        }
+        if (interestedGender != "")
+        {
+            BlankMenu.UserRepository.SetUserInterestedGender(callbackQuery.From.Id, interestedGender);
+        }
+        interestedGender = BlankMenu.UserRepository.GetUser(tgId).GenderOfInterest;
+        switch (interestedGender)
+        {
+            case "М":
+                interestedGender = "Мужчины";
+                break;
+            case "Ж":
+                interestedGender = "Женщины";
+                break;
+            case "Неважно":
+                interestedGender = "Неважно";
+                break;
+        }
+        var interestedGenderKeyboard = new InlineKeyboardMarkup( new List<InlineKeyboardButton[]>
+        {
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Мужчины", "edit_interested_gender_to_man"),
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Женщины", "edit_interested_gender_to_woman")
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Неважно", "edit_interested_gender_to_any")
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Назад", "back_to_edit")
+            },
+        });
+        await botClient.EditMessageTextAsync(tgId, callbackQuery.Message.MessageId, $"Тебе нравятся: {interestedGender} \nИзменить на:", replyMarkup:interestedGenderKeyboard);
+    }
+    
     public static string GetFolder()
     {
         return _folder;
