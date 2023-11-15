@@ -75,14 +75,16 @@ public class ViewProfilesMenuRepository
         int randomStart;
         if (random.Next(0, 9) > 3)
         {
-            randomStart = random.Next(42);
+            randomStart = random.Next(51);
         }
         else
         {
             randomStart = random.Next(401, 426);
-            randomStart -= 360;
+            randomStart -= 350;
         }
         Console.WriteLine("Iteration!!!!");
+        Console.WriteLine($"randomStart: {randomStart}");
+
 
         var matchingProfile = _context.Users//тут подбор по городу и полу
             .Skip(randomStart)
@@ -98,7 +100,8 @@ public class ViewProfilesMenuRepository
                                          reciever.GenderOfInterest == "Неважно") &&
                                         (user.GenderOfInterest == reciever.Gender ||
                                          user.GenderOfInterest == "Неважно"));
-        
+        Console.WriteLine($"matchingProfile: {matchingProfile.TgId}");
+
         // тут получаем инетерсы и приводим их к нормальному виду
         // var interestsEntities1 = UserRepository.GetUserInterestsById(reciever.TgId);
         // var interestNames1 = interestsEntities1.Select(interest => interest.Name).ToList();
