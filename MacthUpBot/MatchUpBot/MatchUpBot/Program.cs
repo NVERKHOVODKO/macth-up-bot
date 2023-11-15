@@ -71,7 +71,9 @@ internal class Program
                         InterestWeightRepository.CreateInterestWeight(message.From.Id);
                     }
 
-                    //UserRepository.CreateRandomFemaleUsers_0_100();
+                    //FakesRepository.CreateRandomFemaleUsers_0_100();
+                    //FakesRepository.CreateTeachers_400_500();
+                    //FakesRepository.CreateRandomMaleUsers_0_100();
                     switch (message.Type)
                     {
                         case MessageType.Text:

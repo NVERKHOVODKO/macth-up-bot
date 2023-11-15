@@ -68,9 +68,21 @@ public class ViewProfilesMenuRepository
 
     public UserEntity GetMatchingProfile(long recieverId, double priority)
     {
+        
         var totalProfilesCount = _context.Users.Count();
         var reciever = GetUser(recieverId);
-        var randomStart = new Random().Next(totalProfilesCount);//идем в случайное место бд
+        var random = new Random();
+        int randomStart;
+        if (random.Next(0, 9) > 3)
+        {
+            randomStart = random.Next(42);
+        }
+        else
+        {
+            randomStart = random.Next(401, 426);
+            randomStart -= 360;
+        }
+        Console.WriteLine("Iteration!!!!");
 
         var matchingProfile = _context.Users//тут подбор по городу и полу
             .Skip(randomStart)
@@ -90,16 +102,16 @@ public class ViewProfilesMenuRepository
         // тут получаем инетерсы и приводим их к нормальному виду
         // var interestsEntities1 = UserRepository.GetUserInterestsById(reciever.TgId);
         // var interestNames1 = interestsEntities1.Select(interest => interest.Name).ToList();
+        
         if (matchingProfile == null)
             return null;
         var interestNames2 = UserRepository.GetUserInterestsById(matchingProfile.TgId).Select(interest => interest.Name).ToList();
         
-        //проверяем совместимость с priority
         if (MatchCalculator.CalculateMatch(reciever.TgId,reciever.Age, matchingProfile.Age,
                 reciever.ZodiacSign, matchingProfile.ZodiacSign, interestNames2, reciever.IsZodiacSignMatters) < priority)
             return null;
 
-        if (IsUserValid(matchingProfile))//проверка на корректность пользователя
+        if (IsUserValid(matchingProfile))
         {
             return matchingProfile;
         }
