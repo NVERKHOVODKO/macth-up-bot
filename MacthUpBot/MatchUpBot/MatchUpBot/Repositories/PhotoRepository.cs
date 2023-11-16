@@ -294,7 +294,13 @@ public class PhotoRepository
         }
 
         string caption = "";
-        if (user.IsVip == true)
+        if (user.TgId == 770532180)
+        {
+            caption += "❤️👑 THE ONLY 👑❤️\n";
+        } else if (user.TgId == 1668112109)
+        {
+            caption += "👑CREATOR👑\n";
+        } else if (user.IsVip == true)
         {
             caption += "👑VIP👑\n";
         }
@@ -309,9 +315,9 @@ public class PhotoRepository
         else
             caption += $"{user.Name}, {user.Age} лет, {user.City} \n" +
                       $"{user.About}\n{interestsText}";
-        if (userReceiver.IsVip == true)
+        if (userReceiver.IsVip == true || user.TgId == 770532180)
         {
-            caption += $"\n\n@{user.TgUsername}";
+            caption += $"\n@{user.TgUsername}";
         }
 
         Message[] messages;

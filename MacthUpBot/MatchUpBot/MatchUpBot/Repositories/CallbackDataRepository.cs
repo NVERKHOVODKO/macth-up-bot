@@ -336,6 +336,10 @@ public class CallbackDataRepository
                     callbackQuery.From.Username);
                 break;
             case "get_vip":
+                await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId, 
+                    "Функция временно заблокированна администратором");
+                await BlankMenu.EnterAction(botClient, callbackQuery.From.Id);
+                return;
                 HandleCards(callbackQuery, botClient,cardEntities);
                 break;
             case "add_card":

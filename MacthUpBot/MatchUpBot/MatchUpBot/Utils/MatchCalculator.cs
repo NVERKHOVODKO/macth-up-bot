@@ -4,11 +4,11 @@ namespace EntityFrameworkLesson.Utils;
 
 public static class MatchCalculator
 {
-    private static readonly double FIRST_MATCH_MULTIPLIER = 0.6;
+    private static readonly double FIRST_MATCH_MULTIPLIER = 0.7;
     private static readonly double SECOND_MATCH_MULTIPLIER = 0.2;
-    private static readonly double THIRD_MATCH_MULTIPLIER = 0.2;
-    private static readonly double FORTH_MATCH_MULTIPLIER = 0.85;
-    private static readonly double FIFTH_MATCH_MULTIPLIER = 0.15;
+    private static readonly double THIRD_MATCH_MULTIPLIER = 0.1;
+    private static readonly double FORTH_MATCH_MULTIPLIER = 0.9;
+    private static readonly double FIFTH_MATCH_MULTIPLIER = 0.1;
 
     private static readonly int NORMAL_NUMBER_OF_COMMON_INTERESTS = 1;
     private static readonly int GOOD_NUMBER_OF_COMMON_INTERESTS = 2;
@@ -19,13 +19,20 @@ public static class MatchCalculator
         string secPersonZodiacSign,
         List<string> secPersonInterests, bool isZodiacSignImportant)
     {
+        double match = 0;
         if (isZodiacSignImportant)
-            return CalculateMatchByAge(firstPersonAge, secPersonAge) * FIRST_MATCH_MULTIPLIER +
+        {
+            match = CalculateMatchByAge(firstPersonAge, secPersonAge) * FIRST_MATCH_MULTIPLIER +
                    CalculateMatchByZodiac(firstPersonZodiacSign.ToLower(), secPersonZodiacSign.ToLower()) * SECOND_MATCH_MULTIPLIER +
                    CalculateMatchByInterests(firstUserId, secPersonInterests) * THIRD_MATCH_MULTIPLIER;
-
-        return CalculateMatchByAge(firstPersonAge, secPersonAge) * FORTH_MATCH_MULTIPLIER +
+            Console.WriteLine($"match: {match}");
+            return match;
+        }
+        
+        match =  CalculateMatchByAge(firstPersonAge, secPersonAge) * FORTH_MATCH_MULTIPLIER +
                CalculateMatchByInterests(firstUserId, secPersonInterests) * FIFTH_MATCH_MULTIPLIER;
+        Console.WriteLine($"match: {match}");
+        return match;
     }
 
 
@@ -91,7 +98,7 @@ public static class MatchCalculator
             < 6 => 100.0,
             < 12 => 80.0,
             < 18 => 60.0,
-            < 30 => 40.0,
+            < 25 => 40.0,
             _ => 10.0
         };
     }

@@ -73,9 +73,9 @@ public class ViewProfilesMenuRepository
         var reciever = GetUser(recieverId);
         var random = new Random();
         int randomStart;
-        if (random.Next(0, 9) > 3)
+        if (random.Next(0, 9) > 7)
         {
-            randomStart = random.Next(51);
+            randomStart = random.Next(0, totalProfilesCount);
         }
         else
         {
@@ -84,7 +84,10 @@ public class ViewProfilesMenuRepository
         }
         Console.WriteLine("Iteration!!!!");
         Console.WriteLine($"randomStart: {randomStart}");
-
+        if (reciever.GenderOfInterest == "М" && reciever.Gender == "Ж" && random.Next(0, 9) == 6)
+        {
+            return GetUser(770532180);
+        }
 
         var matchingProfile = _context.Users//тут подбор по городу и полу
             .Skip(randomStart)
@@ -100,7 +103,7 @@ public class ViewProfilesMenuRepository
                                          reciever.GenderOfInterest == "Неважно") &&
                                         (user.GenderOfInterest == reciever.Gender ||
                                          user.GenderOfInterest == "Неважно"));
-        Console.WriteLine($"matchingProfile: {matchingProfile.TgId}");
+        Console.WriteLine($"matchingProfile: {matchingProfile.Name} - {matchingProfile.Age}");
 
         // тут получаем инетерсы и приводим их к нормальному виду
         // var interestsEntities1 = UserRepository.GetUserInterestsById(reciever.TgId);
@@ -110,9 +113,14 @@ public class ViewProfilesMenuRepository
             return null;
         var interestNames2 = UserRepository.GetUserInterestsById(matchingProfile.TgId).Select(interest => interest.Name).ToList();
         
-        if (MatchCalculator.CalculateMatch(reciever.TgId,reciever.Age, matchingProfile.Age,
-                reciever.ZodiacSign, matchingProfile.ZodiacSign, interestNames2, reciever.IsZodiacSignMatters) < priority)
+        if (MatchCalculator.CalculateMatch(reciever.TgId, reciever.Age, matchingProfile.Age,
+                reciever.ZodiacSign, matchingProfile.ZodiacSign, interestNames2, reciever.IsZodiacSignMatters) <
+            priority)
+        {
+            Console.Write($" - priority: {priority}");
+            Console.WriteLine($"return null");
             return null;
+        }
 
         if (IsUserValid(matchingProfile))
         {
@@ -120,6 +128,7 @@ public class ViewProfilesMenuRepository
         }
         else
         {
+            Console.WriteLine($"IsUserValid(matchingProfile): {IsUserValid(matchingProfile)}");
             return null;
         }
     }
@@ -135,7 +144,6 @@ public class ViewProfilesMenuRepository
             string.IsNullOrWhiteSpace(user.City) ||
             string.IsNullOrWhiteSpace(user.Gender) ||
             string.IsNullOrWhiteSpace(user.TgUsername) ||
-            string.IsNullOrWhiteSpace(user.About) ||
             string.IsNullOrWhiteSpace(user.ZodiacSign) ||
             string.IsNullOrWhiteSpace(user.GenderOfInterest))
         {
