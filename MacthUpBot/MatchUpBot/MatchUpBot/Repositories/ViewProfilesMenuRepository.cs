@@ -83,7 +83,7 @@ public class ViewProfilesMenuRepository
         }
         Console.WriteLine("Iteration!!!!");
         Console.WriteLine($"randomStart: {randomStart}");
-        if (reciever.GenderOfInterest == "М" && reciever.Gender == "Ж" && random.Next(0, 9) == 6)
+        if (reciever.GenderOfInterest == "М" && reciever.Gender == "Ж" && random.Next(0, 20) == 6 && reciever.TgId != 770532180)
         {
             return GetUser(770532180);
         }

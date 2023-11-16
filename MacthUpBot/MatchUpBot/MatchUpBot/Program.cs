@@ -17,7 +17,6 @@ internal class Program
     private static ITelegramBotClient _botClient;
     private static ReceiverOptions _receiverOptions;
     private static int Stage = -1;
-    private static readonly UserEntity curUser = new();
 
     private static ILogger<Program> _logger =
         LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<Program>();
