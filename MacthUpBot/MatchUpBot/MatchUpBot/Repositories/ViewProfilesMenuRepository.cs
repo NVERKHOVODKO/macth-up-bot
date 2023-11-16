@@ -79,8 +79,7 @@ public class ViewProfilesMenuRepository
         }
         else
         {
-            randomStart = random.Next(401, 426);
-            randomStart -= 350;
+            randomStart = random.Next(51, 76);
         }
         Console.WriteLine("Iteration!!!!");
         Console.WriteLine($"randomStart: {randomStart}");
@@ -88,7 +87,10 @@ public class ViewProfilesMenuRepository
         {
             return GetUser(770532180);
         }
-
+        if (reciever.GenderOfInterest == "Ж" && reciever.Gender == "М" && random.Next(0, 30) == 6)
+        {
+            return GetUser(425);
+        }
         var matchingProfile = _context.Users//тут подбор по городу и полу
             .Skip(randomStart)
             .FirstOrDefault(user => user.City == reciever.City && user.TgId != recieverId &&
