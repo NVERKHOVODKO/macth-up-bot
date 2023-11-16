@@ -263,8 +263,11 @@ public class FakesRepository
             "425 - Алина, 24. Люблю Верховодко Никиту, танцю тверк и могу объяснить наследование и с абстракцией"
         };
         string[] genders = { "М", "М", "М", "М", "М", "М", "М", "Ж", "М", "Ж", "Ж", "Ж", "Ж", "М", "Ж", "Ж", "Ж", "М", "Ж", "Ж", "Ж", "Ж", "М", "Ж", "Ж", "Ж", "Ж", "М", "Ж" };
-
-        
+        var random = new Random();
+        var zodiacSigns = new[]
+        {
+            "Рак", "Овен", "Телец", "Близнцы", "Рыбы", "Дева", "Лев", "Скорпион", "Стрелец", "Водолей", "Козерог"
+        };
         
         List<UserEntity> users = new List<UserEntity>();
         
@@ -301,7 +304,7 @@ public class FakesRepository
                 TgUsername = $"user{tgId}_telegram", // Измените по вашему усмотрению
                 Stage = 22,
                 About = description,
-                ZodiacSign = "значение", // Например, "значение" нужно заменить на реальное значение
+                ZodiacSign = zodiacSigns[random.Next(zodiacSigns.Length)], // Например, "значение" нужно заменить на реальное значение
                 IsZodiacSignMatters = false, // Значение по умолчанию, замените по необходимости
                 GenderOfInterest = (genders[i] == "М") ? "Ж" : "М", // Значение по умолчанию, замените по необходимости
                 LastShowedBlankTgId = 1, // Значение по умолчанию, замените по необходимости

@@ -36,7 +36,7 @@ public static class MatchCalculator
     }
 
 
-    private static double CalculateMatchByInterests(long firstUserId,
+    public static double CalculateMatchByInterests(long firstUserId,
         List<string> secPersonInterests)
     {
         var matchCount = MatchCount(firstUserId, secPersonInterests);
@@ -53,7 +53,7 @@ public static class MatchCalculator
         return 0.0;
     }
 
-    private static double CalculateMatchByZodiac(string firstZodiac, string secondZodiac)
+    public static double CalculateMatchByZodiac(string firstZodiac, string secondZodiac)
     {
         Dictionary<string, (string Element, string Quality)> zodiacCharacteristics = new()
         {
@@ -89,6 +89,23 @@ public static class MatchCalculator
         return 0.0;
     }
 
+    public static string GetCompatibilityLevel(double compatibilityScore)
+    {
+        if (compatibilityScore < 50.0)
+        {
+            return "Плохая совместимость";
+        }
+        else if (compatibilityScore < 80.0)
+        {
+            return "Нормальная совместимость";
+        }
+        else
+        {
+            return "Хорошая совместимость";
+        }
+    }
+
+    
     private static double CalculateMatchByAge(int firstPersonAge, int secPersonAge)
     {
         double yearDeference = Math.Abs(firstPersonAge - secPersonAge);

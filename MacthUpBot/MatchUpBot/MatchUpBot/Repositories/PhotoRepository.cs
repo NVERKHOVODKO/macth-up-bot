@@ -1,6 +1,7 @@
 ﻿using ConsoleApplication1.Menues;
 using Data;
 using EntityFrameworkLesson.Repositories;
+using EntityFrameworkLesson.Utils;
 using MatchUpBot.Repositories;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
@@ -310,8 +311,8 @@ public class PhotoRepository
                       $"\n{interestsText}";
         else if (BlankMenu.UserRepository.GetUser(tgId).IsZodiacSignMatters)
             caption += $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
-                      $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign)}" +
-                      $"(85% совместимость)\n{interestsText}";
+                      $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign.ToLower())}" +
+                      $"\n{interestsText}";
         else
             caption += $"{user.Name}, {user.Age} лет, {user.City} \n" +
                       $"{user.About}\n{interestsText}";
@@ -372,7 +373,7 @@ public class PhotoRepository
         string caption;
         if (BlankMenu.UserRepository.GetUser(tgId).IsZodiacSignMatters)
             caption = $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
-                      $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign)} (85% совместимость)" +
+                      $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign)}" +
                       $"\n@{user.TgUsername}";
         else
             caption = $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
