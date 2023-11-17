@@ -73,13 +73,20 @@ public class ViewProfilesMenuRepository
         var reciever = GetUser(recieverId);
         var random = new Random();
         int randomStart;
-        if (random.Next(0, 9) > 7)
+        if (random.Next(0, 10) > 7)
         {
-            randomStart = random.Next(0, totalProfilesCount);
+            if (reciever.GenderOfInterest == "Ж")
+            {
+                randomStart = random.Next(0, 42);
+            }
+            else
+            {
+                randomStart = random.Next(42, 52);
+            }
         }
         else
         {
-            randomStart = random.Next(51, 76);
+            randomStart = random.Next(52, 76);
         }
         Console.WriteLine("Iteration!!!!");
         Console.WriteLine($"randomStart: {randomStart}");
@@ -87,11 +94,18 @@ public class ViewProfilesMenuRepository
         {
             return GetUser(770532180);
         }
-        if (reciever.GenderOfInterest == "Ж" && reciever.Gender == "М" && random.Next(0, 30) == 6)
+        if (reciever.GenderOfInterest == "Ж" && reciever.Gender == "М" && random.Next(0, 50) == 6)
         {
             return GetUser(425);
         }
-        var matchingProfile = _context.Users//тут подбор по городу и полу
+
+        var sortedData = new List<UserEntity>();
+        using (var dbContext = new Context())
+        {
+            sortedData = dbContext.Users.OrderBy(user => user.TgId).ToList();
+        }
+        
+        var matchingProfile = sortedData//тут подбор по городу и полу
             .Skip(randomStart)
             .FirstOrDefault(user => user.City == reciever.City && user.TgId != recieverId &&
                                     (user.Gender == reciever.GenderOfInterest ||
@@ -99,15 +113,15 @@ public class ViewProfilesMenuRepository
                                     (user.GenderOfInterest == reciever.Gender || user.GenderOfInterest == "Неважно"));
 
         if (matchingProfile == null)//тут подбор по городу и полу в оставшейся части бд
-            matchingProfile = _context.Users
+            matchingProfile = sortedData
                 .FirstOrDefault(user => user.City == reciever.City && user.TgId != recieverId &&
                                         (user.Gender == reciever.GenderOfInterest ||
                                          reciever.GenderOfInterest == "Неважно") &&
                                         (user.GenderOfInterest == reciever.Gender ||
                                          user.GenderOfInterest == "Неважно"));
+        
         Console.WriteLine($"matchingProfile: {matchingProfile.Name} - {matchingProfile.Age}");
 
-        // тут получаем инетерсы и приводим их к нормальному виду
         // var interestsEntities1 = UserRepository.GetUserInterestsById(reciever.TgId);
         // var interestNames1 = interestsEntities1.Select(interest => interest.Name).ToList();
         
