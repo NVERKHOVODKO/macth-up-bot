@@ -81,12 +81,12 @@ public class ViewProfilesMenuRepository
             }
             else
             {
-                randomStart = random.Next(42, 52);
+                randomStart = random.Next(42, 53);
             }
         }
         else
         {
-            randomStart = random.Next(52, 76);
+            randomStart = random.Next(52, 82);
         }
         Console.WriteLine("Iteration!!!!");
         Console.WriteLine($"randomStart: {randomStart}");
