@@ -19,4 +19,43 @@
         <PackageReference Include="Telegram.Bot" Version="19.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="photos\200\additional\" />
+      <Folder Include="photos\201\additional\" />
+      <Folder Include="photos\202\additional\" />
+      <Folder Include="photos\203\additional\" />
+      <Folder Include="photos\204\additional\" />
+      <Folder Include="photos\205\additional\" />
+      <Folder Include="photos\206\additional\" />
+      <Folder Include="photos\207\additional\" />
+      <Folder Include="photos\208\additional\" />
+      <Folder Include="photos\209\additional\" />
+      <Folder Include="photos\210\additional\" />
+      <Folder Include="photos\211\additional\" />
+      <Folder Include="photos\212\additional\" />
+      <Folder Include="photos\213\additional\" />
+      <Folder Include="photos\214\additional\" />
+      <Folder Include="photos\215\additional\" />
+      <Folder Include="photos\216\additional\" />
+      <Folder Include="photos\217\additional\" />
+      <Folder Include="photos\218\additional\" />
+      <Folder Include="photos\219\additional\" />
+      <Folder Include="photos\220\additional\" />
+      <Folder Include="photos\221\additional\" />
+      <Folder Include="photos\222\additional\" />
+      <Folder Include="photos\223\additional\" />
+      <Folder Include="photos\224\additional\" />
+      <Folder Include="photos\225\additional\" />
+      <Folder Include="photos\226\additional\" />
+      <Folder Include="photos\227\additional\" />
+      <Folder Include="photos\228\additional\" />
+      <Folder Include="photos\229\additional\" />
+      <Folder Include="photos\230\additional\" />
+      <Folder Include="photos\231\additional\" />
+      <Folder Include="photos\232\additional\" />
+      <Folder Include="photos\233\additional\" />
+      <Folder Include="photos\234\additional\" />
+      <Folder Include="photos\235\additional\" />
+    </ItemGroup>
+
 </Project>

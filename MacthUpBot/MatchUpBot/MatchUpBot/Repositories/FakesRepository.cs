@@ -127,9 +127,14 @@ public class FakesRepository
             "",
             "",
             "",
+            "",
+            "",
+            "",
+            "",
+            "",
         };
 
-        for (var i = 1; i <= 41; i++)
+        /*for (var i = 1; i <= 41; i++)
             if (!_context.Users.Any(u => u.TgId == i))
             {
                 var user = new UserEntity
@@ -160,6 +165,29 @@ public class FakesRepository
                     TgId = i,
                     Name = names[random.Next(0, 21)],
                     Age = random.Next(17, 26),
+                    City = "минск",
+                    Gender = "Ж",
+                    TgUsername = $"user{i}_telegram",
+                    Stage = 1,
+                    About = descriptions[random.Next(descriptions.Length)],
+                    ZodiacSign = zodiacSigns[random.Next(zodiacSigns.Length)],
+                    IsZodiacSignMatters = false,
+                    GenderOfInterest = "М",
+                    LastShowedBlankTgId = 1,
+                    IsVip = false
+                };
+
+                _context.Users.Add(user);
+            }*/
+        
+        for (var i = 200; i <= 234; i++)
+            if (!_context.Users.Any(u => u.TgId == i))
+            {
+                var user = new UserEntity
+                {
+                    TgId = i,
+                    Name = names[random.Next(0, 21)],
+                    Age = random.Next(17, 23),
                     City = "минск",
                     Gender = "Ж",
                     TgUsername = $"user{i}_telegram",
