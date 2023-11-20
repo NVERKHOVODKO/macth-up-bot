@@ -77,16 +77,16 @@ public class ViewProfilesMenuRepository
         {
             if (reciever.GenderOfInterest == "Ж")
             {
-                randomStart = random.Next(0, 42);
+                randomStart = random.Next(0, 90);
             }
             else
             {
-                randomStart = random.Next(42, 53);
+                randomStart = random.Next(41, 52);
             }
         }
         else
         {
-            randomStart = random.Next(52, 82);
+            randomStart = random.Next(91, 126);
         }
         Console.WriteLine("Iteration!!!!");
         Console.WriteLine($"randomStart: {randomStart}");

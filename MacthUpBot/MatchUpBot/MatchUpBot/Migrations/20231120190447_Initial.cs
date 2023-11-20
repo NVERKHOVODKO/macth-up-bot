@@ -13,22 +13,6 @@ namespace MatchUpBot.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "CreditCards",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<long>(type: "bigint", nullable: false),
-                    CardNumber = table.Column<string>(type: "text", nullable: false),
-                    HolderName = table.Column<string>(type: "text", nullable: false),
-                    ExpirationTime = table.Column<string>(type: "text", nullable: false),
-                    CVV = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CreditCards", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Interests",
                 columns: table => new
                 {
@@ -63,6 +47,28 @@ namespace MatchUpBot.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.TgId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CreditCards",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    CardNumber = table.Column<string>(type: "text", nullable: false),
+                    HolderName = table.Column<string>(type: "text", nullable: false),
+                    ExpirationTime = table.Column<string>(type: "text", nullable: false),
+                    CVV = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CreditCards", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CreditCards_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "TgId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -147,6 +153,11 @@ namespace MatchUpBot.Migrations
                         principalColumn: "TgId",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CreditCards_UserId",
+                table: "CreditCards",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InterestWeightEntities_UserId",

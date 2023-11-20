@@ -112,10 +112,10 @@ public static class MatchCalculator
 
         return yearDeference switch
         {
-            < 6 => 100.0,
-            < 12 => 80.0,
-            < 18 => 60.0,
-            < 25 => 40.0,
+            < 2 => 100.0,
+            < 5 => 80.0,
+            < 10 => 60.0,
+            < 15 => 40.0,
             _ => 10.0
         };
     }

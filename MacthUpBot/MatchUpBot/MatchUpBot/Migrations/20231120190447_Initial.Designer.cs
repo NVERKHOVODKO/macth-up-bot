@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MatchUpBot.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20231113101158_Initial")]
+    [Migration("20231120190447_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -51,6 +51,8 @@ namespace MatchUpBot.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("CreditCards");
                 });
@@ -231,6 +233,17 @@ namespace MatchUpBot.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserInterestsEntities");
+                });
+
+            modelBuilder.Entity("Entities.CardEntity", b =>
+                {
+                    b.HasOne("Entities.UserEntity", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Entities.InterestWeightEntity", b =>

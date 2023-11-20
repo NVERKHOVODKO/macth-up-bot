@@ -49,6 +49,8 @@ namespace MatchUpBot.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("CreditCards");
                 });
 
@@ -228,6 +230,17 @@ namespace MatchUpBot.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserInterestsEntities");
+                });
+
+            modelBuilder.Entity("Entities.CardEntity", b =>
+                {
+                    b.HasOne("Entities.UserEntity", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Entities.InterestWeightEntity", b =>

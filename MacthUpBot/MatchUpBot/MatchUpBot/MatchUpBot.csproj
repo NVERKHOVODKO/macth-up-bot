@@ -56,6 +56,8 @@
       <Folder Include="photos\233\additional\" />
       <Folder Include="photos\234\additional\" />
       <Folder Include="photos\235\additional\" />
+      <Folder Include="photos\237\additional\" />
+      <Folder Include="photos\238\additional\" />
     </ItemGroup>
 
 </Project>
