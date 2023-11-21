@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MatchUpBot.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20231120190447_Initial")]
+    [Migration("20231121200322_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -24,6 +24,30 @@ namespace MatchUpBot.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Entities.BlanksShowingHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("ReceivedUserTgId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ShownUserTgId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceivedUserTgId");
+
+                    b.HasIndex("ShownUserTgId");
+
+                    b.ToTable("BlanksShowingHistory");
+                });
 
             modelBuilder.Entity("Entities.CardEntity", b =>
                 {
@@ -233,6 +257,25 @@ namespace MatchUpBot.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserInterestsEntities");
+                });
+
+            modelBuilder.Entity("Entities.BlanksShowingHistory", b =>
+                {
+                    b.HasOne("Entities.UserEntity", "ReceivedUser")
+                        .WithMany()
+                        .HasForeignKey("ReceivedUserTgId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Entities.UserEntity", "ShownUser")
+                        .WithMany()
+                        .HasForeignKey("ShownUserTgId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ReceivedUser");
+
+                    b.Navigation("ShownUser");
                 });
 
             modelBuilder.Entity("Entities.CardEntity", b =>

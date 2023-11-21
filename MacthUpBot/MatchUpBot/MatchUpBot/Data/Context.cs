@@ -11,6 +11,8 @@ internal class Context : DbContext
     public DbSet<UserInterestsEntity> UserInterestsEntities { get; set; }
     public DbSet<InterestWeightEntity> InterestWeightEntities { get; set; } 
     public DbSet<CardEntity> CreditCards { get; set; }
+    public DbSet<BlanksShowingHistory> BlanksShowingHistory { get; set; }
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

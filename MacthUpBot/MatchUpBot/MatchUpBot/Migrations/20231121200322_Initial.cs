@@ -50,6 +50,32 @@ namespace MatchUpBot.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BlanksShowingHistory",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ReceivedUserTgId = table.Column<long>(type: "bigint", nullable: false),
+                    ShownUserTgId = table.Column<long>(type: "bigint", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BlanksShowingHistory", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BlanksShowingHistory_Users_ReceivedUserTgId",
+                        column: x => x.ReceivedUserTgId,
+                        principalTable: "Users",
+                        principalColumn: "TgId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BlanksShowingHistory_Users_ShownUserTgId",
+                        column: x => x.ShownUserTgId,
+                        principalTable: "Users",
+                        principalColumn: "TgId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CreditCards",
                 columns: table => new
                 {
@@ -155,6 +181,16 @@ namespace MatchUpBot.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_BlanksShowingHistory_ReceivedUserTgId",
+                table: "BlanksShowingHistory",
+                column: "ReceivedUserTgId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlanksShowingHistory_ShownUserTgId",
+                table: "BlanksShowingHistory",
+                column: "ShownUserTgId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CreditCards_UserId",
                 table: "CreditCards",
                 column: "UserId");
@@ -189,6 +225,9 @@ namespace MatchUpBot.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "BlanksShowingHistory");
+
             migrationBuilder.DropTable(
                 name: "CreditCards");
 

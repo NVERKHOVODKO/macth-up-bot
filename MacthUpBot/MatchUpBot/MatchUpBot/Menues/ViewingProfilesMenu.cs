@@ -26,7 +26,7 @@ public class ViewingProfilesMenu
     {
         double priority = 70;//"очки совпадения" 0-100. но у нас 70 тк нет идеальных совпадений
         UserEntity userEntity = null;
-        while (userEntity == null)//цикл для поиска
+        while (userEntity == null)
         {
             userEntity = vpmr.GetMatchingProfile(recieverId, priority);
             if (priority < 10) //если плохое совпадение то возвращаем null
@@ -37,6 +37,17 @@ public class ViewingProfilesMenu
             priority -= 3;//с каждой итерацией менее придирчиво подбираем анкету
         }
         Console.WriteLine($"priority: {priority}");
+
+        if (userEntity != null)
+        {
+            ViewProfilesMenuRepository.AddShowRecord(new BlanksShowingHistory
+            {
+                Id = Guid.NewGuid(),
+                ShownUserTgId = userEntity.TgId,
+                ReceivedUserTgId = recieverId
+            });
+        }
+
         return userEntity;
     }
 

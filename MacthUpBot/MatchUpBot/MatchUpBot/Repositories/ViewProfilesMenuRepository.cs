@@ -58,43 +58,61 @@ public class ViewProfilesMenuRepository
             _logger.LogInformation("Like hasn't been added because it already exists.");
         }
     }
+    
+    
+    public static async Task AddShowRecord(BlanksShowingHistory entity)
+    {
+        _context.BlanksShowingHistory.Add(entity);
 
+        await _context.SaveChangesAsync();
 
+        int userViewsCount = await _context.BlanksShowingHistory
+            .CountAsync(history => history.ReceivedUserTgId == entity.ReceivedUserTgId);
+
+        if (userViewsCount > 10)
+        {
+            var oldestView = await _context.BlanksShowingHistory
+                .Where(history => history.ReceivedUserTgId == entity.ReceivedUserTgId)
+                .OrderBy(history => history.Date) // Предположим, у вас есть поле Date, которое указывает на дату просмотра
+                .FirstOrDefaultAsync();
+
+            if (oldestView != null)
+            {
+                _context.BlanksShowingHistory.Remove(oldestView);
+                await _context.SaveChangesAsync();
+            }
+        }
+    }
+    
+    
     public UserEntity GetUser(long tgId)
     {
         var user = _context.Users.AsNoTracking().FirstOrDefault(e => e.TgId == tgId);
         return user;
     }
-
+    
+    
     public UserEntity GetMatchingProfile(long recieverId, double priority)
     {
-        
         var totalProfilesCount = _context.Users.Count();
         var reciever = GetUser(recieverId);
         var random = new Random();
         int randomStart;
         if (random.Next(0, 10) > 7)
         {
-            if (reciever.GenderOfInterest == "Ж")
-            {
-                randomStart = random.Next(0, 90);
-            }
-            else
-            {
-                randomStart = random.Next(41, 52);
-            }
+            randomStart = random.Next(0, 90);
         }
         else
         {
-            randomStart = random.Next(91, 126);
+            randomStart = random.Next(91, totalProfilesCount);
         }
         Console.WriteLine("Iteration!!!!");
         Console.WriteLine($"randomStart: {randomStart}");
-        if (reciever.GenderOfInterest == "М" && reciever.Gender == "Ж" && random.Next(0, 20) == 6 && reciever.TgId != 770532180)
+        if (reciever.GenderOfInterest == "М" && reciever.Gender == "Ж" && random.Next(0, 30) == 6 && reciever.TgId != 770532180)
         {
             return GetUser(770532180);
         }
-        if (reciever.GenderOfInterest == "Ж" && reciever.Gender == "М" && random.Next(0, 50) == 6)
+        if (reciever.GenderOfInterest == "Ж" && reciever.Gender == "М" && random.Next(0, 40) == 6)
         {
             return GetUser(425);
         }
@@ -102,28 +120,29 @@ public class ViewProfilesMenuRepository
         var sortedData = new List<UserEntity>();
         using (var dbContext = new Context())
         {
-            sortedData = dbContext.Users.OrderBy(user => user.TgId).ToList();
+            sortedData = dbContext.Users./*OrderBy(user => user.TgId).*/ToList();
         }
         
-        var matchingProfile = sortedData//тут подбор по городу и полу
+        var matchingProfile = sortedData
             .Skip(randomStart)
-            .FirstOrDefault(user => user.City == reciever.City && user.TgId != recieverId &&
-                                    (user.Gender == reciever.GenderOfInterest ||
-                                     reciever.GenderOfInterest == "Неважно") &&
-                                    (user.GenderOfInterest == reciever.Gender || user.GenderOfInterest == "Неважно"));
+            .FirstOrDefault(user => user.City == reciever.City &&
+                                    user.TgId != recieverId &&
+                                    (user.Gender == reciever.GenderOfInterest || reciever.GenderOfInterest == "Неважно") &&
+                                    (user.GenderOfInterest == reciever.Gender || user.GenderOfInterest == "Неважно") &&
+                                    !_context.BlanksShowingHistory.Any(history => history.ReceivedUserTgId == recieverId && history.ShownUserTgId == user.TgId));
 
-        if (matchingProfile == null)//тут подбор по городу и полу в оставшейся части бд
+        if (matchingProfile == null)
+        {
             matchingProfile = sortedData
-                .FirstOrDefault(user => user.City == reciever.City && user.TgId != recieverId &&
-                                        (user.Gender == reciever.GenderOfInterest ||
-                                         reciever.GenderOfInterest == "Неважно") &&
-                                        (user.GenderOfInterest == reciever.Gender ||
-                                         user.GenderOfInterest == "Неважно"));
+                .FirstOrDefault(user => user.City == reciever.City &&
+                                        user.TgId != recieverId &&
+                                        (user.Gender == reciever.GenderOfInterest || reciever.GenderOfInterest == "Неважно") &&
+                                        (user.GenderOfInterest == reciever.Gender || user.GenderOfInterest == "Неважно") &&
+                                        !_context.BlanksShowingHistory.Any(history => history.ReceivedUserTgId == recieverId && history.ShownUserTgId == user.TgId));
+        }
+
         
         Console.WriteLine($"matchingProfile: {matchingProfile.Name} - {matchingProfile.Age}");
-
-        // var interestsEntities1 = UserRepository.GetUserInterestsById(reciever.TgId);
-        // var interestNames1 = interestsEntities1.Select(interest => interest.Name).ToList();
         
         if (matchingProfile == null)
             return null;
@@ -147,6 +166,22 @@ public class ViewProfilesMenuRepository
             Console.WriteLine($"IsUserValid(matchingProfile): {IsUserValid(matchingProfile)}");
             return null;
         }
+    }
+    
+    public int GetMatchingProfilesCount(UserEntity reciever)
+    {
+        if (reciever == null)
+        {
+            throw new ArgumentNullException(nameof(reciever));
+        }
+
+        int matchingProfilesCount = _context.Users
+            .Count(user => user.City == reciever.City &&
+                           user.TgId != reciever.TgId &&
+                           (user.Gender == reciever.GenderOfInterest || reciever.GenderOfInterest == "Неважно") &&
+                           (user.GenderOfInterest == reciever.Gender || user.GenderOfInterest == "Неважно"));
+
+        return matchingProfilesCount;
     }
     
     public bool IsUserValid(UserEntity user)

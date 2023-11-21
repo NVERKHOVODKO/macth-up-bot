@@ -134,13 +134,13 @@ public class FakesRepository
             "",
         };
 
-        /*for (var i = 1; i <= 41; i++)
+        for (var i = 1; i <= 41; i++)
             if (!_context.Users.Any(u => u.TgId == i))
             {
                 var user = new UserEntity
                 {
                     TgId = i,
-                    Name = names[random.Next(0, 21)],
+                    Name = names[random.Next(0, names.Length)],
                     Age = random.Next(17, 26),
                     City = "минск",
                     Gender = "Ж",
@@ -163,7 +163,7 @@ public class FakesRepository
                 var user = new UserEntity
                 {
                     TgId = i,
-                    Name = names[random.Next(0, 21)],
+                    Name = names[random.Next(0, names.Length)],
                     Age = random.Next(17, 26),
                     City = "минск",
                     Gender = "Ж",
@@ -178,7 +178,7 @@ public class FakesRepository
                 };
 
                 _context.Users.Add(user);
-            }*/
+            }
         
         for (var i = 200; i <= 234; i++)
             if (!_context.Users.Any(u => u.TgId == i))
@@ -186,7 +186,7 @@ public class FakesRepository
                 var user = new UserEntity
                 {
                     TgId = i,
-                    Name = names[random.Next(0, 21)],
+                    Name = names[random.Next(0, names.Length)],
                     Age = random.Next(17, 23),
                     City = "минск",
                     Gender = "Ж",
