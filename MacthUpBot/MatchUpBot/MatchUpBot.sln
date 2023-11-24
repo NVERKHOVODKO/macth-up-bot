@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatchUpBot", "MatchUpBot\MatchUpBot.csproj", "{D48AC7BF-7F46-448C-B878-005B7A1994DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject1", "TestProject1\TestProject1.csproj", "{CFE1607E-12B3-4374-9F05-FA3DF8E13D1C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{D48AC7BF-7F46-448C-B878-005B7A1994DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D48AC7BF-7F46-448C-B878-005B7A1994DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D48AC7BF-7F46-448C-B878-005B7A1994DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFE1607E-12B3-4374-9F05-FA3DF8E13D1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFE1607E-12B3-4374-9F05-FA3DF8E13D1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFE1607E-12B3-4374-9F05-FA3DF8E13D1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFE1607E-12B3-4374-9F05-FA3DF8E13D1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

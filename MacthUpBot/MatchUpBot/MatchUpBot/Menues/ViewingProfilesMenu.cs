@@ -29,7 +29,7 @@ public class ViewingProfilesMenu
         while (userEntity == null)
         {
             userEntity = vpmr.GetMatchingProfile(recieverId, priority);
-            if (priority < 10) //если плохое совпадение то возвращаем null
+            if (priority < 30) //если плохое совпадение то возвращаем null
             {
                 await botClient.SendTextMessageAsync(recieverId, "Не получилось найти кого-то подходящего для тебя(");
                 return null;
