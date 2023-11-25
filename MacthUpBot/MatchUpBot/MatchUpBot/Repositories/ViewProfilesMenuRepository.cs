@@ -35,9 +35,8 @@ public class ViewProfilesMenuRepository
             _logger.LogInformation($"failed to send notification to user({likedUserId})");
         }
         
-        var ur = new UserRepository();
-        var liker = ur.GetUser(likerId);
-        var likedUser = ur.GetUser(likedUserId);
+        var liker = UserRepository.GetUser(likerId);
+        var likedUser = UserRepository.GetUser(likedUserId);
         _logger.LogInformation($"liker({liker.TgId})");
         _logger.LogInformation($"likedUser({likedUser.TgId})");
 
@@ -60,30 +59,67 @@ public class ViewProfilesMenuRepository
     }
     
     
-    public static async Task AddShowRecord(BlanksShowingHistory entity)
+    public static async Task AddShowRecord(BlanksShowingHistory entity, int amountOfSuits)
     {
         _context.BlanksShowingHistory.Add(entity);
 
         await _context.SaveChangesAsync();
+    }
+    
+    public static long GetNumberOfShownProfiles(long userId)
+    {
+        int count = _context.BlanksShowingHistory
+            .Count(history => history.ReceivedUserTgId == userId);
 
-        int userViewsCount = await _context.BlanksShowingHistory
-            .CountAsync(history => history.ReceivedUserTgId == entity.ReceivedUserTgId);
+        return count;
+    }
 
-        if (userViewsCount > 10)
+    
+    public static async Task DeleteShowRecord(long recieverId, int amountOfSuits)
+    {
+        Console.WriteLine("amountOfSuits: " + amountOfSuits);
+        Console.WriteLine("GetNumberOfShownProfiles(recieverId): " + GetNumberOfShownProfiles(recieverId));
+
+        if (amountOfSuits / 2 < GetNumberOfShownProfiles(recieverId))
         {
             var oldestView = await _context.BlanksShowingHistory
-                .Where(history => history.ReceivedUserTgId == entity.ReceivedUserTgId)
-                .OrderBy(history => history.Date) // Предположим, у вас есть поле Date, которое указывает на дату просмотра
+                .Where(history => history.ReceivedUserTgId == recieverId)
+                .OrderBy(history => history.Date)
                 .FirstOrDefaultAsync();
 
             if (oldestView != null)
             {
+                Console.WriteLine("================_context.BlanksShowingHistory.Remove(oldestView)");
                 _context.BlanksShowingHistory.Remove(oldestView);
                 await _context.SaveChangesAsync();
             }
         }
     }
     
+    public static void ClearViewingHistory(long userId)
+    {
+        var historyToDelete = _context.BlanksShowingHistory
+            .Where(history => history.ReceivedUserTgId == userId || history.ShownUserTgId == userId)
+            .ToList();
+
+        _context.BlanksShowingHistory.RemoveRange(historyToDelete);
+        _context.SaveChanges();
+    }
+
+    
+    public static int GetAmountOfSuits(UserEntity receiver)
+    {
+        var count = _context.Users.Count(user =>
+            user.City == receiver.City &&
+            user.TgId != receiver.TgId &&
+            (user.Gender == receiver.GenderOfInterest || receiver.GenderOfInterest == "Неважно") &&
+            (user.GenderOfInterest == receiver.Gender || user.GenderOfInterest == "Неважно") &&
+            Math.Abs(user.Age - receiver.Age) <= 15);
+
+        return count;
+    }
+
+
     
     public UserEntity GetUser(long tgId)
     {
@@ -97,24 +133,10 @@ public class ViewProfilesMenuRepository
         var totalProfilesCount = _context.Users.Count();
         var reciever = GetUser(recieverId);
         var random = new Random();
-        int randomStart;
-        if (random.Next(0, 10) > 7)
-        {
-            randomStart = random.Next(0, 90);
-        }
-        else
-        {
-            randomStart = random.Next(91, totalProfilesCount);
-        }
-        Console.WriteLine("Iteration!!!!");
-        Console.WriteLine($"randomStart: {randomStart}");
+        int randomStart = random.Next(0, totalProfilesCount);
         if (reciever.GenderOfInterest == "М" && reciever.Gender == "Ж" && random.Next(0, 30) == 6 && reciever.TgId != 770532180)
         {
             return GetUser(770532180);
-        }
-        if (reciever.GenderOfInterest == "Ж" && reciever.Gender == "М" && random.Next(0, 40) == 6)
-        {
-            return GetUser(425);
         }
 
         var sortedData = new List<UserEntity>();
@@ -122,14 +144,16 @@ public class ViewProfilesMenuRepository
         {
             sortedData = dbContext.Users./*OrderBy(user => user.TgId).*/ToList();
         }
-        
+
         var matchingProfile = sortedData
             .Skip(randomStart)
             .FirstOrDefault(user => user.City == reciever.City &&
                                     user.TgId != recieverId &&
                                     (user.Gender == reciever.GenderOfInterest || reciever.GenderOfInterest == "Неважно") &&
                                     (user.GenderOfInterest == reciever.Gender || user.GenderOfInterest == "Неважно") &&
+                                    Math.Abs(user.Age - reciever.Age) <= 15 &&
                                     !_context.BlanksShowingHistory.Any(history => history.ReceivedUserTgId == recieverId && history.ShownUserTgId == user.TgId));
+
 
         if (matchingProfile == null)
         {
@@ -138,24 +162,23 @@ public class ViewProfilesMenuRepository
                                         user.TgId != recieverId &&
                                         (user.Gender == reciever.GenderOfInterest || reciever.GenderOfInterest == "Неважно") &&
                                         (user.GenderOfInterest == reciever.Gender || user.GenderOfInterest == "Неважно") &&
+                                        Math.Abs(user.Age - reciever.Age) <= 15 &&
                                         !_context.BlanksShowingHistory.Any(history => history.ReceivedUserTgId == recieverId && history.ShownUserTgId == user.TgId));
+
         }
 
         
-        Console.WriteLine($"matchingProfile: {matchingProfile.Name} - {matchingProfile.Age}");
         
         if (matchingProfile == null)
             return null;
         var interestNames2 = UserRepository.GetUserInterestsById(matchingProfile.TgId).Select(interest => interest.Name).ToList();
         
-        if (MatchCalculator.CalculateMatch(reciever.TgId, reciever.Age, matchingProfile.Age,
+        /*if (MatchCalculator.CalculateMatch(reciever.TgId, reciever.Age, matchingProfile.Age,
                 reciever.ZodiacSign, matchingProfile.ZodiacSign, interestNames2, reciever.IsZodiacSignMatters) <
             priority)
         {
-            Console.Write($" - priority: {priority}");
-            Console.WriteLine($"return null");
             return null;
-        }
+        }*/
 
         if (IsUserValid(matchingProfile))
         {
@@ -163,7 +186,6 @@ public class ViewProfilesMenuRepository
         }
         else
         {
-            Console.WriteLine($"IsUserValid(matchingProfile): {IsUserValid(matchingProfile)}");
             return null;
         }
     }

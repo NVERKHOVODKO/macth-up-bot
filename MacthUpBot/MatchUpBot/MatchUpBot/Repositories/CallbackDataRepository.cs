@@ -193,16 +193,19 @@ public class CallbackDataRepository
             case "change_name":
                 await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
                     "Введи новое имя. \nДля отмены введи «Отмена»");
+                ViewProfilesMenuRepository.ClearViewingHistory(callbackQuery.From.Id);
                 UpdateStage(callbackQuery.From.Id, (int)Action.EditName);
                 break;
             case "change_age":
                 await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
                     "Введи новый возраст. \nДля отмены введи «Отмена»");
+                ViewProfilesMenuRepository.ClearViewingHistory(callbackQuery.From.Id);
                 UpdateStage(callbackQuery.From.Id, (int)Action.EditAge);
                 break;
             case "change_city":
                 await botClient.EditMessageTextAsync(callbackQuery.From.Id, callbackQuery.Message.MessageId,
                     "Введи новый город. \nДля отмены введи «Отмена»");
+                ViewProfilesMenuRepository.ClearViewingHistory(callbackQuery.From.Id);
                 UpdateStage(callbackQuery.From.Id, (int)Action.EditCity);
                 break;
             case "change_about":
@@ -391,21 +394,27 @@ public class CallbackDataRepository
                 break;
             case "edit_gender_to_man":
                 await ChangeGender(callbackQuery, botClient, "М");
+                ViewProfilesMenuRepository.ClearViewingHistory(callbackQuery.From.Id);
                 break;
             case "edit_gender_to_woman":
                 await ChangeGender(callbackQuery, botClient, "Ж");
+                ViewProfilesMenuRepository.ClearViewingHistory(callbackQuery.From.Id);
                 break;
             case "change_interested_gender":
                 await ChangeInterestedGender(callbackQuery, botClient);
+                ViewProfilesMenuRepository.ClearViewingHistory(callbackQuery.From.Id);
                 break;
             case "edit_interested_gender_to_man":
                 await ChangeInterestedGender(callbackQuery, botClient,"М");
+                ViewProfilesMenuRepository.ClearViewingHistory(callbackQuery.From.Id);
                 break;
             case "edit_interested_gender_to_woman":
                 await ChangeInterestedGender(callbackQuery, botClient,"Ж");
+                ViewProfilesMenuRepository.ClearViewingHistory(callbackQuery.From.Id);
                 break;
             case "edit_interested_gender_to_any":
                 await ChangeInterestedGender(callbackQuery, botClient,"Неважно");
+                ViewProfilesMenuRepository.ClearViewingHistory(callbackQuery.From.Id);
                 break;
         }
     }
@@ -453,7 +462,7 @@ public class CallbackDataRepository
         string interestedGender = "")
     {
         long tgId = callbackQuery.From.Id;
-        var user = BlankMenu.UserRepository.GetUser(tgId);
+        var user = UserRepository.GetUser(tgId);
         
         if (interestedGender == user.GenderOfInterest)
         {
@@ -463,7 +472,7 @@ public class CallbackDataRepository
         {
             BlankMenu.UserRepository.SetUserInterestedGender(callbackQuery.From.Id, interestedGender);
         }
-        interestedGender = BlankMenu.UserRepository.GetUser(tgId).GenderOfInterest;
+        interestedGender = UserRepository.GetUser(tgId).GenderOfInterest;
         switch (interestedGender)
         {
             case "М":

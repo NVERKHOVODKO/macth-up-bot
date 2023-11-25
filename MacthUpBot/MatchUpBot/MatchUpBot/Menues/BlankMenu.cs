@@ -139,9 +139,11 @@ public class BlankMenu
 
             case (int)Action.EditAge:
                 await SetNewAge(message, botClient);
+                ViewProfilesMenuRepository.ClearViewingHistory(message.From.Id);
                 break;
             case (int)Action.EditCity:
                 await SetNewCity(message, botClient);
+                ViewProfilesMenuRepository.ClearViewingHistory(message.From.Id);
                 await EnterAction(botClient, chat.Id);
                 break;
             case (int)Action.EditDescription:

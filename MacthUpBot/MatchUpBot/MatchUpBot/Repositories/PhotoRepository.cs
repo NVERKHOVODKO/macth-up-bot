@@ -188,7 +188,7 @@ public class PhotoRepository
 
         
 
-        var user = BlankMenu.UserRepository.GetUser(tgIdShowed);
+        var user = UserRepository.GetUser(tgIdShowed);
 
         var streams = new List<Stream>();
 
@@ -220,7 +220,7 @@ public class PhotoRepository
     {
         var filePath = $"../../../photos/{tgId}/main/";
 
-        var user = BlankMenu.UserRepository.GetUser(tgId);
+        var user = UserRepository.GetUser(tgId);
 
         var caption = $"Твоя анкета выглядит так: \n" +
                       $"{user.Name}, {user.Age} лет, {user.City} \n" +
@@ -282,9 +282,9 @@ public class PhotoRepository
     {
         var filePath = $"../../../photos/{userBlankId}/main/";
 
-        var user = BlankMenu.UserRepository.GetUser(userBlankId);
+        var user = UserRepository.GetUser(userBlankId);
         
-        var userReceiver = BlankMenu.UserRepository.GetUser(tgId);
+        var userReceiver = UserRepository.GetUser(tgId);
 
         var interests = UserRepository.GetUserInterestsById(userBlankId);
         var interestsText = string.Empty;
@@ -309,7 +309,7 @@ public class PhotoRepository
             caption += $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
                       $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign)}" +
                       $"\n{interestsText}";
-        else if (BlankMenu.UserRepository.GetUser(tgId).IsZodiacSignMatters)
+        else if (UserRepository.GetUser(tgId).IsZodiacSignMatters)
             caption += $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
                       $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign.ToLower())}" +
                       $"\n{interestsText}";
@@ -368,10 +368,10 @@ public class PhotoRepository
 
         var filePath = $"../../../photos/{userBlankId}/main/";
 
-        var user = BlankMenu.UserRepository.GetUser(userBlankId);
+        var user = UserRepository.GetUser(userBlankId);
 
         string caption;
-        if (BlankMenu.UserRepository.GetUser(tgId).IsZodiacSignMatters)
+        if (UserRepository.GetUser(tgId).IsZodiacSignMatters)
             caption = $"{user.Name}, {user.Age} лет, {CapitalizeFirstLetter(user.City)} \n" +
                       $"{user.About}\n" + $"{CapitalizeFirstLetter(user.ZodiacSign)} {GetZodiacPicture(user.ZodiacSign)}" +
                       $"\n@{user.TgUsername}";

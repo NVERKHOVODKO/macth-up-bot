@@ -83,7 +83,7 @@ public class UserRepository
         return userInterests;
     }
     
-    public UserEntity GetUser(long tgId)
+    public static UserEntity GetUser(long tgId)
     {
         var user = _context.Users.AsNoTracking().FirstOrDefault(e => e.TgId == tgId);
         return user;

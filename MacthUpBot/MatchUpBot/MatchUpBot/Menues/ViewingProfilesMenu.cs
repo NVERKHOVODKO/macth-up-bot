@@ -21,31 +21,43 @@ public class ViewingProfilesMenu
     {
         _logger = logger;
     }
+    
+    
 
     public static async Task<UserEntity> GetMatchingProfile(long recieverId, ITelegramBotClient botClient)
     {
-        double priority = 70;//"очки совпадения" 0-100. но у нас 70 тк нет идеальных совпадений
+        double priority = 70;
         UserEntity userEntity = null;
+        
+        int amountOfSuits = ViewProfilesMenuRepository.GetAmountOfSuits(UserRepository.GetUser(recieverId));
+        await ViewProfilesMenuRepository.DeleteShowRecord(recieverId, amountOfSuits);
         while (userEntity == null)
         {
             userEntity = vpmr.GetMatchingProfile(recieverId, priority);
-            if (priority < 30) //если плохое совпадение то возвращаем null
+            if (priority < 30)
             {
                 await botClient.SendTextMessageAsync(recieverId, "Не получилось найти кого-то подходящего для тебя(");
                 return null;
             }
-            priority -= 3;//с каждой итерацией менее придирчиво подбираем анкету
+            priority -= 3;
         }
         Console.WriteLine($"priority: {priority}");
-
+        
+        
+        if (amountOfSuits <= 1)
+        {
+            return null;
+        }
+        
         if (userEntity != null)
         {
-            ViewProfilesMenuRepository.AddShowRecord(new BlanksShowingHistory
+            await ViewProfilesMenuRepository.AddShowRecord(new BlanksShowingHistory
             {
                 Id = Guid.NewGuid(),
                 ShownUserTgId = userEntity.TgId,
-                ReceivedUserTgId = recieverId
-            });
+                ReceivedUserTgId = recieverId,
+                Date = DateTime.UtcNow
+            }, amountOfSuits);
         }
 
         return userEntity;
