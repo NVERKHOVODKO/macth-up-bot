@@ -5,6 +5,7 @@ using Data;
 using Entities;
 using EntityFrameworkLesson.Repositories;
 using MatchUpBot.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -28,6 +29,7 @@ internal class Program
         _logger = logger;
     }
     
+    
     private static async Task Main()
     {
         _botClient = new TelegramBotClient("6610584532:AAHyYTG_Rz96QfQEc7H-Dk-7iHHb2PeQN0E");
@@ -37,15 +39,14 @@ internal class Program
             ThrowPendingUpdates = true
         };
         using var cts = new CancellationTokenSource();
-
+        
         Task.Run(() => _botClient.StartReceiving(UpdateHandler, ErrorHandler, _receiverOptions, cts.Token));
 
         var me = await _botClient.GetMeAsync();
         Console.WriteLine($"{me.FirstName} running!");
         await Task.Delay(-1);
     }
-
-
+    
 
     private static async Task UpdateHandler(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)

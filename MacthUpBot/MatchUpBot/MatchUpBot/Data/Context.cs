@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Data;
 
-internal class Context : DbContext
+public class Context : DbContext
 {
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<InterestEntity> Interests { get; set; }
@@ -13,6 +13,8 @@ internal class Context : DbContext
     public DbSet<CardEntity> CreditCards { get; set; }
     public DbSet<BlanksShowingHistory> BlanksShowingHistory { get; set; }
     
+    public Context() { }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,6 +40,6 @@ internal class Context : DbContext
         //     @"host=localhost;port=5432;database=Messenger;username=postgres;password=root");
         
         optionsBuilder.UseNpgsql(
-           @"host=localhost;port=5432;database=TelegramBot;username=postgres;password=root"); 
+           @"Host=postgres_db;Port=5432;Database=TelegramBot;Username=postgres;Password=root"); 
     }
 }

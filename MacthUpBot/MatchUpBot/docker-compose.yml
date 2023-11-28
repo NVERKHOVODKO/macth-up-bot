@@ -1,0 +1,6 @@
+﻿services:
+  matchupbot:
+    image: matchupbot
+    build:
+      context: .
+      dockerfile: MatchUpBot/Dockerfile

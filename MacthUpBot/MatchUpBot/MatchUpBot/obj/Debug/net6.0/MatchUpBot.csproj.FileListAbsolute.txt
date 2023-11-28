@@ -133,3 +133,6 @@ C:\Users\37544\RiderProjects\MacthUpBot\MacthUpBot\MatchUpBot\MatchUpBot\obj\Deb
 C:\Users\37544\RiderProjects\MacthUpBot\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.pdb
 C:\Users\37544\RiderProjects\MacthUpBot\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\MatchUpBot.genruntimeconfig.cache
 C:\Users\37544\RiderProjects\MacthUpBot\MacthUpBot\MatchUpBot\MatchUpBot\obj\Debug\net6.0\ref\MatchUpBot.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Docker.DotNet.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.FileProviders.Abstractions.dll
+C:\НЕ СИСТЕМА\BSUIR\MacthUpBot\MacthUpBot\MatchUpBot\MatchUpBot\bin\Debug\net6.0\Microsoft.Extensions.Hosting.Abstractions.dll
