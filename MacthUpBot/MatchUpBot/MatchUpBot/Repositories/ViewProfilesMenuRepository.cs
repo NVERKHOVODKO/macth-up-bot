@@ -147,8 +147,7 @@ public class ViewProfilesMenuRepository
 
         var matchingProfile = sortedData
             .Skip(randomStart)
-            .FirstOrDefault(user => user.City == reciever.City &&
-                                    user.TgId != recieverId &&
+            .FirstOrDefault(user => user.TgId != recieverId &&
                                     (user.Gender == reciever.GenderOfInterest || reciever.GenderOfInterest == "Неважно") &&
                                     (user.GenderOfInterest == reciever.Gender || user.GenderOfInterest == "Неважно") &&
                                     Math.Abs(user.Age - reciever.Age) <= 15 &&
@@ -158,8 +157,7 @@ public class ViewProfilesMenuRepository
         if (matchingProfile == null)
         {
             matchingProfile = sortedData
-                .FirstOrDefault(user => user.City == reciever.City &&
-                                        user.TgId != recieverId &&
+                .FirstOrDefault(user => user.TgId != recieverId &&
                                         (user.Gender == reciever.GenderOfInterest || reciever.GenderOfInterest == "Неважно") &&
                                         (user.GenderOfInterest == reciever.Gender || user.GenderOfInterest == "Неважно") &&
                                         Math.Abs(user.Age - reciever.Age) <= 15 &&

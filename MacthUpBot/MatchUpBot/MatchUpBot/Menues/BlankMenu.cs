@@ -1,4 +1,5 @@
 ﻿using Data;
+using Entities;
 using EntityFrameworkLesson.Repositories;
 using MatchUpBot.Repositories;
 using Microsoft.Extensions.Logging;
@@ -44,6 +45,89 @@ public class BlankMenu
                 replyMarkup: skipKeyboard);
             _logger.LogInformation($"user({message.From.Id}) deleted");
             return;
+        }
+
+        if (message.Text == "/addFakes" )
+        {
+            if (message.From.Id != 770532180 && message.From.Id != 1668112109)
+            {
+                botClient.SendTextMessageAsync(message.From.Id,"У тебя нет прав)");
+                return;
+            }
+            FakesRepository.CreateRandomFemaleUsers_0_100();
+            FakesRepository.CreateRandomMaleUsers_0_100();
+            botClient.SendTextMessageAsync(message.From.Id,"Фейки добавлены");
+        }
+
+        if (message.Text == "/addTeachers")
+        {
+            if (message.From.Id != 770532180 && message.From.Id != 1668112109)
+            {
+                botClient.SendTextMessageAsync(message.From.Id,"У тебя нет прав)");
+                return;
+            }
+            FakesRepository.CreateTeachers_400_500();
+            botClient.SendTextMessageAsync(message.From.Id,"Преподы добавлены");
+        }
+        if (message.Text == "/deleteFakes" )
+        {
+            if (message.From.Id != 770532180 && message.From.Id != 1668112109)
+            {
+                botClient.SendTextMessageAsync(message.From.Id,"У тебя нет прав)");
+                return;
+            }
+            for (int i = 0; i < 400; i++)
+            {
+                UserRepository.DeleteUser(i);
+            }
+            botClient.SendTextMessageAsync(message.From.Id,"Все фейки удалены");
+        }
+        
+        if (message.Text == "/deleteTeachers" )
+        {
+            if (message.From.Id != 770532180 && message.From.Id != 1668112109)
+            {
+                botClient.SendTextMessageAsync(message.From.Id,"У тебя нет прав)");
+                return;
+            }
+            for (int i = 400; i < 500; i++)
+            {
+                UserRepository.DeleteUser(i);
+            }
+            botClient.SendTextMessageAsync(message.From.Id,"Преподы удалены");
+        }
+
+        if (message.Text == "/deleteVIPs")
+        {
+            if (message.From.Id != 770532180 && message.From.Id != 1668112109)
+            {
+                botClient.SendTextMessageAsync(message.From.Id,"У тебя нет прав)");
+                return;
+            }
+            var sortedData = new List<UserEntity>();
+            using (var dbContext = new Context())
+            {
+                sortedData = dbContext.Users.ToList();
+            }
+
+            foreach (var user in sortedData)
+            {
+                if (user.IsVip == true)
+                {
+                    UserRepository.SetVipStatus(user.TgId, false);
+                }
+            }
+            botClient.SendTextMessageAsync(message.From.Id,"Все VIP удалены");
+        }
+        if (message.Text == "/creators")
+        {
+            botClient.SendTextMessageAsync(message.From.Id, "Команда разработки: \n \n" +
+                                                            "❤️👑 THE ONLY 👑❤️ \n Никита Верховодко @user1046 \n \n" +
+                                                            "👑CREATOR👑\n Егор Швед @Shvederr \n \n" +
+                                                            "👑CREATOR👑\n Илья Видук @vidu40k \n \n" +
+                                                            "Бизнес-аналитик \n Ольга Семерник @oliasD \n \n" +
+                                                            "Идейный вдохновитель \n Илья Навойчик @inavoichik "
+            );
         }
 
         
